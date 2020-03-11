@@ -1,0 +1,5 @@
+let srch = "clwatson@";
+search in (AzureActivity) srch
+| evaluate narrow()
+| where Value contains srch
+| summarize count() by Column, txtFound = srch
