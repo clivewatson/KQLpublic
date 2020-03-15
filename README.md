@@ -1,4 +1,4 @@
-# My store for useful KQL and Azure Monintor Workbooks (public share)
+# My store for useful KQL and Azure Monitor Workbooks (public share)
 
 KQL and Azure Monitor Workbooks you may find useful 
 
