@@ -1,0 +1,85 @@
+// Clive Watson : Microsoft 
+// CIDR examples
+// Keywords CIDR, IP, ipv4, parse_Ipv4, ipv4_is_match
+//
+
+
+//
+// Look at ranges, is my IP in these defined range of allowed IP addreses?
+//
+
+SigninLogs
+| where TimeGenerated > ago(24h)
+| extend local = case(parse_ipv4(IPAddress) between ( parse_ipv4("67.0.0.0")  .. parse_ipv4("67.255.255.255")  ),"Allowed",  
+                      parse_ipv4(IPAddress) between ( parse_ipv4("74.0.0.0")  .. parse_ipv4("74.255.255.255")  ),"Allowed",   
+                      parse_ipv4(IPAddress) between ( parse_ipv4("100.0.0.0") .. parse_ipv4("109.255.255.255") ),"Allowed",
+                      //else 
+                      "Not Allowed"  )
+| summarize count(), make_set(IPAddress) by local
+| order by local asc
+
+
+//
+// CIDR match #1
+// Is my IP matched to this range, whats its hostcount and class?
+
+datatable(ip1_string:string, ip2_string:string)
+[
+ '1.168.1.0',      '192.168.1.0',         
+ '192.168.1.1/24', '192.168.1.255',     
+ '192.168.1.1',    '192.168.1.10/24',   
+ '239.168.1.1/30', '192.168.1.255/24',  
+]
+| extend CIDRresult= ipv4_is_match(ip1_string, ip2_string)    // In CIDR range?
+| extend hostcount = pow(2,(32 - split(ip1_string,"/").[1]))  // How many hosts supported?
+| extend IPAddress = tostring(split(ip1_string,"/").[0])      // Get just IP part of CIDR
+| extend ipClass = case(parse_ipv4(IPAddress) between ( parse_ipv4('1.0.0.0')  .. parse_ipv4('126.0.0.0')  ),"A",  
+                        parse_ipv4(IPAddress) between ( parse_ipv4('128.0.0.0').. parse_ipv4('191.255.0.0')  ),"B",   
+                        parse_ipv4(IPAddress) between ( parse_ipv4('192.0.0.0').. parse_ipv4('223.255.255.0') ),"C",
+                        parse_ipv4(IPAddress) between ( parse_ipv4('224.0.0.0').. parse_ipv4('239.255.255.255') ),"D",
+                        parse_ipv4(IPAddress) between ( parse_ipv4('240.0.0.0').. parse_ipv4('255.255.255.254') ),"E",
+                   //else 
+                   strcat("Unknown class", parse_ipv4(IPAddress))
+                   )
+
+
+//
+// CIDR match #2
+// please provide the IP range in CIDR format to compare, the IIF statment should have the same CIDR prefix
+//
+
+SigninLogs
+| extend inrange = iif(ipv4_is_match(IPAddress, "213.57.167.77/31"),31,0)
+| where  inrange > 0
+| project IPAddress , inrange 
+| extend hostcount = pow(2,(32 - inrange))
+| extend IPAddress = tostring(split(IPAddress,"/").[0])      // Get just IP part of CIDR
+| extend ipClass = case(
+                        parse_ipv4(IPAddress) between ( parse_ipv4('1.0.0.0')  .. parse_ipv4('126.0.0.0')  ),"A",  
+                        parse_ipv4(IPAddress) between ( parse_ipv4('128.0.0.0').. parse_ipv4('191.255.0.0')  ),"B",   
+                        parse_ipv4(IPAddress) between ( parse_ipv4('192.0.0.0').. parse_ipv4('223.255.255.0') ),"C",
+                        parse_ipv4(IPAddress) between ( parse_ipv4('224.0.0.0').. parse_ipv4('239.255.255.255') ),"D",
+                        parse_ipv4(IPAddress) between ( parse_ipv4('240.0.0.0').. parse_ipv4('255.255.255.254') ),"E",
+                        //else 
+                        strcat("Unknown class", parse_ipv4(IPAddress))
+                       )
+| summarize by IPAddress, inrange, hostcount, ipClass
+
+
+
+
+//
+// CIDR match #3
+// please provide the IP range in CIDR format to compare, the case statment should have the same CIDR prefix
+// e.g. is <my IP address> within 0.0.0.0/24 if so return a value of 24 that matches the CIDR   
+SigninLogs
+| extend inrange = case(ipv4_is_match(IPAddress, "213.57.167.77/31"),31,
+                        ipv4_is_match(IPAddress, "192.168.1.1/24"  ),24,
+                        ipv4_is_match(IPAddress, "192.168.1.1/30"  ),30,
+                        //else
+                        0)
+| where  inrange > 0
+| project IPAddress , inrange 
+| extend hostcount = pow(2,(32 - inrange))
+| summarize by IPAddress, inrange, hostcount
+
