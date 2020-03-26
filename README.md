@@ -17,4 +17,4 @@ This is repeated in a file (open the instructions file in RAW mode and download 
 
 Open Azure Monitor Workbooks
 
-1. n “advanced edit” mode (press the </> icon) - Choose "Gallery Template" for JSON file or ARM, then press the blue arrow (to the left of the [Apply] button) to download the file
+1. In “advanced edit” mode (press the </> icon) - Choose "Gallery Template" for JSON file or ARM, then press the blue arrow (to the left of the [Apply] button) to download the file
