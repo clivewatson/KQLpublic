@@ -1,0 +1,1803 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 1,
+      "content": {
+        "json": "## Workspace Health Report\r\nUse this report to analyze the the sizes of the different tables and Latency in your workspace and agents.  This report checks the overall workspace health.\r\n<br/>\r\nv1.1 Added Events Per Second (EPS) to Workspace Info Tab.\r\n<br/>"
+      },
+      "name": "text - 0"
+    },
+    {
+      "type": 11,
+      "content": {
+        "version": "LinkItem/1.0",
+        "style": "tabs",
+        "links": [
+          {
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "WorkspaceInfo",
+            "subTarget": "WorkspaceInfo",
+            "style": "link"
+          },
+          {
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Latency",
+            "subTarget": "Latency",
+            "style": "link"
+          },
+          {
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Cost",
+            "subTarget": "Cost",
+            "style": "link"
+          },
+          {
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Sentinel",
+            "subTarget": "Sentinel",
+            "style": "link"
+          }
+        ]
+      },
+      "name": "links - 19"
+    },
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "crossComponentResources": [
+          "{Workspace}"
+        ],
+        "parameters": [
+          {
+            "id": "ccd5adcd-8d59-4cfe-99ec-98075de2e253",
+            "version": "KqlParameterItem/1.0",
+            "name": "DefaultSubscription_Internal",
+            "type": 1,
+            "isRequired": true,
+            "query": "where type =~ 'microsoft.operationalinsights/workspaces'\r\n| take 1\r\n| project subscriptionId",
+            "crossComponentResources": [
+              "value::selected"
+            ],
+            "isHiddenWhenLocked": true,
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources"
+          },
+          {
+            "id": "1ca69445-60fc-4806-b43d-ac7e6aad630a",
+            "version": "KqlParameterItem/1.0",
+            "name": "Subscription",
+            "type": 6,
+            "query": "summarize by subscriptionId\r\n| project value = strcat(\"/subscriptions/\", subscriptionId), label = subscriptionId, selected = iff(subscriptionId =~ '{DefaultSubscription_Internal}', true, false)\r\n",
+            "crossComponentResources": [
+              "value::selected"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": [],
+              "showDefault": false
+            },
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources",
+            "value": null
+          },
+          {
+            "id": "e94aafa3-c5d9-4523-89f0-4e87aa754511",
+            "version": "KqlParameterItem/1.0",
+            "name": "Workspace",
+            "type": 5,
+            "query": "where type =~ 'microsoft.operationalinsights/workspaces'\n| project id",
+            "crossComponentResources": [
+              "{Subscription}"
+            ],
+            "value": null,
+            "typeSettings": {
+              "resourceTypeFilter": {
+                "microsoft.operationalinsights/workspaces": true
+              },
+              "additionalResourceOptions": []
+            },
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources"
+          },
+          {
+            "id": "c4b69c01-2263-4ada-8d9c-43433b739ff3",
+            "version": "KqlParameterItem/1.0",
+            "name": "TimeRange",
+            "type": 4,
+            "typeSettings": {
+              "selectableValues": [
+                {
+                  "durationMs": 300000
+                },
+                {
+                  "durationMs": 900000
+                },
+                {
+                  "durationMs": 1800000
+                },
+                {
+                  "durationMs": 3600000
+                },
+                {
+                  "durationMs": 14400000
+                },
+                {
+                  "durationMs": 43200000
+                },
+                {
+                  "durationMs": 86400000
+                },
+                {
+                  "durationMs": 172800000
+                },
+                {
+                  "durationMs": 259200000
+                },
+                {
+                  "durationMs": 604800000
+                },
+                {
+                  "durationMs": 1209600000
+                },
+                {
+                  "durationMs": 2419200000
+                },
+                {
+                  "durationMs": 2592000000
+                },
+                {
+                  "durationMs": 5184000000
+                },
+                {
+                  "durationMs": 7776000000
+                }
+              ],
+              "allowCustom": false
+            },
+            "resourceType": "microsoft.insights/components",
+            "value": {
+              "durationMs": 2592000000
+            }
+          },
+          {
+            "id": "27308a9d-46a2-4fca-8035-e813201fb4f8",
+            "version": "KqlParameterItem/1.0",
+            "name": "GiBperday",
+            "type": 1,
+            "query": "union withsource = tt *\r\n| where TimeGenerated > startofday({TimeRange:start}) and TimeGenerated < startofday({TimeRange:end})\r\n// Only look at chargeable Tables\r\n| where _IsBillable == True\r\n| summarize\r\nTotalGBytes =round(sum(_BilledSize/(1024*1024*1024)),2)\r\nby bin(TimeGenerated, 1d)//, Solution=tt\r\n| summarize round(avg(TotalGBytes),2)\r\n",
+            "crossComponentResources": [
+              "{Workspace}"
+            ],
+            "isHiddenWhenLocked": true,
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces"
+          },
+          {
+            "id": "c69335b2-0d38-4388-b0ed-7ec64f7833cd",
+            "version": "KqlParameterItem/1.0",
+            "name": "Price",
+            "type": 1,
+            "description": "Enter your price (tip.  Use the Azure Pricing Calculator, enter  a value of 1GB and divide by 30days)",
+            "value": "0.0",
+            "criteriaData": [
+              {
+                "condition": "else result = '0.0'",
+                "criteriaContext": {
+                  "operator": "Default",
+                  "rightValType": "param",
+                  "resultValType": "static",
+                  "resultVal": "0.0"
+                }
+              }
+            ],
+            "resourceType": "microsoft.insights/components"
+          }
+        ],
+        "style": "above",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components"
+      },
+      "name": "parameters - 1"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "resources\r\n| where type =~ 'microsoft.operationalinsights/workspaces' \r\n| where id has \"{Workspace}\"\r\n| extend state = trim(' ', tostring(properties.provisioningState))\r\n\t\t,sku   = trim(' ', tostring(properties.sku.name))\r\n        ,skuUpdate = trim(' ', tostring(properties.sku.lastSkuUpdate))\r\n\t\t,retentionDays = trim(' ', tostring(properties.retentionInDays))\r\n\t\t,dailyquotaGB  = trim(' ', tostring(properties.workspaceCapping.dailyQuotaGb))\r\n| extend dailyquotaGB = iif(dailyquotaGB !=-1.0, dailyquotaGB,\"Not set\")\r\n| extend skuUpdate    = iif(strlen(skuUpdate) > 0, skuUpdate,\"Unknown\")\r\n| extend sentinel     = iif(toint(retentionDays) < 90,\"If you have Sentinel, you can change your retention to 90days (free)?\",\"\")\r\n| project ['Workspace Name']=id, ['Resource Group']=resourceGroup, location, ['Data Retention(days)']=retentionDays, ['Last known SKU update']=skuUpdate, ['Daily Data Cap']=dailyquotaGB, ['Licence']=sku, ['Notes'] = sentinel",
+        "size": 4,
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Subscription}"
+        ],
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "Data Retention(days)",
+              "formatter": 0,
+              "formatOptions": {
+                "showIcon": true
+              },
+              "numberFormat": {
+                "unit": 0,
+                "options": {
+                  "style": "decimal",
+                  "useGrouping": false
+                }
+              }
+            },
+            {
+              "columnMatch": "Last known SKU update",
+              "formatter": 18,
+              "formatOptions": {
+                "showIcon": true,
+                "thresholdsOptions": "icons",
+                "thresholdsGrid": [
+                  {
+                    "operator": "is Empty",
+                    "thresholdValue": "\" \"",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "representation": "success",
+                    "text": "{0}{1}"
+                  }
+                ]
+              }
+            },
+            {
+              "columnMatch": "Daily Data Cap",
+              "formatter": 18,
+              "formatOptions": {
+                "showIcon": true,
+                "thresholdsOptions": "icons",
+                "thresholdsGrid": [
+                  {
+                    "operator": "==",
+                    "thresholdValue": "not set",
+                    "representation": "Unavailable",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "representation": "1",
+                    "text": "{0}{1}"
+                  }
+                ]
+              }
+            },
+            {
+              "columnMatch": "Data Retention",
+              "formatter": 0,
+              "formatOptions": {
+                "showIcon": true
+              },
+              "numberFormat": {
+                "unit": 0,
+                "options": {
+                  "style": "decimal",
+                  "useGrouping": false
+                }
+              }
+            }
+          ]
+        }
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "WorkspaceInfo"
+      },
+      "name": "query - 18"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "union withsource=TableName *\r\n| where TimeGenerated {TimeRange:query}\r\n| summarize Entries = count(), Size = sum(_BilledSize), last_log = datetime_diff(\"second\",now(), max(TimeGenerated)), estimate  = sumif(_BilledSize, _IsBillable==true)  by TableName, _IsBillable\r\n| project ['Table Name'] = TableName, ['Table Entries'] = Entries, ['Table Size'] = Size,\r\n          ['Size per Entry'] = 1.0 * Size / Entries, ['IsBillable'] = _IsBillable, ['Last Record Received'] =  last_log , ['Estimated Table Price'] =  (estimate/(1024*1024*1024)) * {Price}\r\n | order by ['Table Size']  desc\r\n\r\n ",
+        "size": 0,
+        "showAnalytics": true,
+        "title": "{Workspace:name} Status for {TimeRange:label}, Billable Tables have an  average use of: {GiBperday} GiB per day",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "exportFieldName": "Table Name",
+        "exportParameterName": "Table",
+        "exportDefaultValue": "All Tables",
+        "showExportToExcel": true,
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "crossComponentResources": [
+          "{Workspace}"
+        ],
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "Table Entries",
+              "formatter": 3,
+              "formatOptions": {
+                "min": 0,
+                "palette": "green",
+                "showIcon": true
+              },
+              "numberFormat": {
+                "unit": 17,
+                "options": {
+                  "style": "decimal"
+                }
+              }
+            },
+            {
+              "columnMatch": "Table Size",
+              "formatter": 3,
+              "formatOptions": {
+                "min": 0,
+                "palette": "coldHot",
+                "showIcon": true
+              },
+              "numberFormat": {
+                "unit": 2,
+                "options": {
+                  "style": "decimal",
+                  "useGrouping": false
+                }
+              }
+            },
+            {
+              "columnMatch": "Size per Entry",
+              "formatter": 3,
+              "formatOptions": {
+                "min": 0,
+                "palette": "orange",
+                "showIcon": true
+              },
+              "numberFormat": {
+                "unit": 2,
+                "options": {
+                  "style": "decimal",
+                  "maximumFractionDigits": 2
+                }
+              }
+            },
+            {
+              "columnMatch": "IsBillable",
+              "formatter": 18,
+              "formatOptions": {
+                "showIcon": true,
+                "thresholdsOptions": "colors",
+                "thresholdsGrid": [
+                  {
+                    "operator": "==",
+                    "thresholdValue": "True",
+                    "representation": "green",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "==",
+                    "thresholdValue": "False",
+                    "representation": "blueDark",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "representation": "blue",
+                    "text": "{0}{1}"
+                  }
+                ]
+              }
+            },
+            {
+              "columnMatch": "Last Record Received",
+              "formatter": 8,
+              "formatOptions": {
+                "palette": "greenRed",
+                "showIcon": true
+              },
+              "numberFormat": {
+                "unit": 24,
+                "options": {
+                  "style": "decimal",
+                  "useGrouping": false,
+                  "maximumSignificantDigits": 2
+                }
+              }
+            },
+            {
+              "columnMatch": "Estimated Table Price",
+              "formatter": 3,
+              "formatOptions": {
+                "palette": "greenRed",
+                "showIcon": true
+              },
+              "numberFormat": {
+                "unit": 0,
+                "options": {
+                  "style": "decimal",
+                  "useGrouping": false
+                }
+              }
+            },
+            {
+              "columnMatch": "Table Trend",
+              "formatter": 10,
+              "formatOptions": {
+                "palette": "redGreen",
+                "showIcon": true
+              }
+            }
+          ],
+          "filter": true,
+          "sortBy": [
+            {
+              "itemKey": "$gen_bar_Table Size_2",
+              "sortOrder": 2
+            }
+          ]
+        },
+        "sortBy": [
+          {
+            "itemKey": "$gen_bar_Table Size_2",
+            "sortOrder": 2
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "WorkspaceInfo"
+      },
+      "name": "query - 2"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "💡Table Entries, Size and Billing detail\n<br />\n<br />"
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "WorkspaceInfo"
+      },
+      "name": "text - 3"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## Events Per Second (EPS)"
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "WorkspaceInfo"
+      },
+      "name": "text - 30"
+    },
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "parameters": [
+          {
+            "id": "b170eaf0-d2d9-4a9b-ab4a-bed71b6347bc",
+            "version": "KqlParameterItem/1.0",
+            "name": "EPStimerange",
+            "label": "Select EPS time range",
+            "type": 4,
+            "description": "Used to calculate Events Per Second (EPS) over a selected time range",
+            "isRequired": true,
+            "value": {
+              "durationMs": 3600000
+            },
+            "typeSettings": {
+              "selectableValues": [
+                {
+                  "durationMs": 3600000
+                },
+                {
+                  "durationMs": 14400000
+                },
+                {
+                  "durationMs": 43200000
+                },
+                {
+                  "durationMs": 86400000
+                },
+                {
+                  "durationMs": 172800000
+                },
+                {
+                  "durationMs": 259200000
+                },
+                {
+                  "durationMs": 604800000
+                }
+              ],
+              "allowCustom": false
+            },
+            "timeContext": {
+              "durationMs": 0
+            },
+            "timeContextFromParameter": "TimeRange",
+            "resourceType": "microsoft.insights/components"
+          }
+        ],
+        "style": "above",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components"
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "WorkspaceInfo"
+      },
+      "customWidth": "33",
+      "name": "parameters - 29"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "union withsource=TableName *\r\n| where _TimeReceived  {EPStimerange:Label}\r\n| summarize count() by bin(_TimeReceived, 1m), Type\r\n| extend counttemp =count_ / 60\r\n| summarize ['Events per Second (eps)'] = avg(counttemp) by ['Table Name']=Type\r\n| order  by ['Events per Second (eps)'] desc",
+        "size": 0,
+        "showAnalytics": true,
+        "title": "Average EPS for the {EPStimerange:label} ( Seconds {EPStimerange:seconds}  )",
+        "color": "blue",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "exportFieldName": "Namespace",
+        "exportParameterName": "Namespace",
+        "exportDefaultValue": "All",
+        "showExportToExcel": true,
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "crossComponentResources": [
+          "{Workspace}"
+        ],
+        "visualization": "table",
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "Events per Second (eps)",
+              "formatter": 3,
+              "formatOptions": {
+                "palette": "redGreen",
+                "showIcon": true
+              },
+              "numberFormat": {
+                "unit": 0,
+                "options": {
+                  "style": "decimal",
+                  "useGrouping": true,
+                  "maximumSignificantDigits": 3
+                }
+              }
+            },
+            {
+              "columnMatch": "Table Entries",
+              "formatter": 3,
+              "formatOptions": {
+                "min": 0,
+                "palette": "green",
+                "showIcon": true
+              },
+              "numberFormat": {
+                "unit": 17,
+                "options": {
+                  "style": "decimal"
+                }
+              }
+            },
+            {
+              "columnMatch": "Table Size",
+              "formatter": 3,
+              "formatOptions": {
+                "min": 0,
+                "palette": "blue",
+                "showIcon": true
+              },
+              "numberFormat": {
+                "unit": 2,
+                "options": {
+                  "style": "decimal"
+                }
+              }
+            },
+            {
+              "columnMatch": "Table Size Trend",
+              "formatter": 9,
+              "formatOptions": {
+                "min": 0,
+                "palette": "blue",
+                "showIcon": true
+              }
+            }
+          ],
+          "filter": true
+        },
+        "sortBy": [],
+        "chartSettings": {}
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "WorkspaceInfo"
+      },
+      "customWidth": "50",
+      "name": "query - 7 - Copy"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "### Table Entries"
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "WorkspaceInfo"
+      },
+      "customWidth": "50",
+      "name": "text - 4"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "### Table Size"
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "WorkspaceInfo"
+      },
+      "customWidth": "50",
+      "name": "text - 5"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "union withsource=TableName *\r\n| where '{Table}' == 'All Tables' or TableName == '{Table}'\r\n| make-series TableSize = count() default = 0 on TimeGenerated from {TimeRange:start} to {TimeRange:end} step {TimeRange:grain}\r\n| mvexpand TableSize to typeof(real), TimeGenerated to typeof(datetime) limit 1000\r\n| project TimeGenerated, ['{Table}'] = TableSize",
+        "size": 0,
+        "showAnalytics": true,
+        "color": "green",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "exportFieldName": "Namespace",
+        "exportParameterName": "Namespace",
+        "exportDefaultValue": "All",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "crossComponentResources": [
+          "{Workspace}"
+        ],
+        "visualization": "areachart",
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "Table Entries",
+              "formatter": 3,
+              "formatOptions": {
+                "min": 0,
+                "palette": "green",
+                "showIcon": true
+              },
+              "numberFormat": {
+                "unit": 17,
+                "options": {
+                  "style": "decimal"
+                }
+              }
+            },
+            {
+              "columnMatch": "Table Size",
+              "formatter": 3,
+              "formatOptions": {
+                "min": 0,
+                "palette": "blue",
+                "showIcon": true
+              },
+              "numberFormat": {
+                "unit": 2,
+                "options": {
+                  "style": "decimal"
+                }
+              }
+            },
+            {
+              "columnMatch": "Table Size Trend",
+              "formatter": 9,
+              "formatOptions": {
+                "min": 0,
+                "palette": "blue",
+                "showIcon": true
+              }
+            }
+          ],
+          "filter": true
+        }
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "WorkspaceInfo"
+      },
+      "customWidth": "50",
+      "name": "query - 6"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "union withsource=TableName *\r\n| where '{Table}' == 'All Tables' or TableName == '{Table}'\r\n| make-series TableSize = sum(_BilledSize) default = 0 on TimeGenerated from {TimeRange:start} to {TimeRange:end} step {TimeRange:grain} \r\n| mvexpand TableSize to typeof(real), TimeGenerated to typeof(datetime) limit 1000\r\n| project TimeGenerated, ['{Table}'] = TableSize",
+        "size": 0,
+        "showAnalytics": true,
+        "color": "blue",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "exportFieldName": "Namespace",
+        "exportParameterName": "Namespace",
+        "exportDefaultValue": "All",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "crossComponentResources": [
+          "{Workspace}"
+        ],
+        "visualization": "areachart",
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "Table Entries",
+              "formatter": 3,
+              "formatOptions": {
+                "min": 0,
+                "palette": "green",
+                "showIcon": true
+              },
+              "numberFormat": {
+                "unit": 17,
+                "options": {
+                  "style": "decimal"
+                }
+              }
+            },
+            {
+              "columnMatch": "Table Size",
+              "formatter": 3,
+              "formatOptions": {
+                "min": 0,
+                "palette": "blue",
+                "showIcon": true
+              },
+              "numberFormat": {
+                "unit": 2,
+                "options": {
+                  "style": "decimal"
+                }
+              }
+            },
+            {
+              "columnMatch": "Table Size Trend",
+              "formatter": 9,
+              "formatOptions": {
+                "min": 0,
+                "palette": "blue",
+                "showIcon": true
+              }
+            }
+          ],
+          "filter": true
+        },
+        "chartSettings": {}
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "WorkspaceInfo"
+      },
+      "customWidth": "50",
+      "name": "query - 7"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "### End to End Latency Report by Table"
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "Latency"
+      },
+      "name": "text - 9"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "union withsource = TableName *\r\n| where TimeGenerated {TimeRange}\r\n| summarize\r\n      ['average E2E IngestionLatency'] = round(avg(todouble(datetime_diff(\"Second\",ingestion_time(),TimeGenerated))/60 ),2)\r\n    , ['minimun E2E IngestionLatency'] = round(min(todouble(datetime_diff(\"Second\",ingestion_time(),TimeGenerated))/60 ),2) \r\n    , ['maximum E2E IngestionLatency'] = round(max(todouble(datetime_diff(\"Second\",ingestion_time(),TimeGenerated))/60 ),2)\r\n  by TableName = TableName\r\n| sort by ['average E2E IngestionLatency'] desc",
+        "size": 0,
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "crossComponentResources": [
+          "{Workspace}"
+        ],
+        "visualization": "table",
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "average E2E IngestionLatency",
+              "formatter": 3,
+              "formatOptions": {
+                "palette": "coldHot",
+                "showIcon": true
+              },
+              "numberFormat": {
+                "unit": 24,
+                "options": {
+                  "style": "decimal",
+                  "useGrouping": false
+                }
+              }
+            },
+            {
+              "columnMatch": "minimun E2E IngestionLatency",
+              "formatter": 3,
+              "formatOptions": {
+                "palette": "coldHot",
+                "showIcon": true
+              },
+              "numberFormat": {
+                "unit": 24,
+                "options": {
+                  "style": "decimal"
+                }
+              }
+            },
+            {
+              "columnMatch": "maximum E2E IngestionLatency",
+              "formatter": 3,
+              "formatOptions": {
+                "palette": "coldHot",
+                "showIcon": true
+              },
+              "numberFormat": {
+                "unit": 24,
+                "options": {
+                  "style": "decimal"
+                }
+              }
+            },
+            {
+              "columnMatch": "TotalGBytes",
+              "formatter": 3,
+              "formatOptions": {
+                "showIcon": true,
+                "aggregation": "Count"
+              }
+            }
+          ],
+          "filter": true,
+          "sortBy": [
+            {
+              "itemKey": "$gen_bar_average E2E IngestionLatency_1",
+              "sortOrder": 2
+            }
+          ]
+        },
+        "sortBy": [
+          {
+            "itemKey": "$gen_bar_average E2E IngestionLatency_1",
+            "sortOrder": 2
+          }
+        ],
+        "tileSettings": {
+          "showBorder": false,
+          "titleContent": {
+            "columnMatch": "SolutionName",
+            "formatter": 1
+          },
+          "leftContent": {
+            "columnMatch": "TotalGBytes",
+            "formatter": 12,
+            "formatOptions": {
+              "palette": "auto"
+            },
+            "numberFormat": {
+              "unit": 17,
+              "options": {
+                "maximumSignificantDigits": 3,
+                "maximumFractionDigits": 2
+              }
+            }
+          }
+        },
+        "graphSettings": {
+          "type": 0,
+          "topContent": {
+            "columnMatch": "SolutionName",
+            "formatter": 1
+          },
+          "centerContent": {
+            "columnMatch": "TotalGBytes",
+            "formatter": 1,
+            "numberFormat": {
+              "unit": 17,
+              "options": {
+                "maximumSignificantDigits": 3,
+                "maximumFractionDigits": 2
+              }
+            }
+          }
+        }
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "Latency"
+      },
+      "name": "query - 8"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "💡 Measures the latency of a specific Table by comparing the result of the ingestion_time() function to the TimeGenerated property\r\n<br />\r\n<br />\r\nSource: https://docs.microsoft.com/en-us/azure/azure-monitor/platform/data-ingestion-time"
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "Latency"
+      },
+      "name": "text - 10"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## Computer Heartbeat and Latency : {TimeRange}"
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "Latency"
+      },
+      "name": "text - 11"
+    },
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "crossComponentResources": [
+          "{Subscription}"
+        ],
+        "parameters": [
+          {
+            "id": "759ca753-ed9f-4ca0-8bf1-d929d77e8128",
+            "version": "KqlParameterItem/1.0",
+            "name": "ComputerName",
+            "type": 5,
+            "isRequired": true,
+            "query": "resources\r\n| where type == \"microsoft.compute/virtualmachines\" or type == \"microsoft.hybridcompute/machines\"\r\n| project name",
+            "crossComponentResources": [
+              "{Subscription}"
+            ],
+            "value": null,
+            "typeSettings": {
+              "additionalResourceOptions": []
+            },
+            "timeContext": {
+              "durationMs": 0
+            },
+            "timeContextFromParameter": "TimeRange",
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources"
+          },
+          {
+            "id": "e0fb3c9a-f42f-4dfb-a86c-f4dd36584904",
+            "version": "KqlParameterItem/1.0",
+            "name": "UnhealthyCriteria",
+            "label": "Unhealthy Criteria",
+            "type": 2,
+            "isRequired": true,
+            "typeSettings": {
+              "additionalResourceOptions": []
+            },
+            "jsonData": "[\r\n    { \"value\":\"1m\", \"label\":\"1 minute without heartbeat\", \"selected\":false },\r\n    { \"value\":\"5m\", \"label\":\"5 minutes without heartbeat\", \"selected\":false },\r\n    { \"value\":\"30m\", \"label\":\"30 minutes without heartbeat\", \"selected\":false },\r\n    { \"value\":\"1h\", \"label\":\"1 hour without heartbeat\", \"selected\":true },\r\n    { \"value\":\"2h\", \"label\":\"2 hours without heartbeat\", \"selected\":false },\r\n    { \"value\":\"8h\", \"label\":\"8 hours without heartbeat\", \"selected\":false },\r\n    { \"value\":\"1d\", \"label\":\"1 day without heartbeat\", \"selected\":false },\r\n    { \"value\":\"2d\", \"label\":\"2 days without heartbeat\", \"selected\":false },\r\n    { \"value\":\"7d\", \"label\":\"7 days without heartbeat\", \"selected\":false }\r\n]",
+            "timeContext": {
+              "durationMs": 0
+            },
+            "timeContextFromParameter": "TimeRange",
+            "resourceType": "microsoft.insights/components"
+          }
+        ],
+        "style": "pills",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "Latency"
+      },
+      "name": "parameters - 13"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "Heartbeat  \r\n| where Computer startswith \"{ComputerName}\"\r\n| summarize HeartBeatperHour = count() by bin(TimeGenerated,1h) ",
+        "size": 0,
+        "title": "HeartBeat",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "crossComponentResources": [
+          "{Workspace}"
+        ],
+        "visualization": "linechart",
+        "chartSettings": {
+          "showLegend": true
+        }
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "Latency"
+      },
+      "customWidth": "50",
+      "name": "query - 13"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "Heartbeat  \r\n| where Computer startswith \"{ComputerName}\"\r\n| extend E2EIngestionLatency = todouble(datetime_diff(\"Second\",ingestion_time(),TimeGenerated))/60 \r\n| extend AgentLatency        = todouble(datetime_diff(\"Second\",_TimeReceived,TimeGenerated))/60 \r\n| summarize avg(E2EIngestionLatency),avg(AgentLatency) by bin(TimeGenerated,1h) \r\n| project TimeGenerated, avgE2Elatency = avg_E2EIngestionLatency, avgAgentLatency = avg_AgentLatency\r\n",
+        "size": 0,
+        "title": "Latency",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "crossComponentResources": [
+          "{Workspace}"
+        ],
+        "visualization": "timechart",
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "avgE2E",
+              "formatter": 0,
+              "formatOptions": {
+                "showIcon": true
+              },
+              "numberFormat": {
+                "unit": 0,
+                "options": {
+                  "style": "decimal"
+                }
+              }
+            }
+          ]
+        },
+        "tileSettings": {
+          "showBorder": false
+        },
+        "chartSettings": {
+          "showLegend": true,
+          "ySettings": {
+            "unit": 24,
+            "min": null,
+            "max": null
+          }
+        }
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "Latency"
+      },
+      "customWidth": "50",
+      "name": "query - 14"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "💡 Measures the HeartBeat of a specific Computer, and then shows latency by comparing the result of the ingestion_time() function to the TimeGenerated property"
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "Latency"
+      },
+      "name": "text - 15"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## All Agent Heartbeat info : {TimeRange}"
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "Latency"
+      },
+      "name": "text - 17"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "Heartbeat\r\n| where TimeGenerated {TimeRange:query}\r\n| summarize LastHeartbeat = max(TimeGenerated) by Computer\r\n| extend State = iff(LastHeartbeat < ago({UnhealthyCriteria}), 'Unhealthy', 'Healthy')\r\n| extend TimeFromNow = now() - LastHeartbeat\r\n| extend [\"TimeAgo\"] = strcat(case(TimeFromNow < 2m, strcat(toint(TimeFromNow / 1m), ' seconds'), TimeFromNow < 2h, strcat(toint(TimeFromNow / 1m), ' minutes'), TimeFromNow < 2d, strcat(toint(TimeFromNow / 1h), ' hours'), strcat(toint(TimeFromNow / 1d), ' days')), ' ago')\r\n| join (\r\nHeartbeat\r\n| where TimeGenerated {TimeRange:query}\r\n| extend Packed = pack_all()\r\n) on Computer\r\n| where TimeGenerated == LastHeartbeat\r\n| join (\r\nHeartbeat\r\n| where TimeGenerated {TimeRange:query}\r\n| make-series InternalTrend=iff(count() > 0, 1, 0) default = 0 on TimeGenerated from {TimeRange:start} to {TimeRange:end} step {UnhealthyCriteria} by Computer\r\n| extend Trend=array_slice(InternalTrend, array_length(InternalTrend) - 30, array_length(InternalTrend)-1)\r\n| extend (s_min, s_minId, s_max, s_maxId, s_avg, s_var, s_stdev) = series_stats(Trend)\r\n| project Computer, Trend, s_avg\r\n) on Computer\r\n| order by State, s_avg asc, TimeAgo\r\n| project [\"_ComputerName_\"] = Computer, [\"Computer\"]=strcat('🖥️ ', Computer), State, [\"Environment\"] = iff(ComputerEnvironment == \"Azure\", ComputerEnvironment, Category), [\"OS\"]=iff(isempty(OSName), OSType, OSName), [\"Azure Resource\"]=ResourceId, [\"Time\"]=strcat('🕒 ', TimeAgo), [\"Heartbeat Trend\"]=Trend, [\"Details\"]=Packed",
+        "size": 0,
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "crossComponentResources": [
+          "{Workspace}"
+        ],
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "_ComputerName_",
+              "formatter": 5,
+              "formatOptions": {
+                "showIcon": true
+              }
+            },
+            {
+              "columnMatch": "Computer",
+              "formatter": 0,
+              "formatOptions": {
+                "showIcon": true
+              },
+              "numberFormat": {
+                "unit": 0,
+                "options": {
+                  "style": "decimal",
+                  "useGrouping": false
+                }
+              }
+            },
+            {
+              "columnMatch": "State",
+              "formatter": 18,
+              "formatOptions": {
+                "showIcon": true,
+                "thresholdsOptions": "colors",
+                "thresholdsGrid": [
+                  {
+                    "operator": "==",
+                    "thresholdValue": "Healthy",
+                    "representation": "green",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "==",
+                    "thresholdValue": "Unhealthy",
+                    "representation": "redBright",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "representation": "blue",
+                    "text": "{0}{1}"
+                  }
+                ]
+              }
+            },
+            {
+              "columnMatch": "Environment",
+              "formatter": 18,
+              "formatOptions": {
+                "showIcon": true,
+                "thresholdsOptions": "colors",
+                "thresholdsGrid": [
+                  {
+                    "operator": "==",
+                    "thresholdValue": "Azure",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "==",
+                    "thresholdValue": "Direct Agent",
+                    "representation": "magenta",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "==",
+                    "thresholdValue": "SCOM Agent",
+                    "representation": "purple",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "==",
+                    "thresholdValue": "SCOM Management Server",
+                    "representation": "gray",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "representation": "blue",
+                    "text": "{0}{1}"
+                  }
+                ]
+              },
+              "numberFormat": {
+                "unit": 0,
+                "options": {
+                  "style": "decimal",
+                  "useGrouping": false
+                }
+              }
+            },
+            {
+              "columnMatch": "Heartbeat Trend",
+              "formatter": 10,
+              "formatOptions": {
+                "palette": "redGreen",
+                "showIcon": true
+              }
+            },
+            {
+              "columnMatch": "Details",
+              "formatter": 5,
+              "formatOptions": {
+                "showIcon": true
+              }
+            }
+          ],
+          "sortBy": [
+            {
+              "itemKey": "Time",
+              "sortOrder": 2
+            }
+          ]
+        },
+        "sortBy": [
+          {
+            "itemKey": "Time",
+            "sortOrder": 2
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "Latency"
+      },
+      "name": "query - 16"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "let daystoSearch = 31d; // Please enter how many days worth of data to look at?\r\nunion withsource = tt *\r\n| where TimeGenerated > startofday(ago(daystoSearch)) and TimeGenerated < startofday(now())\r\n// Only look at chargeable Tables\r\n| where _IsBillable == True\r\n| summarize TotalGBytes =sum(_BilledSize) by bin(TimeGenerated, 1d)//, Solution=tt\r\n| summarize ['Average GB per day']=avg(TotalGBytes), ['Note : ']=\"Useful imput to Azure Pricing Calulator for Sentinel\"\r\n\r\n",
+        "size": 4,
+        "aggregation": 3,
+        "title": "Average GB per day from past 31days",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "crossComponentResources": [
+          "{Workspace}"
+        ],
+        "visualization": "table",
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "Average GB per day",
+              "formatter": 0,
+              "formatOptions": {
+                "showIcon": true
+              },
+              "numberFormat": {
+                "unit": 2,
+                "options": {
+                  "style": "decimal",
+                  "useGrouping": false
+                }
+              }
+            },
+            {
+              "columnMatch": "avg_TotalGBytes",
+              "formatter": 0,
+              "formatOptions": {
+                "showIcon": true
+              },
+              "numberFormat": {
+                "unit": 2,
+                "options": {
+                  "style": "decimal",
+                  "useGrouping": false
+                }
+              }
+            }
+          ]
+        },
+        "chartSettings": {
+          "showMetrics": false,
+          "seriesLabelSettings": [
+            {
+              "seriesName": "BillingVolumeNow",
+              "color": "green"
+            },
+            {
+              "seriesName": "BillingForecast",
+              "color": "redBright"
+            }
+          ]
+        }
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "Cost"
+      },
+      "name": "query - 20"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "//\r\n// Predict data volume for the next month\r\n//\r\nlet startDate = startofday(ago(31d)); // go back in time nn days\r\nlet endDate   = now();     // what is the date now\r\nlet projectTo = now()+31d; // project forward nn days\r\nlet projectForward = 31;   // must be same as projectTo value\r\nunion withsource = TableName *\r\n| where TimeGenerated between (startDate .. endDate )\r\n| where _IsBillable == True\r\n| make-series BillingVolumeNow = avg((_BilledSize)/(1024*1024*1024)) default=0 on TimeGenerated in range(startDate, projectTo, 1h)\r\n| extend BillingForecast = series_decompose_forecast(BillingVolumeNow, projectForward*24)\r\n",
+        "size": 0,
+        "aggregation": 3,
+        "title": "Cost Predication Trend, from: {TimeRange:label} data",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "crossComponentResources": [
+          "{Workspace}"
+        ],
+        "visualization": "linechart",
+        "chartSettings": {
+          "showMetrics": false,
+          "seriesLabelSettings": [
+            {
+              "seriesName": "BillingVolumeNow",
+              "color": "green"
+            },
+            {
+              "seriesName": "BillingForecast",
+              "color": "redBright"
+            }
+          ]
+        }
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "Cost"
+      },
+      "name": "query - 20 - Copy"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "union withsource=TableName *\r\n| where TimeGenerated {TimeRange:query}\r\n| summarize Entries = count(), Size = sum(_BilledSize), estimate  = sumif(_BilledSize, _IsBillable==true)  by TableName, _IsBillable\r\n| project ['Table Name'] = TableName,  ['Table Size'] = Size,\r\n           ['IsBillable'] = _IsBillable\r\n | top 10 by ['Table Size']  desc\r\n",
+        "size": 0,
+        "aggregation": 3,
+        "title": "Top 10 Costs by Table, from: {TimeRange:label} data",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "crossComponentResources": [
+          "{Workspace}"
+        ],
+        "visualization": "table",
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "Table Size",
+              "formatter": 8,
+              "formatOptions": {
+                "palette": "greenRed",
+                "showIcon": true
+              },
+              "numberFormat": {
+                "unit": 2,
+                "options": {
+                  "style": "decimal",
+                  "useGrouping": false,
+                  "maximumSignificantDigits": 2
+                }
+              }
+            }
+          ]
+        },
+        "chartSettings": {
+          "showMetrics": false,
+          "seriesLabelSettings": [
+            {
+              "seriesName": "BillingVolumeNow",
+              "color": "green"
+            },
+            {
+              "seriesName": "BillingForecast",
+              "color": "redBright"
+            }
+          ]
+        }
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "Cost"
+      },
+      "customWidth": "50",
+      "name": "query - 20 - Copy"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "union withsource=TableName Event, SecurityEvent, CommonSecurityLog\r\n| summarize ['Table Size'] = sum(_BilledSize) by TableName, _ResourceId\r\n| top 10 by ['Table Size']  desc\r\n",
+        "size": 0,
+        "aggregation": 3,
+        "title": "Top 10 Costs by Resource, from: {TimeRange:label} data",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "crossComponentResources": [
+          "{Workspace}"
+        ],
+        "visualization": "table",
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "Table Size",
+              "formatter": 8,
+              "formatOptions": {
+                "palette": "greenRed",
+                "showIcon": true
+              },
+              "numberFormat": {
+                "unit": 2,
+                "options": {
+                  "style": "decimal",
+                  "useGrouping": false,
+                  "maximumSignificantDigits": 2
+                }
+              }
+            },
+            {
+              "columnMatch": "bill",
+              "formatter": 0,
+              "formatOptions": {
+                "showIcon": true
+              },
+              "numberFormat": {
+                "unit": 2,
+                "options": {
+                  "style": "decimal",
+                  "useGrouping": false,
+                  "maximumSignificantDigits": 2
+                }
+              }
+            }
+          ]
+        },
+        "chartSettings": {
+          "showMetrics": false,
+          "seriesLabelSettings": [
+            {
+              "seriesName": "BillingVolumeNow",
+              "color": "green"
+            },
+            {
+              "seriesName": "BillingForecast",
+              "color": "redBright"
+            }
+          ]
+        }
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "Cost"
+      },
+      "customWidth": "50",
+      "name": "query - 20 - Copy - Copy"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "union withsource=TableName Event, SecurityEvent, Syslog\r\n| where _IsBillable == true\r\n| extend EventDescription = iif(isempty(Activity),RenderedDescription,Activity)\r\n| extend EventDescription = iif(isempty(EventDescription),SyslogMessage,EventDescription)\r\n| summarize ['Table Size'] = sum(_BilledSize) by TableName, EventID, EventDescription\r\n| top 20 by ['Table Size']  desc\r\n",
+        "size": 0,
+        "aggregation": 3,
+        "title": "Top 20 Costs by Event, from: {TimeRange:label} data",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "crossComponentResources": [
+          "{Workspace}"
+        ],
+        "visualization": "table",
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "Table Size",
+              "formatter": 8,
+              "formatOptions": {
+                "palette": "greenRed",
+                "showIcon": true
+              },
+              "numberFormat": {
+                "unit": 2,
+                "options": {
+                  "style": "decimal",
+                  "useGrouping": false,
+                  "maximumSignificantDigits": 2
+                }
+              }
+            },
+            {
+              "columnMatch": "bill",
+              "formatter": 0,
+              "formatOptions": {
+                "showIcon": true
+              },
+              "numberFormat": {
+                "unit": 2,
+                "options": {
+                  "style": "decimal",
+                  "useGrouping": false,
+                  "maximumSignificantDigits": 2
+                }
+              }
+            }
+          ]
+        },
+        "chartSettings": {
+          "showMetrics": false,
+          "seriesLabelSettings": [
+            {
+              "seriesName": "BillingVolumeNow",
+              "color": "green"
+            },
+            {
+              "seriesName": "BillingForecast",
+              "color": "redBright"
+            }
+          ]
+        }
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "Cost"
+      },
+      "name": "query - 20 - Copy - Copy - Copy"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "##\r\n## Sentinel Section \r\n##"
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "SentinelHidden"
+      },
+      "name": "text - 21"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "\r\nAzureActivity \r\n| where ResourceProvider == \"Microsoft.SecurityInsights\" \r\n| where OperationName !in (\"Microsoft.SecurityInsights/Incidents/investigations/write\", \"Microsoft.SecurityInsights/dataConnectorsCheckRequirements/action\" )\r\n| summarize count() by OperationName\r\n| order by count_ desc ",
+        "size": 1,
+        "title": "Sentinel ActivityLog Information",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "crossComponentResources": [
+          "{Workspace}"
+        ],
+        "visualization": "tiles",
+        "gridSettings": {
+          "filter": true
+        },
+        "tileSettings": {
+          "showBorder": false,
+          "titleContent": {
+            "columnMatch": "OperationName",
+            "formatter": 1
+          },
+          "leftContent": {
+            "columnMatch": "count_",
+            "formatter": 12,
+            "formatOptions": {
+              "palette": "auto"
+            },
+            "numberFormat": {
+              "unit": 17,
+              "options": {
+                "maximumSignificantDigits": 3,
+                "maximumFractionDigits": 2
+              }
+            }
+          }
+        }
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "Sentinel"
+      },
+      "name": "query - 22"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "let con_list = externaldata(dataTypesDependencies:dynamic) [@\"https://github.com/Azure/Azure-Sentinel/blob/master/Workbooks/WorkbooksMetadata.json\"]\r\nwith (format=\"txt\")\r\n| where dataTypesDependencies has \"dataTypesDependencies\"\r\n| extend d=parse_json(dataTypesDependencies)\r\n// needs work to parse JSON properly \r\n| extend splitJson = split(d,\":\").[1]\r\n| parse splitJson with * \";</span>\" connector \"<span class=\"*\r\n| where isnotempty(connector)\r\n| summarize by  connector\r\n| order by connector asc;\r\nunion withsource=TableName *\r\n| where TimeGenerated {TimeRange:query}\r\n| where TableName in (con_list)\r\n| summarize [\"last log received\"] = datetime_diff(\"second\",now(), max(TimeGenerated)), \r\n            BillableGB = sumif(_BilledSize,_IsBillable==true), FreeGB = sumif(_BilledSize,_IsBillable==false) by TableName\r\n| order by [\"last log received\"] desc",
+        "size": 0,
+        "title": "Sentinel Tables Information",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "crossComponentResources": [
+          "{Workspace}"
+        ],
+        "visualization": "table",
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "last log received",
+              "formatter": 8,
+              "formatOptions": {
+                "palette": "greenRed",
+                "showIcon": true
+              },
+              "numberFormat": {
+                "unit": 24,
+                "options": {
+                  "style": "decimal",
+                  "maximumSignificantDigits": 2
+                }
+              }
+            },
+            {
+              "columnMatch": "BillableGB",
+              "formatter": 0,
+              "formatOptions": {
+                "showIcon": true
+              },
+              "numberFormat": {
+                "unit": 2,
+                "options": {
+                  "style": "decimal",
+                  "useGrouping": false,
+                  "maximumSignificantDigits": 2
+                }
+              }
+            },
+            {
+              "columnMatch": "FreeGB",
+              "formatter": 0,
+              "formatOptions": {
+                "showIcon": true
+              },
+              "numberFormat": {
+                "unit": 2,
+                "options": {
+                  "style": "decimal",
+                  "useGrouping": false,
+                  "maximumSignificantDigits": 2
+                }
+              }
+            },
+            {
+              "columnMatch": "last_log",
+              "formatter": 8,
+              "formatOptions": {
+                "palette": "greenRed",
+                "showIcon": true
+              },
+              "numberFormat": {
+                "unit": 24,
+                "options": {
+                  "style": "decimal",
+                  "useGrouping": false,
+                  "maximumSignificantDigits": 2
+                }
+              }
+            }
+          ],
+          "filter": true,
+          "sortBy": [
+            {
+              "itemKey": "$gen_heatmap_last log received_1",
+              "sortOrder": 2
+            }
+          ]
+        },
+        "sortBy": [
+          {
+            "itemKey": "$gen_heatmap_last log received_1",
+            "sortOrder": 2
+          }
+        ],
+        "tileSettings": {
+          "showBorder": false,
+          "titleContent": {
+            "columnMatch": "OperationName",
+            "formatter": 1
+          },
+          "leftContent": {
+            "columnMatch": "count_",
+            "formatter": 12,
+            "formatOptions": {
+              "palette": "auto"
+            },
+            "numberFormat": {
+              "unit": 17,
+              "options": {
+                "maximumSignificantDigits": 3,
+                "maximumFractionDigits": 2
+              }
+            }
+          }
+        }
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "Sentinel"
+      },
+      "name": "query - 22 - Copy"
+    }
+  ],
+  "fromTemplateId": "community-Workbooks/Azure Monitor - Workspaces/Workspace Usage",
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}
