@@ -26,7 +26,7 @@
             "version": "KqlParameterItem/1.0",
             "name": "Workspace",
             "type": 7,
-            "query": "where type =~ 'microsoft.operationalinsights/workspaces'\r\n| project name",
+            "query": "where type =~ 'microsoft.operationalinsights/workspaces'\r\n| project id, label = name",
             "crossComponentResources": [
               "{Subscription}"
             ],
