@@ -1,0 +1,406 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "parameters": [
+          {
+            "id": "fc390156-f146-413e-9a23-d9933bcd1fef",
+            "version": "KqlParameterItem/1.0",
+            "name": "Subscription",
+            "type": 6,
+            "value": null,
+            "typeSettings": {
+              "additionalResourceOptions": [],
+              "includeAll": false
+            }
+          },
+          {
+            "id": "adaa5eac-3c59-48c1-a60d-81a7b648cf15",
+            "version": "KqlParameterItem/1.0",
+            "name": "Workspace",
+            "type": 5,
+            "query": "where type =~ 'microsoft.operationalinsights/workspaces'\r\n| project id, label = name",
+            "crossComponentResources": [
+              "{Subscription}"
+            ],
+            "value": "/subscriptions/82931e73-05c6-4da8-a666-bc4a7dd1bd3e/resourceGroups/fabrikamltdprodrg/providers/Microsoft.OperationalInsights/workspaces/fabrikamltdprod",
+            "typeSettings": {
+              "additionalResourceOptions": []
+            },
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources"
+          },
+          {
+            "id": "1fb4279d-faf4-4d0c-8f6e-427acb9f9aad",
+            "version": "KqlParameterItem/1.0",
+            "name": "resourceGroup",
+            "type": 1,
+            "query": "resources\r\n| where type =~ 'microsoft.operationalinsights/workspaces'\r\n| where id == \"{Workspace}\"\r\n| project resourceGroup",
+            "crossComponentResources": [
+              "{Subscription}"
+            ],
+            "isHiddenWhenLocked": true,
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources"
+          },
+          {
+            "id": "aa4ccb3e-5406-4f84-81f9-7f70f32d006a",
+            "version": "KqlParameterItem/1.0",
+            "name": "top",
+            "label": "Limit Results for Incidents",
+            "type": 2,
+            "description": "Only shows this many Incidents from the returned results",
+            "isRequired": true,
+            "typeSettings": {
+              "additionalResourceOptions": []
+            },
+            "jsonData": " [{ \"value\": \"249\", \"label\": \"Show All:249\", \"selected\":true },\r\n  { \"value\": \"10\", \"label\": \"10\"},\r\n  { \"value\": \"20\", \"label\": \"20\"},\r\n  { \"value\": \"50\", \"label\": \"50\"},\r\n  { \"value\": \"100\", \"label\": \"100\"}]"
+          }
+        ],
+        "style": "above",
+        "queryType": 0
+      },
+      "name": "parameters - 1"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "clive watson Microsoft\r\n### Sentinel API query examples\r\n<br>\r\nv1.0 Initial version: This workbook is to show examples of the Sentinel API usage in a workbook.  \r\n<br>\r\nv1.3 Add Connector vs Table . \r\n<br>\r\nv1.4 Add download controls\r\n<br>\r\nv1.4.2 Switched Cases to Incidents api, add a filter for comments, icons and colour coding \r\n<br><br>\r\n\r\nsource: https://github.com/Azure/azure-rest-api-specs/tree/master/specification/securityinsights/resource-manager/Microsoft.SecurityInsights/preview/2019-01-01-preview/examples  note these are example OUTPUTs.\r\n<br>\r\nThis and other workbooks: https://github.com/CliveW-MSFT/KQLpublic/tree/master/KQL/Workbooks\r\n"
+      },
+      "name": "text - 5"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"/subscriptions/{Subscription:id}/resourceGroups/{resourceGroup}/providers/Microsoft.OperationalInsights/workspaces/{Workspace:name}/providers/Microsoft.SecurityInsights/alertRules\",\"urlParams\":[{\"key\":\"api-version\",\"value\":\"2020-01-01\"}],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$.value\",\"columns\":[{\"path\":\"properties.displayName\",\"columnid\":\"displayName\"},{\"path\":\"properties.lastModifiedUtc\",\"columnid\":\"lastUpdateUtc\"},{\"path\":\"properties.enabled\",\"columnid\":\"Enabled\"},{\"path\":\"properties.severity\",\"columnid\":\"Severity\"},{\"path\":\"properties.tactics\",\"columnid\":\"Tactics\"},{\"path\":\"properties.incidentConfiguration\",\"columnid\":\"IncidentConfig\"}]}}]}",
+        "size": 0,
+        "title": "Active Rules, from the Sentinel API",
+        "showExportToExcel": true,
+        "queryType": 12,
+        "gridSettings": {
+          "filter": true,
+          "sortBy": [
+            {
+              "itemKey": "displayName",
+              "sortOrder": 2
+            }
+          ]
+        },
+        "sortBy": [
+          {
+            "itemKey": "displayName",
+            "sortOrder": 2
+          }
+        ]
+      },
+      "name": "query - 0 - Alerts"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"/subscriptions/{Subscription:id}/resourceGroups/{resourceGroup}/providers/Microsoft.OperationalInsights/workspaces/{Workspace:name}/providers/Microsoft.SecurityInsights/AlertRuleTemplates\",\"urlParams\":[{\"key\":\"api-version\",\"value\":\"2019-01-01-preview\"}],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$.value\",\"columns\":[{\"path\":\"properties.displayName\",\"columnid\":\"displayName\"},{\"path\":\"kind\",\"columnid\":\"AlertType\"},{\"path\":\"properties.status\",\"columnid\":\"status\"},{\"path\":\"properties.createdDateUTC\",\"columnid\":\"createdDateUTC\"},{\"path\":\"properties.requiredDataConnectors\",\"columnid\":\"requiredDataConnectors\"},{\"path\":\"properties.productFilter\",\"columnid\":\"ProductFilter\"},{\"path\":\"properties.requiredDataConnectors.[@].connectorId\",\"columnid\":\"ConnectorName\"},{\"path\":\"properties.requiredDataConnectors.[*].dataTypes[0]\",\"columnid\":\"ConnectorTable\"}]}}]}",
+        "size": 0,
+        "title": "Rule Templates, from the Sentinel API ",
+        "exportFieldName": "",
+        "exportParameterName": "ConnectorTable",
+        "showExportToExcel": true,
+        "queryType": 12,
+        "gridSettings": {
+          "filter": true,
+          "sortBy": [
+            {
+              "itemKey": "ConnectorTable",
+              "sortOrder": 1
+            }
+          ]
+        },
+        "sortBy": [
+          {
+            "itemKey": "ConnectorTable",
+            "sortOrder": 1
+          }
+        ]
+      },
+      "name": "query - AlertTemplate"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"3fc7311f-6c43-4361-83ad-0c24f65590ac\",\"mergeType\":\"innerunique\",\"leftTable\":\"query - 0 - Alerts\",\"rightTable\":\"query - AlertTemplate\",\"leftColumn\":\"displayName\",\"rightColumn\":\"displayName\"}],\"projectRename\":[{\"originalName\":\"[query - 0 - Alerts].displayName\",\"mergedName\":\"displayName\",\"fromId\":\"3fc7311f-6c43-4361-83ad-0c24f65590ac\"},{\"originalName\":\"[query - 0 - Alerts].lastUpdateUtc\",\"mergedName\":\"lastUpdateUtc\",\"fromId\":\"3fc7311f-6c43-4361-83ad-0c24f65590ac\"},{\"originalName\":\"[query - AlertTemplate].createdDateUTC\",\"mergedName\":\"createdDateUTC\",\"fromId\":\"3fc7311f-6c43-4361-83ad-0c24f65590ac\"},{\"originalName\":\"[query - AlertTemplate].status\",\"mergedName\":\"status\",\"fromId\":\"3fc7311f-6c43-4361-83ad-0c24f65590ac\"},{\"originalName\":\"[query - 0 - Alerts].Enabled\",\"mergedName\":\"Enabled\",\"fromId\":\"3fc7311f-6c43-4361-83ad-0c24f65590ac\"},{\"originalName\":\"[query - AlertTemplate].connectorID\",\"mergedName\":\"connectorID\",\"fromId\":\"unknown\"},{\"originalName\":\"[query - AlertTemplate].ConnectorName\",\"mergedName\":\"ConnectorName\",\"fromId\":\"unknown\"},{\"originalName\":\"[query - AlertTemplate].ConnectorTable\",\"mergedName\":\"ConnectorTable\",\"fromId\":\"unknown\"},{\"originalName\":\"[query - 0 - Alerts].Tactics\",\"mergedName\":\"Tactics\",\"fromId\":\"3fc7311f-6c43-4361-83ad-0c24f65590ac\"},{\"originalName\":\"[query - 0 - Alerts].Severity\",\"mergedName\":\"Severity\",\"fromId\":\"3fc7311f-6c43-4361-83ad-0c24f65590ac\"},{\"originalName\":\"[query - 0 - Alerts].IncidentConfig\",\"mergedName\":\"IncidentConfig\",\"fromId\":\"3fc7311f-6c43-4361-83ad-0c24f65590ac\"},{\"originalName\":\"[query - AlertTemplate].displayName\",\"mergedName\":\"displayName1\",\"fromId\":\"3fc7311f-6c43-4361-83ad-0c24f65590ac\"},{\"originalName\":\"[query - AlertTemplate].AlertType\",\"mergedName\":\"AlertType\",\"fromId\":\"3fc7311f-6c43-4361-83ad-0c24f65590ac\"},{\"originalName\":\"[query - AlertTemplate].ProductFilter\",\"mergedName\":\"ProductFilter\",\"fromId\":\"3fc7311f-6c43-4361-83ad-0c24f65590ac\"},{\"originalName\":\"[query - AlertTemplate].t\",\"mergedName\":\"t\",\"fromId\":\"unknown\"},{\"originalName\":\"[query - AlertTemplate].requiredDataConnectors\",\"mergedName\":\"requiredDataConnectors\",\"fromId\":\"3fc7311f-6c43-4361-83ad-0c24f65590ac\"}]}",
+        "size": 0,
+        "title": "Merged: [Active Rules] and [Rule templates]",
+        "showExportToExcel": true,
+        "queryType": 7,
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "Enabled",
+              "formatter": 18,
+              "formatOptions": {
+                "thresholdsOptions": "colors",
+                "thresholdsGrid": [
+                  {
+                    "operator": "==",
+                    "thresholdValue": "true",
+                    "representation": "green",
+                    "text": "Yes"
+                  },
+                  {
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "representation": "redBright",
+                    "text": "No"
+                  }
+                ]
+              }
+            }
+          ],
+          "filter": true,
+          "sortBy": [
+            {
+              "itemKey": "lastUpdateUtc",
+              "sortOrder": 1
+            }
+          ]
+        },
+        "sortBy": [
+          {
+            "itemKey": "lastUpdateUtc",
+            "sortOrder": 1
+          }
+        ]
+      },
+      "name": "query - 7"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"/subscriptions/{Subscription:id}/resourceGroups/{resourceGroup}/providers/Microsoft.OperationalInsights/workspaces/{Workspace:name}/providers/Microsoft.SecurityInsights/incidents\",\"urlParams\":[{\"key\":\"api-version\",\"value\":\"2019-01-01-preview\"},{\"key\":\"$orderby\",\"value\":\"properties/incidentNumber desc\"},{\"key\":\"$top\",\"value\":\"{top}\"}],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$.value\",\"columns\":[{\"path\":\"properties.incidentNumber\",\"columnid\":\"Incident_Number\"},{\"path\":\"properties.title\",\"columnid\":\"title\"},{\"path\":\"properties.severity\",\"columnid\":\"severity\"},{\"path\":\"properties.additionalData.commentsCount\",\"columnid\":\"comments\"},{\"path\":\"properties.status\",\"columnid\":\"status\"},{\"path\":\"properties.owner.assignedTo\",\"columnid\":\"Owner\"},{\"path\":\"properties.firstActivityTimeUtc\",\"columnid\":\"firstActivityTimeUtc\"},{\"path\":\"properties.lastActivityTimeUtc\",\"columnid\":\"lastActivityTimeUtc\"},{\"path\":\"properties.createdTimeUtc\",\"columnid\":\"createdTimeUtc\"},{\"path\":\"properties.lastModifiedTimeUtc\",\"columnid\":\"lastModifiedTimeUtc\"},{\"path\":\"properties.additionalData.tactics\",\"columnid\":\"tactics\"},{\"path\":\"properties.relatedAnalyticRuleIds\",\"columnid\":\"relatedAlertIDs\"},{\"path\":\"name\",\"columnid\":\"IncidentID\"}]}}]}",
+        "size": 0,
+        "title": "Incidents from the Sentinel API",
+        "exportFieldName": "IncidentID",
+        "exportParameterName": "IncidentID",
+        "showExportToExcel": true,
+        "queryType": 12,
+        "visualization": "table",
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "severity",
+              "formatter": 18,
+              "formatOptions": {
+                "thresholdsOptions": "icons",
+                "thresholdsGrid": [
+                  {
+                    "operator": "==",
+                    "thresholdValue": "Informational",
+                    "representation": "1",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "==",
+                    "thresholdValue": "Low",
+                    "representation": "2",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "==",
+                    "thresholdValue": "Medium",
+                    "representation": "3",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "==",
+                    "thresholdValue": "High",
+                    "representation": "critical",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "representation": "success",
+                    "text": "{0}{1}"
+                  }
+                ]
+              }
+            },
+            {
+              "columnMatch": "comments",
+              "formatter": 18,
+              "formatOptions": {
+                "thresholdsOptions": "icons",
+                "thresholdsGrid": [
+                  {
+                    "operator": ">",
+                    "thresholdValue": "0",
+                    "representation": "1",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "representation": "Blank",
+                    "text": "{0}{1}"
+                  }
+                ]
+              }
+            },
+            {
+              "columnMatch": "status",
+              "formatter": 18,
+              "formatOptions": {
+                "thresholdsOptions": "colors",
+                "thresholdsGrid": [
+                  {
+                    "operator": "==",
+                    "thresholdValue": "New",
+                    "representation": "grayBlue",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "==",
+                    "thresholdValue": "Closed",
+                    "representation": "green",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "==",
+                    "thresholdValue": "Active",
+                    "representation": "orange",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "representation": "gray",
+                    "text": "{0}{1}"
+                  }
+                ]
+              }
+            },
+            {
+              "columnMatch": "firstActivityTimeUtc",
+              "formatter": 1
+            },
+            {
+              "columnMatch": "lastActivityTimeUtc",
+              "formatter": 1
+            },
+            {
+              "columnMatch": "createdTimeUtc",
+              "formatter": 1
+            },
+            {
+              "columnMatch": "lastModifiedTimeUtc",
+              "formatter": 1
+            },
+            {
+              "columnMatch": "relatedAlertIDs",
+              "formatter": 7,
+              "formatOptions": {
+                "linkTarget": "CellDetails",
+                "linkIsContextBlade": true
+              }
+            }
+          ],
+          "filter": true,
+          "sortBy": [
+            {
+              "itemKey": "createdTimeUtc",
+              "sortOrder": 2
+            }
+          ]
+        },
+        "sortBy": [
+          {
+            "itemKey": "createdTimeUtc",
+            "sortOrder": 2
+          }
+        ]
+      },
+      "name": "query - 0 - Copy - Copy"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"/subscriptions/{Subscription:id}/resourceGroups/{resourceGroup}/providers/Microsoft.OperationalInsights/workspaces/{Workspace:name}/providers/Microsoft.SecurityInsights/incidents/{IncidentID}/comments\",\"urlParams\":[{\"key\":\"api-version\",\"value\":\"2019-01-01-preview\"}],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$.value\",\"columns\":[{\"path\":\"properties.author.name\",\"columnid\":\"userAdded\"},{\"path\":\"properties.author.userPrincipalName\",\"columnid\":\"userPrinicipalName\"},{\"path\":\"properties.message\",\"columnid\":\"comment\"},{\"path\":\"properties.createdTimeUtc\",\"columnid\":\"commentCreated\"}]}}]}",
+        "size": 0,
+        "title": "comments from Sentinel api, if the above selected Incident has any? id: {IncidentID}",
+        "showExportToExcel": true,
+        "queryType": 12
+      },
+      "name": "query - comments"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"/subscriptions/{Subscription:id}/resourceGroups/{resourceGroup}/providers/Microsoft.OperationalInsights/workspaces/{Workspace:name}/providers/Microsoft.SecurityInsights/bookmarks\",\"urlParams\":[{\"key\":\"api-version\",\"value\":\"2019-01-01-preview\"}],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$.value\",\"columns\":[{\"path\":\"properties.displayName\",\"columnid\":\"displayName\"},{\"path\":\"properties.updatedBy.email\",\"columnid\":\"updatedBy\"},{\"path\":\"properties.notes\",\"columnid\":\"notes\"}]}}]}",
+        "size": 0,
+        "title": "Bookmarks from Sentinel api",
+        "queryType": 12
+      },
+      "name": "query - 9"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"/subscriptions/{Subscription:id}/resourceGroups/{resourceGroup}/providers/Microsoft.OperationalInsights/workspaces/{Workspace:name}/providers/Microsoft.SecurityInsights/dataConnectors/\",\"urlParams\":[{\"key\":\"api-version\",\"value\":\"2020-01-01\"}],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$.value\",\"columns\":[{\"path\":\"kind\",\"columnid\":\"connectorName \"},{\"path\":\"name\",\"columnid\":\"name\"},{\"path\":\"properties.tenantId\",\"columnid\":\"TenantId\"},{\"path\":\"properties.dataTypes.alerts.state\",\"columnid\":\"State\"}]}}]}",
+        "size": 0,
+        "title": "Sentinel API, Microsoft Data Connectors (excluding CEF & 3rd party)",
+        "queryType": 12,
+        "gridSettings": {
+          "sortBy": [
+            {
+              "itemKey": "TenantId",
+              "sortOrder": 1
+            }
+          ]
+        },
+        "sortBy": [
+          {
+            "itemKey": "TenantId",
+            "sortOrder": 1
+          }
+        ]
+      },
+      "name": "query - 7"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"/subscriptions/{Subscription:id}/resourceGroups/{resourceGroup}/providers/Microsoft.OperationalInsights/workspaces/{Workspace:name}/providers/Microsoft.SecurityInsights/aggregations/Cases/\",\"urlParams\":[{\"key\":\"api-version\",\"value\":\"2019-01-01-preview\"}],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$.properties\",\"columns\":[]}}]}",
+        "size": 0,
+        "title": "Aggregated Cases ",
+        "queryType": 12
+      },
+      "name": "query - 7"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"/subscriptions/{Subscription:id}/resourceGroups/{resourceGroup}/providers/Microsoft.Logic/workflows/\",\"urlParams\":[{\"key\":\"api-version\",\"value\":\"2019-05-01\"}],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$.value\",\"columns\":[{\"path\":\"name\",\"columnid\":\"name\"},{\"path\":\"properties.provisioningState\",\"columnid\":\"state\"},{\"path\":\"location\",\"columnid\":\"location\"}]}}]}",
+        "size": 0,
+        "title": "Logic Apps",
+        "showExportToExcel": true,
+        "queryType": 12,
+        "gridSettings": {
+          "filter": true
+        }
+      },
+      "name": "query - 8"
+    }
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}
