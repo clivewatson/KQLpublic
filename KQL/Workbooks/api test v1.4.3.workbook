@@ -11,7 +11,7 @@
             "version": "KqlParameterItem/1.0",
             "name": "Subscription",
             "type": 6,
-            "value": null,
+            "value": "/subscriptions/7b76bfbc-cb1e-4df1-b6e8-b826eef6c592",
             "typeSettings": {
               "additionalResourceOptions": [],
               "includeAll": false
@@ -26,7 +26,7 @@
             "crossComponentResources": [
               "{Subscription}"
             ],
-            "value": "/subscriptions/82931e73-05c6-4da8-a666-bc4a7dd1bd3e/resourceGroups/fabrikamltdprodrg/providers/Microsoft.OperationalInsights/workspaces/fabrikamltdprod",
+            "value": "/subscriptions/7b76bfbc-cb1e-4df1-b6e8-b826eef6c592/resourceGroups/SOC/providers/Microsoft.OperationalInsights/workspaces/CyberSecuritySOC",
             "typeSettings": {
               "additionalResourceOptions": []
             },
@@ -54,7 +54,7 @@
             "type": 2,
             "description": "Only shows this many Incidents from the returned results",
             "isRequired": true,
-            "value": "20",
+            "value": "50",
             "typeSettings": {
               "additionalResourceOptions": []
             },
@@ -100,7 +100,7 @@
     {
       "type": 1,
       "content": {
-        "json": "clive watson Microsoft\r\n### Sentinel API query examples.  This is to show the options rather than a full solution.  Please adapt as necessary.\r\n<br>\r\nv1.0 Initial version: This workbook is to show examples of the Sentinel API usage in a workbook.  \r\n<br>\r\nv1.3 Add Connector vs Table . \r\n<br>\r\nv1.4 Add download controls\r\n<br>\r\nv1.4.2 Switched Cases to Incidents api, add a filter for comments, icons and colour coding \r\n<br>\r\nv1.4.3 Added Tabs & Groups. Fixed connector name  \r\n<br><br>\r\n\r\nsource: https://github.com/Azure/azure-rest-api-specs/tree/master/specification/securityinsights/resource-manager/Microsoft.SecurityInsights/preview/2019-01-01-preview/examples  note these are example OUTPUTs.\r\n<br>\r\nThis and other workbooks: https://github.com/CliveW-MSFT/KQLpublic/tree/master/KQL/Workbooks\r\n"
+        "json": "Clive Watson - Microsoft\r\n### Sentinel API query examples.  This is to show the options rather than a full solution.  Please adapt as necessary.\r\n<br>\r\nv1.0 Initial version: This workbook is to show examples of the Sentinel API usage in a workbook.  \r\nv1.3 Add Connector vs Table . \r\n<br>\r\nv1.4 Add download controls\r\n<br>\r\nv1.4.2 Switched Cases to Incidents api, add a filter for comments, icons and colour coding \r\n<br>\r\nv1.4.3 Added Tabs & Groups. Fixed connector name  \r\n<br><br>\r\n\r\nsource: https://github.com/Azure/azure-rest-api-specs/tree/master/specification/securityinsights/resource-manager/Microsoft.SecurityInsights/preview/2019-01-01-preview/examples  note these are example OUTPUTs.\r\n<br>\r\nThis and other workbooks: https://github.com/CliveW-MSFT/KQLpublic/tree/master/KQL/Workbooks\r\n"
       },
       "name": "text - 5"
     },
@@ -115,34 +115,40 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"/subscriptions/{Subscription:id}/resourceGroups/{resourceGroup}/providers/Microsoft.OperationalInsights/workspaces/{Workspace:name}/providers/Microsoft.SecurityInsights/alertRules\",\"urlParams\":[{\"key\":\"api-version\",\"value\":\"2020-01-01\"}],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$.value\",\"columns\":[{\"path\":\"properties.displayName\",\"columnid\":\"displayName\"},{\"path\":\"properties.lastModifiedUtc\",\"columnid\":\"lastUpdateUtc\"},{\"path\":\"properties.enabled\",\"columnid\":\"Enabled\"},{\"path\":\"properties.severity\",\"columnid\":\"Severity\"},{\"path\":\"properties.tactics\",\"columnid\":\"Tactics\"},{\"path\":\"properties.incidentConfiguration\",\"columnid\":\"IncidentConfig\"}]}}]}",
+              "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"/subscriptions/{Subscription:id}/resourceGroups/{resourceGroup}/providers/Microsoft.OperationalInsights/workspaces/{Workspace:name}/providers/Microsoft.SecurityInsights/alertRules\",\"urlParams\":[{\"key\":\"api-version\",\"value\":\"2020-01-01\"},{\"key\":\"orderby\",\"value\":\"properties/lastModifiedUtc desc\"}],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$.value\",\"columns\":[{\"path\":\"properties.displayName\",\"columnid\":\"displayName\"},{\"path\":\"properties.lastModifiedUtc\",\"columnid\":\"lastUpdateUtc\"},{\"path\":\"properties.enabled\",\"columnid\":\"Enabled\"},{\"path\":\"properties.severity\",\"columnid\":\"Severity\"},{\"path\":\"properties.tactics\",\"columnid\":\"Tactics\"},{\"path\":\"properties.incidentConfiguration\",\"columnid\":\"IncidentConfig\"},{\"path\":\"kind\",\"columnid\":\"AlertType\"}]}}]}",
               "size": 0,
               "title": "Active Rules, from the Sentinel API",
               "showExportToExcel": true,
               "queryType": 12,
               "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "lastUpdateUtc",
+                    "formatter": 1
+                  }
+                ],
                 "filter": true,
                 "sortBy": [
                   {
-                    "itemKey": "displayName",
+                    "itemKey": "lastUpdateUtc",
                     "sortOrder": 2
                   }
                 ]
               },
               "sortBy": [
                 {
-                  "itemKey": "displayName",
+                  "itemKey": "lastUpdateUtc",
                   "sortOrder": 2
                 }
               ]
             },
-            "name": "query - 0 - Alerts"
+            "name": "query - Rules"
           },
           {
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"/subscriptions/{Subscription:id}/resourceGroups/{resourceGroup}/providers/Microsoft.OperationalInsights/workspaces/{Workspace:name}/providers/Microsoft.SecurityInsights/AlertRuleTemplates\",\"urlParams\":[{\"key\":\"api-version\",\"value\":\"2019-01-01-preview\"}],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$.value\",\"columns\":[{\"path\":\"properties.displayName\",\"columnid\":\"displayName\"},{\"path\":\"kind\",\"columnid\":\"AlertType\"},{\"path\":\"properties.status\",\"columnid\":\"status\"},{\"path\":\"properties.createdDateUTC\",\"columnid\":\"createdDateUTC\"},{\"path\":\"properties.requiredDataConnectors\",\"columnid\":\"requiredDataConnectors\"},{\"path\":\"properties.productFilter\",\"columnid\":\"ProductFilter\"},{\"path\":\"properties.requiredDataConnectors.[:1].connectorId\",\"columnid\":\"ConnectorName\"},{\"path\":\"properties.requiredDataConnectors.[*].dataTypes[0]\",\"columnid\":\"ConnectorTable\"}]}}]}",
+              "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"/subscriptions/{Subscription:id}/resourceGroups/{resourceGroup}/providers/Microsoft.OperationalInsights/workspaces/{Workspace:name}/providers/Microsoft.SecurityInsights/AlertRuleTemplates\",\"urlParams\":[{\"key\":\"api-version\",\"value\":\"2019-01-01-preview\"},{\"key\":\"$orderby\",\"value\":\"properties/lastModifiedUtc desc\"}],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$.value\",\"columns\":[{\"path\":\"properties.displayName\",\"columnid\":\"displayName\"},{\"path\":\"kind\",\"columnid\":\"AlertType\"},{\"path\":\"properties.status\",\"columnid\":\"status\"},{\"path\":\"properties.createdDateUTC\",\"columnid\":\"createdDateUTC\"},{\"path\":\"properties.requiredDataConnectors\",\"columnid\":\"requiredDataConnectors\"},{\"path\":\"properties.productFilter\",\"columnid\":\"ProductFilter\"},{\"path\":\"properties.requiredDataConnectors.[:1].connectorId\",\"columnid\":\"ConnectorName\"},{\"path\":\"properties.requiredDataConnectors.[*].dataTypes[0]\",\"columnid\":\"ConnectorTable\"}]}}]}",
               "size": 0,
               "title": "Rule Templates, from the Sentinel API ",
               "exportFieldName": "",
@@ -150,34 +156,48 @@
               "showExportToExcel": true,
               "queryType": 12,
               "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "createdDateUTC",
+                    "formatter": 1
+                  }
+                ],
                 "filter": true,
                 "sortBy": [
                   {
-                    "itemKey": "ConnectorTable",
-                    "sortOrder": 1
+                    "itemKey": "createdDateUTC",
+                    "sortOrder": 2
                   }
                 ]
               },
               "sortBy": [
                 {
-                  "itemKey": "ConnectorTable",
-                  "sortOrder": 1
+                  "itemKey": "createdDateUTC",
+                  "sortOrder": 2
                 }
               ]
             },
-            "name": "query - AlertTemplate"
+            "name": "query -RuleTemplate"
           },
           {
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"3fc7311f-6c43-4361-83ad-0c24f65590ac\",\"mergeType\":\"innerunique\",\"leftTable\":\"query - 0 - Alerts\",\"rightTable\":\"query - AlertTemplate\",\"leftColumn\":\"displayName\",\"rightColumn\":\"displayName\"}],\"projectRename\":[{\"originalName\":\"[query - 0 - Alerts].displayName\",\"mergedName\":\"displayName\",\"fromId\":\"3fc7311f-6c43-4361-83ad-0c24f65590ac\"},{\"originalName\":\"[query - 0 - Alerts].lastUpdateUtc\",\"mergedName\":\"lastUpdateUtc\",\"fromId\":\"3fc7311f-6c43-4361-83ad-0c24f65590ac\"},{\"originalName\":\"[query - AlertTemplate].createdDateUTC\",\"mergedName\":\"createdDateUTC\",\"fromId\":\"3fc7311f-6c43-4361-83ad-0c24f65590ac\"},{\"originalName\":\"[query - AlertTemplate].status\",\"mergedName\":\"status\",\"fromId\":\"3fc7311f-6c43-4361-83ad-0c24f65590ac\"},{\"originalName\":\"[query - 0 - Alerts].Enabled\",\"mergedName\":\"Enabled\",\"fromId\":\"3fc7311f-6c43-4361-83ad-0c24f65590ac\"},{\"originalName\":\"[query - AlertTemplate].connectorID\",\"mergedName\":\"connectorID\",\"fromId\":\"unknown\"},{\"originalName\":\"[query - AlertTemplate].ConnectorName\",\"mergedName\":\"ConnectorName\",\"fromId\":\"unknown\"},{\"originalName\":\"[query - AlertTemplate].ConnectorTable\",\"mergedName\":\"ConnectorTable\",\"fromId\":\"unknown\"},{\"originalName\":\"[query - 0 - Alerts].Tactics\",\"mergedName\":\"Tactics\",\"fromId\":\"3fc7311f-6c43-4361-83ad-0c24f65590ac\"},{\"originalName\":\"[query - 0 - Alerts].Severity\",\"mergedName\":\"Severity\",\"fromId\":\"3fc7311f-6c43-4361-83ad-0c24f65590ac\"},{\"originalName\":\"[query - 0 - Alerts].IncidentConfig\",\"mergedName\":\"IncidentConfig\",\"fromId\":\"3fc7311f-6c43-4361-83ad-0c24f65590ac\"},{\"originalName\":\"[query - AlertTemplate].displayName\",\"mergedName\":\"displayName1\",\"fromId\":\"3fc7311f-6c43-4361-83ad-0c24f65590ac\"},{\"originalName\":\"[query - AlertTemplate].AlertType\",\"mergedName\":\"AlertType\",\"fromId\":\"3fc7311f-6c43-4361-83ad-0c24f65590ac\"},{\"originalName\":\"[query - AlertTemplate].ProductFilter\",\"mergedName\":\"ProductFilter\",\"fromId\":\"3fc7311f-6c43-4361-83ad-0c24f65590ac\"},{\"originalName\":\"[query - AlertTemplate].t\",\"mergedName\":\"t\",\"fromId\":\"unknown\"},{\"originalName\":\"[query - AlertTemplate].requiredDataConnectors\",\"mergedName\":\"requiredDataConnectors\",\"fromId\":\"3fc7311f-6c43-4361-83ad-0c24f65590ac\"}]}",
+              "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"3fc7311f-6c43-4361-83ad-0c24f65590ac\",\"mergeType\":\"union\",\"leftTable\":\"query - Rules\",\"rightTable\":\"query -RuleTemplate\",\"leftColumn\":\"displayName\",\"rightColumn\":\"displayName\"}],\"projectRename\":[{\"originalName\":\"displayName\",\"mergedName\":\"displayName\",\"fromId\":\"unknown\"},{\"originalName\":\"lastUpdateUtc\",\"mergedName\":\"lastUpdateUtc\",\"fromId\":\"unknown\"},{\"originalName\":\"[query -RuleTemplate].createdDateUTC\",\"mergedName\":\"createdDateUTC\",\"fromId\":\"3fc7311f-6c43-4361-83ad-0c24f65590ac\"},{\"originalName\":\"Enabled\",\"mergedName\":\"Enabled\",\"fromId\":\"unknown\"},{\"originalName\":\"[query -RuleTemplate].ConnectorName\",\"mergedName\":\"ConnectorName\",\"fromId\":\"3fc7311f-6c43-4361-83ad-0c24f65590ac\"},{\"originalName\":\"[query -RuleTemplate].ConnectorTable\",\"mergedName\":\"ConnectorTable\",\"fromId\":\"3fc7311f-6c43-4361-83ad-0c24f65590ac\"},{\"originalName\":\"Severity\",\"mergedName\":\"Severity\",\"fromId\":\"unknown\"},{\"originalName\":\"Tactics\",\"mergedName\":\"Tactics\",\"fromId\":\"unknown\"},{\"originalName\":\"IncidentConfig\",\"mergedName\":\"IncidentConfig\",\"fromId\":\"unknown\"},{\"originalName\":\"AlertType\",\"mergedName\":\"AlertType\",\"fromId\":\"unknown\"},{\"originalName\":\"[query - Rules].displayName\",\"mergedName\":\"displayName1\",\"fromId\":\"3fc7311f-6c43-4361-83ad-0c24f65590ac\"},{\"originalName\":\"[query - Rules].lastUpdateUtc\",\"mergedName\":\"lastUpdateUtc1\",\"fromId\":\"3fc7311f-6c43-4361-83ad-0c24f65590ac\"},{\"originalName\":\"[query - Rules].Enabled\",\"mergedName\":\"Enabled1\",\"fromId\":\"3fc7311f-6c43-4361-83ad-0c24f65590ac\"},{\"originalName\":\"[query - Rules].Severity\",\"mergedName\":\"Severity1\",\"fromId\":\"3fc7311f-6c43-4361-83ad-0c24f65590ac\"},{\"originalName\":\"[query - Rules].Tactics\",\"mergedName\":\"Tactics1\",\"fromId\":\"3fc7311f-6c43-4361-83ad-0c24f65590ac\"},{\"originalName\":\"[query - Rules].IncidentConfig\",\"mergedName\":\"IncidentConfig1\",\"fromId\":\"3fc7311f-6c43-4361-83ad-0c24f65590ac\"},{\"originalName\":\"[query - Rules].AlertType\",\"mergedName\":\"AlertType1\",\"fromId\":\"3fc7311f-6c43-4361-83ad-0c24f65590ac\"},{\"originalName\":\"[query -RuleTemplate].status\",\"mergedName\":\"status\",\"fromId\":\"3fc7311f-6c43-4361-83ad-0c24f65590ac\"},{\"originalName\":\"[query -RuleTemplate].requiredDataConnectors\",\"mergedName\":\"requiredDataConnectors\",\"fromId\":\"3fc7311f-6c43-4361-83ad-0c24f65590ac\"},{\"originalName\":\"[query -RuleTemplate].ProductFilter\",\"mergedName\":\"ProductFilter\",\"fromId\":\"3fc7311f-6c43-4361-83ad-0c24f65590ac\"},{\"originalName\":\"value\",\"mergedName\":\"value\",\"fromId\":\"unknown\"},{\"originalName\":\"defaultVisualization\",\"mergedName\":\"defaultVisualization\",\"fromId\":\"unknown\"},{\"originalName\":\"[query -RuleTemplate].displayName\",\"mergedName\":\"displayName\",\"fromId\":\"unknown\"},{\"originalName\":\"[query -RuleTemplate].AlertType\",\"mergedName\":\"AlertType\",\"fromId\":\"unknown\"}]}",
               "size": 0,
-              "title": "Merged: [Active Rules] and [Rule templates]",
+              "title": "Merged View: [Active Rules] and [Rule Templates]",
               "showExportToExcel": true,
               "queryType": 7,
               "gridSettings": {
                 "formatters": [
+                  {
+                    "columnMatch": "lastUpdateUtc",
+                    "formatter": 1
+                  },
+                  {
+                    "columnMatch": "createdDateUTC",
+                    "formatter": 1
+                  },
                   {
                     "columnMatch": "Enabled",
                     "formatter": 18,
@@ -200,20 +220,9 @@
                     }
                   }
                 ],
-                "filter": true,
-                "sortBy": [
-                  {
-                    "itemKey": "lastUpdateUtc",
-                    "sortOrder": 1
-                  }
-                ]
+                "filter": true
               },
-              "sortBy": [
-                {
-                  "itemKey": "lastUpdateUtc",
-                  "sortOrder": 1
-                }
-              ]
+              "sortBy": []
             },
             "name": "query - 7"
           }
@@ -368,14 +377,14 @@
                 "filter": true,
                 "sortBy": [
                   {
-                    "itemKey": "createdTimeUtc",
+                    "itemKey": "$gen_thresholds_comments_3",
                     "sortOrder": 2
                   }
                 ]
               },
               "sortBy": [
                 {
-                  "itemKey": "createdTimeUtc",
+                  "itemKey": "$gen_thresholds_comments_3",
                   "sortOrder": 2
                 }
               ]
@@ -401,6 +410,7 @@
               "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"/subscriptions/{Subscription:id}/resourceGroups/{resourceGroup}/providers/Microsoft.OperationalInsights/workspaces/{Workspace:name}/providers/Microsoft.SecurityInsights/bookmarks\",\"urlParams\":[{\"key\":\"api-version\",\"value\":\"2019-01-01-preview\"}],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$.value\",\"columns\":[{\"path\":\"properties.displayName\",\"columnid\":\"displayName\"},{\"path\":\"properties.updatedBy.email\",\"columnid\":\"updatedBy\"},{\"path\":\"properties.notes\",\"columnid\":\"notes\"}]}}]}",
               "size": 0,
               "title": "Bookmarks from Sentinel api",
+              "showExportToExcel": true,
               "queryType": 12
             },
             "name": "query - 9"
