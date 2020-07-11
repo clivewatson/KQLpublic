@@ -67,3 +67,36 @@ SigninLogs
                         strcat("Unknown class", parse_ipv4(IPAddress))
                        )
 | summarize by IPAddress, inrange, hostcount, ipClass
+
+
+//
+// read an external data source and map to AzureActivity matching to CIDR range 
+//
+
+// source idea: https://techcommunity.microsoft.com/t5/azure-sentinel/approximate-partial-and-combined-lookups-in-azure-sentinel/ba-p/1393795 
+// get lookup data 
+let geoData = 
+    externaldata (network:string,geoname_id:string,continent_code:string,
+                  continent_name:string,country_iso_code:string,
+                  country_name:string,is_anonymous_proxy:bool,is_satellite_provider:bool)
+    [@"https://datahub.io/core/geoip2-ipv4/r/geoip2-ipv4.csv"] with(format="csv", ignoreFirstRecord=true);
+// now turn remote data to scalar 
+let lookup = toscalar( geoData |  summarize list_CIDR=make_set(network) );
+// link to Azure Activity and specifically CallerIpAddress  
+AzureActivity
+// get a small time range (this REALLY helps perf!!!!)
+| where TimeGenerated > ago(2h)
+| mv-apply list_CIDR=lookup to typeof(string) on
+(
+    // Match each IP from 'CallerIpAddress' with the remote 'network' column 
+    where ipv4_is_match (CallerIpAddress, list_CIDR) //== false
+)
+// summarize to remove any duplicates
+| summarize by CallerIpAddress, list_CIDR
+| join kind=inner 
+  (
+  // join to remote data again, to add enrichments 
+  geoData
+  ) on $left.list_CIDR == $right.network
+// build final display 
+| summarize by CallerIpAddress, network, country_name, country_iso_code  
