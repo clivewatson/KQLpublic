@@ -1,0 +1,777 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "parameters": [
+          {
+            "id": "997c84bc-c454-47f7-a288-99429173dfeb",
+            "version": "KqlParameterItem/1.0",
+            "name": "Subscription",
+            "type": 6,
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "value": [],
+            "typeSettings": {
+              "additionalResourceOptions": [],
+              "includeAll": false
+            }
+          },
+          {
+            "id": "73638b3d-aa3f-4872-a56b-a0eaf3fc7714",
+            "version": "KqlParameterItem/1.0",
+            "name": "Workspace",
+            "type": 5,
+            "isRequired": true,
+            "query": "Resources | where type =~ \"microsoft.operationalinsights/workspaces\" | order by name | project id, name, selected=row_number()==1, group=resourceGroup",
+            "crossComponentResources": [
+              "{Subscription}"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": []
+            },
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources",
+            "value": "/subscriptions/7b76bfbc-cb1e-4df1-b6e8-b826eef6c592/resourceGroups/soc/providers/Microsoft.OperationalInsights/workspaces/cybersecuritysoc"
+          },
+          {
+            "id": "9fa77675-1222-4936-89d0-285da325bba0",
+            "version": "KqlParameterItem/1.0",
+            "name": "TimeRange",
+            "label": "Query Time Range",
+            "type": 4,
+            "description": "Used as the \"outer\" time range for the query. the query text may further alter the range",
+            "isRequired": true,
+            "value": {
+              "durationMs": 2592000000
+            },
+            "typeSettings": {
+              "selectableValues": [
+                {
+                  "durationMs": 300000
+                },
+                {
+                  "durationMs": 900000
+                },
+                {
+                  "durationMs": 1800000
+                },
+                {
+                  "durationMs": 3600000
+                },
+                {
+                  "durationMs": 14400000
+                },
+                {
+                  "durationMs": 43200000
+                },
+                {
+                  "durationMs": 86400000
+                },
+                {
+                  "durationMs": 172800000
+                },
+                {
+                  "durationMs": 259200000
+                },
+                {
+                  "durationMs": 604800000
+                },
+                {
+                  "durationMs": 1209600000
+                },
+                {
+                  "durationMs": 2592000000
+                },
+                {
+                  "durationMs": 5184000000
+                },
+                {
+                  "durationMs": 7776000000
+                }
+              ],
+              "allowCustom": true
+            }
+          },
+          {
+            "id": "50193f30-ceef-46f3-926e-561823d04994",
+            "version": "KqlParameterItem/1.0",
+            "name": "Help",
+            "label": "Show Help",
+            "type": 10,
+            "isRequired": true,
+            "typeSettings": {
+              "additionalResourceOptions": []
+            },
+            "jsonData": "[\r\n { \"value\": \"Yes\", \"label\": \"Yes\"},\r\n {\"value\": \"No\", \"label\": \"No\", \"selected\":true },\r\n { \"value\": \"Change Log\", \"label\": \"Change Log\"}\r\n]"
+          }
+        ],
+        "style": "above",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components"
+      },
+      "name": "parameters - 1"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "Clive Watson: Microsoft\r\n\r\n\tv0.1  Shows Public IP info from Log Analytics queries (KQL) and Azure Resource Graph (ARG)\r\n",
+        "style": "info"
+      },
+      "conditionalVisibility": {
+        "parameterName": "Help",
+        "comparison": "isEqualTo",
+        "value": "Change Log"
+      },
+      "name": "text - 4"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "Overview\r\n\r\nUse this Workbook to compare any Public IP address (PIP) in Azure Montor Logs and Azure Resource Graph (ARG).\r\nARG can have more data that is usful compare logged data against.  \r\n\t- e.g. If you create a Resource but never start it, ARG will have data, whereas Log Analytics wont have a log entry.  \r\n\t- Also Log Analytics has data retention, so the data you seek may have been removed if the retention period has passed.\r\n\r\nData Source required:\r\n\r\n\tAzureActivity\r\n\t| where ResourceProvider == \"Microsoft.Network\"\r\n\r\nPermission: Access to ARG \r\n",
+        "style": "info"
+      },
+      "conditionalVisibility": {
+        "parameterName": "Help",
+        "comparison": "isEqualTo",
+        "value": "Yes"
+      },
+      "name": "text - Help text"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "title": "Public IP Query group",
+        "items": [
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "AzureActivity\r\n| where ResourceProvider == \"Microsoft.Network\"\r\n| where OperationName == \"Create or Update Public Ip Address\"\r\n| extend provisioningState_ = tostring(parse_json(tostring(parse_json(tostring(parse_json(Properties).responseBody)).properties)).provisioningState)\r\n| extend PIPaddress_ = tostring(parse_json(tostring(parse_json(tostring(parse_json(Properties).responseBody)).properties)).ipAddress)\r\n| extend name_ = tostring(parse_json(tostring(parse_json(Properties).responseBody)).name)\r\n| where ActivityStatus in (\"Accepted\",\"Succeeded\")\r\n| summarize by bin(TimeGenerated,{TimeRange:grain} ), SubscriptionId, ResourceGroup=toupper(ResourceGroup), Caller, Category, name_, PIPaddress_ ,  provisioningState_, ResourceProvider\r\n| sort by TimeGenerated desc \r\n",
+              "size": 1,
+              "title": "KQL: AzureActivity for: {Subscription:name} and {Workspace:name}  ",
+              "noDataMessage": "no saved queries found in {Workspace:name}",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "showExportToExcel": true,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{Workspace}"
+              ],
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "TimeGenerated",
+                    "formatter": 1
+                  },
+                  {
+                    "columnMatch": "SubscriptionId",
+                    "formatter": 15,
+                    "formatOptions": {
+                      "linkTarget": null
+                    }
+                  },
+                  {
+                    "columnMatch": "Resource",
+                    "formatter": 13,
+                    "formatOptions": {
+                      "linkTarget": null,
+                      "showIcon": true
+                    }
+                  },
+                  {
+                    "columnMatch": "Caller",
+                    "formatter": 13,
+                    "formatOptions": {
+                      "linkTarget": null,
+                      "showIcon": true
+                    }
+                  },
+                  {
+                    "columnMatch": "Category",
+                    "formatter": 5
+                  },
+                  {
+                    "columnMatch": "provisioningState_",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Succeeded",
+                          "representation": "success",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Updating",
+                          "representation": "pending",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "Default",
+                          "thresholdValue": null,
+                          "representation": "Blank",
+                          "text": "{0}{1}"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "columnMatch": "Name",
+                    "formatter": 5
+                  },
+                  {
+                    "columnMatch": "query",
+                    "formatter": 5
+                  }
+                ],
+                "rowLimit": 1000,
+                "filter": true,
+                "sortBy": [
+                  {
+                    "itemKey": "$gen_thresholds_provisioningState__7",
+                    "sortOrder": 2
+                  }
+                ],
+                "labelSettings": [
+                  {
+                    "columnId": "TimeGenerated"
+                  },
+                  {
+                    "columnId": "SubscriptionId"
+                  },
+                  {
+                    "columnId": "ResourceGroup"
+                  },
+                  {
+                    "columnId": "Caller"
+                  },
+                  {
+                    "columnId": "Category"
+                  },
+                  {
+                    "columnId": "name_",
+                    "label": "Resource Name"
+                  },
+                  {
+                    "columnId": "PIPaddress_"
+                  },
+                  {
+                    "columnId": "provisioningState_"
+                  },
+                  {
+                    "columnId": "ResourceProvider"
+                  }
+                ]
+              },
+              "sortBy": [
+                {
+                  "itemKey": "$gen_thresholds_provisioningState__7",
+                  "sortOrder": 2
+                }
+              ]
+            },
+            "conditionalVisibilities": [
+              {
+                "parameterName": "Subscription",
+                "comparison": "isNotEqualTo"
+              },
+              {
+                "parameterName": "Workspace",
+                "comparison": "isNotEqualTo"
+              }
+            ],
+            "name": "saved query grid"
+          },
+          {
+            "type": 9,
+            "content": {
+              "version": "KqlParameterItem/1.0",
+              "parameters": [
+                {
+                  "id": "158cf2c4-6a48-4777-8004-0664ef5e4de7",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "Show",
+                  "label": "Show More details",
+                  "type": 10,
+                  "description": "When you select \"Yes\", this control will show rows with an empty IP Addresses to aid diagnostics  ",
+                  "isRequired": true,
+                  "typeSettings": {
+                    "additionalResourceOptions": []
+                  },
+                  "jsonData": "[\r\n { \"value\": \"Yes\", \"label\": \"Yes\", \"selected\":true},\r\n {\"value\": \"No\", \"label\": \"No\" }\r\n]",
+                  "timeContext": {
+                    "durationMs": 86400000
+                  }
+                }
+              ],
+              "style": "above",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces"
+            },
+            "name": "parameters - 5"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "AzureActivity\r\n| where ResourceProvider == \"Microsoft.Network\"\r\n| where OperationName == \"Create or Update Public Ip Address\"\r\n| extend provisioningState_ = tostring(parse_json(tostring(parse_json(tostring(parse_json(Properties).responseBody)).properties)).provisioningState)\r\n| extend PIPaddress_ = tostring(parse_json(tostring(parse_json(tostring(parse_json(Properties).responseBody)).properties)).ipAddress)\r\n| extend name_ = tostring(parse_json(tostring(parse_json(Properties).responseBody)).name)\r\n| where ActivityStatus in (\"Accepted\",\"Succeeded\")\r\n| summarize count() by bin(TimeGenerated,{TimeRange:grain} ),  ResourceGroup=toupper(ResourceGroup), Caller, Category, name_, PIPaddress_ ,  provisioningState_\r\n| sort by TimeGenerated desc \r\n\r\n",
+              "size": 1,
+              "title": "KQL: AzureActivity - timebrush enabled 📅",
+              "noDataMessage": "no saved queries found in {Workspace:name}",
+              "timeContext": {
+                "durationMs": 2592000000
+              },
+              "timeContextFromParameter": "TimeRange",
+              "timeBrushParameterName": "TBkqlgraph",
+              "showExportToExcel": true,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{Workspace}"
+              ],
+              "visualization": "barchart",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "Category",
+                    "formatter": 5
+                  },
+                  {
+                    "columnMatch": "Name",
+                    "formatter": 5
+                  },
+                  {
+                    "columnMatch": "query",
+                    "formatter": 5
+                  }
+                ],
+                "rowLimit": 1000,
+                "filter": true
+              },
+              "sortBy": []
+            },
+            "customWidth": "50",
+            "conditionalVisibilities": [
+              {
+                "parameterName": "Subscription",
+                "comparison": "isNotEqualTo"
+              },
+              {
+                "parameterName": "Workspace",
+                "comparison": "isNotEqualTo"
+              }
+            ],
+            "name": "saved query grid - graph"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "AzureActivity\r\n| where ResourceProvider == \"Microsoft.Network\"\r\n| where OperationName == \"Create or Update Public Ip Address\"\r\n| extend provisioningState_ = tostring(parse_json(tostring(parse_json(tostring(parse_json(Properties).responseBody)).properties)).provisioningState)\r\n| extend PIPaddress_ = tostring(parse_json(tostring(parse_json(tostring(parse_json(Properties).responseBody)).properties)).ipAddress)\r\n| extend name_ = tostring(parse_json(tostring(parse_json(Properties).responseBody)).name)\r\n| where ActivityStatus in (\"Accepted\",\"Succeeded\")\r\n| where isnotempty(PIPaddress_) \r\n| summarize by bin(TimeGenerated,{TimeRange:grain} ), SubscriptionId, ResourceGroup=toupper(ResourceGroup), Caller, Category, name_, PIPaddress_ ,  provisioningState_\r\n| sort by TimeGenerated desc \r\n\r\n",
+              "size": 1,
+              "title": "KQL: AzureActivity - {TBkqlgraph:label} - filtered result of the timebrush 📅",
+              "noDataMessage": "no saved queries found in {Workspace:name}",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TBkqlgraph",
+              "timeBrushParameterName": "TBkqlgraph",
+              "showExportToExcel": true,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{Workspace}"
+              ],
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "TimeGenerated",
+                    "formatter": 1
+                  },
+                  {
+                    "columnMatch": "SubscriptionId",
+                    "formatter": 15,
+                    "formatOptions": {
+                      "linkTarget": null
+                    }
+                  },
+                  {
+                    "columnMatch": "ResourceGroup",
+                    "formatter": 14,
+                    "formatOptions": {
+                      "linkTarget": null
+                    }
+                  },
+                  {
+                    "columnMatch": "Category",
+                    "formatter": 5
+                  },
+                  {
+                    "columnMatch": "Name",
+                    "formatter": 5
+                  },
+                  {
+                    "columnMatch": "query",
+                    "formatter": 5
+                  }
+                ],
+                "rowLimit": 1000,
+                "filter": true,
+                "sortBy": [
+                  {
+                    "itemKey": "PIPaddress_",
+                    "sortOrder": 2
+                  }
+                ]
+              },
+              "sortBy": [
+                {
+                  "itemKey": "PIPaddress_",
+                  "sortOrder": 2
+                }
+              ]
+            },
+            "customWidth": "50",
+            "conditionalVisibilities": [
+              {
+                "parameterName": "Subscription",
+                "comparison": "isNotEqualTo"
+              },
+              {
+                "parameterName": "Workspace",
+                "comparison": "isNotEqualTo"
+              },
+              {
+                "parameterName": "Show",
+                "comparison": "isEqualTo",
+                "value": "No"
+              }
+            ],
+            "name": "saved query grid - IP info only"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "// can show rows Without an IP address \r\nAzureActivity\r\n| where ResourceProvider == \"Microsoft.Network\"\r\n| where OperationName == \"Create or Update Public Ip Address\"\r\n| extend provisioningState_ = tostring(parse_json(tostring(parse_json(tostring(parse_json(Properties).responseBody)).properties)).provisioningState)\r\n| extend PIPaddress_ = tostring(parse_json(tostring(parse_json(tostring(parse_json(Properties).responseBody)).properties)).ipAddress)\r\n| extend name_ = tostring(parse_json(tostring(parse_json(Properties).responseBody)).name)\r\n| where ActivityStatus in (\"Accepted\",\"Succeeded\")\r\n| summarize by bin(TimeGenerated,{TimeRange:grain} ), SubscriptionId, ResourceGroup=toupper(ResourceGroup), Caller, Category, name_, PIPaddress_ ,  provisioningState_\r\n| sort by TimeGenerated desc \r\n\r\n",
+              "size": 1,
+              "title": "KQL: AzureActivity - {TBkqlgraph:label} - filtered result of the timebrush 📅",
+              "noDataMessage": "no saved queries found in {Workspace:name}",
+              "timeContext": {
+                "durationMs": 2505600000,
+                "endTime": "2020-06-29T00:00:00.000Z"
+              },
+              "timeContextFromParameter": "TBkqlgraph",
+              "timeBrushParameterName": "TBkqlgraph",
+              "showExportToExcel": true,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{Workspace}"
+              ],
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "TimeGenerated",
+                    "formatter": 1
+                  },
+                  {
+                    "columnMatch": "SubscriptionId",
+                    "formatter": 15,
+                    "formatOptions": {
+                      "linkTarget": null
+                    }
+                  },
+                  {
+                    "columnMatch": "ResourceGroup",
+                    "formatter": 14,
+                    "formatOptions": {
+                      "linkTarget": null
+                    }
+                  },
+                  {
+                    "columnMatch": "Category",
+                    "formatter": 5
+                  },
+                  {
+                    "columnMatch": "Name",
+                    "formatter": 5
+                  },
+                  {
+                    "columnMatch": "query",
+                    "formatter": 5
+                  }
+                ],
+                "rowLimit": 1000,
+                "filter": true,
+                "sortBy": [
+                  {
+                    "itemKey": "PIPaddress_",
+                    "sortOrder": 2
+                  }
+                ]
+              },
+              "sortBy": [
+                {
+                  "itemKey": "PIPaddress_",
+                  "sortOrder": 2
+                }
+              ]
+            },
+            "customWidth": "50",
+            "conditionalVisibilities": [
+              {
+                "parameterName": "Subscription",
+                "comparison": "isNotEqualTo"
+              },
+              {
+                "parameterName": "Workspace",
+                "comparison": "isNotEqualTo"
+              },
+              {
+                "parameterName": "Show",
+                "comparison": "isEqualTo",
+                "value": "Yes"
+              }
+            ],
+            "name": "saved query grid - IP info inc blanks"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resources\r\n| where type == \"microsoft.network/publicipaddresses\"\r\n| summarize count() by subscriptionId, resourceGroup\r\n, publicIPAllocationMethod = tostring(properties.publicIPAllocationMethod), name, tostring(properties.ipAddress)\r\n, tostring(properties.provisioningState)\r\n, tostring(properties.publicIPAddressVersion)",
+              "size": 1,
+              "title": "ARG for: {Subscription:name}",
+              "showExportToExcel": true,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscription}"
+              ],
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "subscriptionId",
+                    "formatter": 15,
+                    "formatOptions": {
+                      "linkTarget": null
+                    }
+                  },
+                  {
+                    "columnMatch": "publicIPAllocationMethod",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        {
+                          "operator": "!=",
+                          "thresholdValue": "Dynamic",
+                          "representation": "more",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "Default",
+                          "thresholdValue": null,
+                          "representation": "Normal",
+                          "text": "{0}{1}"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "columnMatch": "name",
+                    "formatter": 16,
+                    "formatOptions": {
+                      "showIcon": true
+                    }
+                  },
+                  {
+                    "columnMatch": "properties_provisioningState",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        {
+                          "operator": "Default",
+                          "thresholdValue": null,
+                          "representation": "success",
+                          "text": "{0}{1}"
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "filter": true,
+                "sortBy": [
+                  {
+                    "itemKey": "$gen_resourceType_name_3",
+                    "sortOrder": 2
+                  }
+                ]
+              },
+              "sortBy": [
+                {
+                  "itemKey": "$gen_resourceType_name_3",
+                  "sortOrder": 2
+                }
+              ]
+            },
+            "name": "query - grid ARG"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"a380f406-d151-4823-bfb4-e5e91270631c\",\"mergeType\":\"rightanti\",\"leftTable\":\"saved query grid\",\"rightTable\":\"query - grid ARG\",\"leftColumn\":\"name_\",\"rightColumn\":\"name\"}],\"projectRename\":[{\"originalName\":\"[saved query grid].Column1\",\"mergedName\":\"Column1\",\"fromId\":\"unknown\"},{\"originalName\":\"[query - grid ARG].subscriptionId\",\"mergedName\":\"subscriptionId\",\"fromId\":\"a380f406-d151-4823-bfb4-e5e91270631c\"},{\"originalName\":\"[query - grid ARG].resourceGroup\",\"mergedName\":\"resourceGroup\",\"fromId\":\"a380f406-d151-4823-bfb4-e5e91270631c\"},{\"originalName\":\"[query - grid ARG].publicIPAllocationMethod\",\"mergedName\":\"publicIPAllocationMethod\",\"fromId\":\"a380f406-d151-4823-bfb4-e5e91270631c\"},{\"originalName\":\"[query - grid ARG].name\",\"mergedName\":\"name\",\"fromId\":\"a380f406-d151-4823-bfb4-e5e91270631c\"},{\"originalName\":\"[query - grid ARG].properties_ipAddress\",\"mergedName\":\"properties_ipAddress\",\"fromId\":\"a380f406-d151-4823-bfb4-e5e91270631c\"},{\"originalName\":\"[query - grid ARG].properties_provisioningState\",\"mergedName\":\"properties_provisioningState\",\"fromId\":\"a380f406-d151-4823-bfb4-e5e91270631c\"},{\"originalName\":\"[query - grid ARG].properties_publicIPAddressVersion\",\"mergedName\":\"properties_publicIPAddressVersion\",\"fromId\":\"a380f406-d151-4823-bfb4-e5e91270631c\"},{\"originalName\":\"[query - grid ARG].count_\",\"mergedName\":\"count_\",\"fromId\":\"a380f406-d151-4823-bfb4-e5e91270631c\"}]}",
+              "size": 0,
+              "title": "Merged view: resources in ARG but not in KQL",
+              "showExportToExcel": true,
+              "queryType": 7,
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "subscriptionId",
+                    "formatter": 15,
+                    "formatOptions": {
+                      "linkTarget": null
+                    }
+                  },
+                  {
+                    "columnMatch": "resourceGroup",
+                    "formatter": 14,
+                    "formatOptions": {
+                      "linkTarget": null
+                    }
+                  },
+                  {
+                    "columnMatch": "publicIPAllocationMethod",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        {
+                          "operator": "!=",
+                          "thresholdValue": "Dynamic",
+                          "representation": "more",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "Default",
+                          "thresholdValue": null,
+                          "representation": "Normal",
+                          "text": "{0}{1}"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "columnMatch": "name",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "thresholdsOptions": "colors",
+                      "thresholdsGrid": [
+                        {
+                          "representation": "green",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "Default",
+                          "thresholdValue": null,
+                          "representation": "redBright",
+                          "text": "{0}{1}"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "columnMatch": "properties_provisioningState",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        {
+                          "operator": "!=",
+                          "thresholdValue": "Succeeded",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "Default",
+                          "thresholdValue": null,
+                          "representation": "success",
+                          "text": "{0}{1}"
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "filter": true,
+                "sortBy": [
+                  {
+                    "itemKey": "$gen_link_resourceGroup_1",
+                    "sortOrder": 1
+                  }
+                ]
+              },
+              "sortBy": [
+                {
+                  "itemKey": "$gen_link_resourceGroup_1",
+                  "sortOrder": 1
+                }
+              ]
+            },
+            "showPin": false,
+            "name": "query - 4"
+          }
+        ]
+      },
+      "name": "group - PIP"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## select a workspace to see saved queries."
+      },
+      "conditionalVisibilities": [
+        {
+          "parameterName": "Workspace",
+          "comparison": "isEqualTo"
+        },
+        {
+          "parameterName": "Subscription",
+          "comparison": "isNotEqualTo"
+        }
+      ],
+      "name": "no workspace set"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## select one or more subscriptions, then pick a workspace to get started"
+      },
+      "conditionalVisibility": {
+        "parameterName": "Subscription",
+        "comparison": "isEqualTo"
+      },
+      "name": "no subscription selected"
+    }
+  ],
+  "fallbackResourceIds": [
+    "Azure Monitor"
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}
