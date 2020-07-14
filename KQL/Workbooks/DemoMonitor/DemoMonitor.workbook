@@ -1,0 +1,452 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "parameters": [
+          {
+            "id": "997c84bc-c454-47f7-a288-99429173dfeb",
+            "version": "KqlParameterItem/1.0",
+            "name": "Subscription",
+            "type": 6,
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "value": [],
+            "typeSettings": {
+              "additionalResourceOptions": [],
+              "includeAll": false
+            }
+          },
+          {
+            "id": "73638b3d-aa3f-4872-a56b-a0eaf3fc7714",
+            "version": "KqlParameterItem/1.0",
+            "name": "Workspace",
+            "type": 5,
+            "isRequired": true,
+            "query": "Resources | where type =~ \"microsoft.operationalinsights/workspaces\" | order by name | project id, name, selected=row_number()==1, group=resourceGroup",
+            "crossComponentResources": [
+              "{Subscription}"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": []
+            },
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources"
+          },
+          {
+            "id": "9fa77675-1222-4936-89d0-285da325bba0",
+            "version": "KqlParameterItem/1.0",
+            "name": "TimeRange",
+            "label": "Query Time Range",
+            "type": 4,
+            "description": "Used as the time range for the query. ",
+            "isRequired": true,
+            "isHiddenWhenLocked": true,
+            "typeSettings": {
+              "selectableValues": [
+                {
+                  "durationMs": 300000
+                },
+                {
+                  "durationMs": 900000
+                },
+                {
+                  "durationMs": 1800000
+                },
+                {
+                  "durationMs": 3600000
+                },
+                {
+                  "durationMs": 14400000
+                },
+                {
+                  "durationMs": 43200000
+                },
+                {
+                  "durationMs": 86400000
+                },
+                {
+                  "durationMs": 172800000
+                },
+                {
+                  "durationMs": 259200000
+                },
+                {
+                  "durationMs": 604800000
+                },
+                {
+                  "durationMs": 1209600000
+                },
+                {
+                  "durationMs": 2419200000
+                },
+                {
+                  "durationMs": 2592000000
+                },
+                {
+                  "durationMs": 5184000000
+                },
+                {
+                  "durationMs": 7776000000
+                }
+              ],
+              "allowCustom": true
+            }
+          },
+          {
+            "id": "6f0b72e7-0908-4ca2-a88c-cbac57003458",
+            "version": "KqlParameterItem/1.0",
+            "name": "Help",
+            "label": "Show Help",
+            "type": 10,
+            "isRequired": true,
+            "query": "{\"version\":\"1.0.0\",\"content\":\"[\\r\\n { \\\"value\\\": \\\"Yes\\\", \\\"label\\\": \\\"Yes\\\"},\\r\\n {\\\"value\\\": \\\"No\\\", \\\"label\\\": \\\"No\\\", \\\"selected\\\":true },\\r\\n { \\\"value\\\": \\\"Change Log\\\", \\\"label\\\": \\\"Change Log\\\"}\\r\\n]\",\"transformers\":null}",
+            "typeSettings": {
+              "additionalResourceOptions": []
+            },
+            "queryType": 8
+          }
+        ],
+        "style": "above",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
+      },
+      "name": "parameters - 1"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "### Change log \r\n- V0.1 : Initial Version",
+        "style": "info"
+      },
+      "conditionalVisibility": {
+        "parameterName": "Help",
+        "comparison": "isEqualTo",
+        "value": "Change Log"
+      },
+      "name": "text - 3"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "### Help\r\nUse this workbook to show Azure Resources and their Health state.  Use a picker called [Select Type] to select a resource type (i.e \"Virtual Machines\").\r\n\r\n\tNote: Not every Azure Resource has a Health state, so the final grid view maybe empty depending on the Resource you choose (or if you don't have any of that type).",
+        "style": "info"
+      },
+      "conditionalVisibility": {
+        "parameterName": "Help",
+        "comparison": "isEqualTo",
+        "value": "Yes"
+      },
+      "name": "text - 3 - Copy"
+    },
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "crossComponentResources": [
+          "{Subscription}"
+        ],
+        "parameters": [
+          {
+            "id": "0b857ae9-eb60-4c9d-bde0-21c38f8ddc74",
+            "version": "KqlParameterItem/1.0",
+            "name": "SelectType",
+            "type": 2,
+            "isRequired": true,
+            "query": "resources\r\n | summarize by type\r\n | order by type asc",
+            "crossComponentResources": [
+              "{Subscription}"
+            ],
+            "value": "microsoft.apimanagement/service",
+            "typeSettings": {
+              "additionalResourceOptions": []
+            },
+            "timeContext": {
+              "durationMs": 86400000
+            },
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources"
+          }
+        ],
+        "style": "above",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources"
+      },
+      "name": "parameters - 6"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "title": "Grpup: Demo Monitor",
+        "items": [
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resources\r\n| where type == \"{SelectType}\"\r\n| order by name asc",
+              "size": 0,
+              "title": "Grid of Azure Resources ",
+              "showExportToExcel": true,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscription}"
+              ],
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "name",
+                    "formatter": 1
+                  },
+                  {
+                    "columnMatch": "type",
+                    "formatter": 16,
+                    "formatOptions": {
+                      "showIcon": true
+                    }
+                  },
+                  {
+                    "columnMatch": "location",
+                    "formatter": 17
+                  },
+                  {
+                    "columnMatch": "resourceGroup",
+                    "formatter": 14,
+                    "formatOptions": {
+                      "linkTarget": null
+                    }
+                  }
+                ],
+                "filter": true,
+                "sortBy": [
+                  {
+                    "itemKey": "$gen_link_id_0",
+                    "sortOrder": 1
+                  }
+                ]
+              },
+              "sortBy": [
+                {
+                  "itemKey": "$gen_link_id_0",
+                  "sortOrder": 1
+                }
+              ]
+            },
+            "customWidth": "70",
+            "name": "query - hideARGresouce"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "{\"version\":\"AzureHealthQuery/1.0\",\"queryType\":\"Detailed\"}",
+              "size": 0,
+              "title": "Azure Health",
+              "showExportToExcel": true,
+              "queryType": 4,
+              "resourceType": "microsoft.resources/subscriptions",
+              "crossComponentResources": [
+                "{Subscription}"
+              ],
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "Name",
+                    "formatter": 1
+                  },
+                  {
+                    "columnMatch": "Availability state",
+                    "formatter": 11
+                  },
+                  {
+                    "columnMatch": "Resource group",
+                    "formatter": 14,
+                    "formatOptions": {
+                      "linkTarget": null
+                    }
+                  },
+                  {
+                    "columnMatch": "Subscription",
+                    "formatter": 15,
+                    "formatOptions": {
+                      "linkTarget": null
+                    }
+                  }
+                ],
+                "filter": true
+              },
+              "sortBy": []
+            },
+            "customWidth": "60",
+            "conditionalVisibility": {
+              "parameterName": "Hide",
+              "comparison": "isEqualTo",
+              "value": "Hide"
+            },
+            "name": "query - Health"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"ef043d04-b98e-4301-afdb-64d86e562140\",\"mergeType\":\"innerunique\",\"leftTable\":\"query - Health\",\"rightTable\":\"query - hideARGresouce\",\"leftColumn\":\"Name\",\"rightColumn\":\"id\"}],\"projectRename\":[{\"originalName\":\"Name\",\"mergedName\":\"Name\",\"fromId\":\"unknown\"},{\"originalName\":\"Availability state\",\"mergedName\":\"Availability state\",\"fromId\":\"unknown\"},{\"originalName\":\"Detailed status\",\"mergedName\":\"Detailed status\",\"fromId\":\"unknown\"},{\"originalName\":\"Occurred time\",\"mergedName\":\"Occurred time\",\"fromId\":\"unknown\"},{\"originalName\":\"Reason chronicity\",\"mergedName\":\"Reason chronicity\",\"fromId\":\"unknown\"},{\"originalName\":\"Reason type\",\"mergedName\":\"Reason type\",\"fromId\":\"unknown\"},{\"originalName\":\"Reported time\",\"mergedName\":\"Reported time\",\"fromId\":\"unknown\"},{\"originalName\":\"Summary\",\"mergedName\":\"Summary\",\"fromId\":\"unknown\"},{\"originalName\":\"Title\",\"mergedName\":\"Title\",\"fromId\":\"unknown\"},{\"originalName\":\"Resource group\",\"mergedName\":\"Resource group\",\"fromId\":\"unknown\"},{\"originalName\":\"Subscription\",\"mergedName\":\"Subscription\",\"fromId\":\"unknown\"},{\"originalName\":\"[query - Health].Name\",\"mergedName\":\"Name1\",\"fromId\":\"ef043d04-b98e-4301-afdb-64d86e562140\"},{\"originalName\":\"[query - Health].Availability state\",\"mergedName\":\"Availability state1\",\"fromId\":\"ef043d04-b98e-4301-afdb-64d86e562140\"},{\"originalName\":\"[query - Health].Detailed status\",\"mergedName\":\"Detailed status1\",\"fromId\":\"ef043d04-b98e-4301-afdb-64d86e562140\"},{\"originalName\":\"[query - Health].Occurred time\",\"mergedName\":\"Occurred time1\",\"fromId\":\"ef043d04-b98e-4301-afdb-64d86e562140\"},{\"originalName\":\"[query - Health].Reason chronicity\",\"mergedName\":\"Reason chronicity1\",\"fromId\":\"ef043d04-b98e-4301-afdb-64d86e562140\"},{\"originalName\":\"[query - Health].Reason type\",\"mergedName\":\"Reason type1\",\"fromId\":\"ef043d04-b98e-4301-afdb-64d86e562140\"},{\"originalName\":\"[query - Health].Reported time\",\"mergedName\":\"Reported time1\",\"fromId\":\"ef043d04-b98e-4301-afdb-64d86e562140\"},{\"originalName\":\"[query - Health].Summary\",\"mergedName\":\"Summary1\",\"fromId\":\"ef043d04-b98e-4301-afdb-64d86e562140\"},{\"originalName\":\"[query - Health].Title\",\"mergedName\":\"Title1\",\"fromId\":\"ef043d04-b98e-4301-afdb-64d86e562140\"},{\"originalName\":\"[query - Health].Resource group\",\"mergedName\":\"Resource group1\",\"fromId\":\"ef043d04-b98e-4301-afdb-64d86e562140\"},{\"originalName\":\"[query - Health].Subscription\",\"mergedName\":\"Subscription1\",\"fromId\":\"ef043d04-b98e-4301-afdb-64d86e562140\"},{\"originalName\":\"[query - hideARGresouce].id\",\"mergedName\":\"id\",\"fromId\":\"ef043d04-b98e-4301-afdb-64d86e562140\"},{\"originalName\":\"[query - hideARGresouce].name\",\"mergedName\":\"name\",\"fromId\":\"ef043d04-b98e-4301-afdb-64d86e562140\"},{\"originalName\":\"[query - hideARGresouce].type\",\"mergedName\":\"type\",\"fromId\":\"ef043d04-b98e-4301-afdb-64d86e562140\"},{\"originalName\":\"[query - hideARGresouce].tenantId\",\"mergedName\":\"tenantId\",\"fromId\":\"ef043d04-b98e-4301-afdb-64d86e562140\"},{\"originalName\":\"[query - hideARGresouce].kind\",\"mergedName\":\"kind\",\"fromId\":\"ef043d04-b98e-4301-afdb-64d86e562140\"},{\"originalName\":\"[query - hideARGresouce].location\",\"mergedName\":\"location\",\"fromId\":\"ef043d04-b98e-4301-afdb-64d86e562140\"},{\"originalName\":\"[query - hideARGresouce].resourceGroup\",\"mergedName\":\"resourceGroup\",\"fromId\":\"ef043d04-b98e-4301-afdb-64d86e562140\"},{\"originalName\":\"[query - hideARGresouce].subscriptionId\",\"mergedName\":\"subscriptionId\",\"fromId\":\"ef043d04-b98e-4301-afdb-64d86e562140\"},{\"originalName\":\"[query - hideARGresouce].managedBy\",\"mergedName\":\"managedBy\",\"fromId\":\"ef043d04-b98e-4301-afdb-64d86e562140\"},{\"originalName\":\"[query - hideARGresouce].sku\",\"mergedName\":\"sku\",\"fromId\":\"ef043d04-b98e-4301-afdb-64d86e562140\"},{\"originalName\":\"[query - hideARGresouce].plan\",\"mergedName\":\"plan\",\"fromId\":\"ef043d04-b98e-4301-afdb-64d86e562140\"},{\"originalName\":\"[query - hideARGresouce].properties\",\"mergedName\":\"properties\",\"fromId\":\"ef043d04-b98e-4301-afdb-64d86e562140\"},{\"originalName\":\"[query - hideARGresouce].tags\",\"mergedName\":\"tags\",\"fromId\":\"ef043d04-b98e-4301-afdb-64d86e562140\"},{\"originalName\":\"[query - hideARGresouce].identity\",\"mergedName\":\"identity\",\"fromId\":\"ef043d04-b98e-4301-afdb-64d86e562140\"},{\"originalName\":\"[query - hideARGresouce].zones\",\"mergedName\":\"zones\",\"fromId\":\"ef043d04-b98e-4301-afdb-64d86e562140\"}]}",
+              "size": 0,
+              "title": "Grid of Azure resources - with Health data ",
+              "showExportToExcel": true,
+              "queryType": 7,
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "Availability state1",
+                    "formatter": 11
+                  },
+                  {
+                    "columnMatch": "Detailed status1",
+                    "formatter": 5
+                  },
+                  {
+                    "columnMatch": "type",
+                    "formatter": 16,
+                    "formatOptions": {
+                      "showIcon": true
+                    }
+                  }
+                ],
+                "filter": true,
+                "labelSettings": [
+                  {
+                    "columnId": "Name1",
+                    "label": "Id"
+                  },
+                  {
+                    "columnId": "Availability state1"
+                  },
+                  {
+                    "columnId": "Detailed status1"
+                  },
+                  {
+                    "columnId": "Occurred time1",
+                    "label": "Occurred"
+                  },
+                  {
+                    "columnId": "Reason chronicity1",
+                    "label": "Reason"
+                  },
+                  {
+                    "columnId": "Reason type1",
+                    "label": "Reason Type"
+                  },
+                  {
+                    "columnId": "Reported time1",
+                    "label": "Reported Time"
+                  },
+                  {
+                    "columnId": "Summary1",
+                    "label": "Summary"
+                  },
+                  {
+                    "columnId": "Title1",
+                    "label": "State"
+                  },
+                  {
+                    "columnId": "Resource group1"
+                  },
+                  {
+                    "columnId": "Subscription1"
+                  },
+                  {
+                    "columnId": "id"
+                  },
+                  {
+                    "columnId": "name"
+                  },
+                  {
+                    "columnId": "type"
+                  },
+                  {
+                    "columnId": "tenantId"
+                  },
+                  {
+                    "columnId": "kind"
+                  },
+                  {
+                    "columnId": "location"
+                  },
+                  {
+                    "columnId": "resourceGroup"
+                  },
+                  {
+                    "columnId": "subscriptionId"
+                  },
+                  {
+                    "columnId": "managedBy"
+                  },
+                  {
+                    "columnId": "sku"
+                  },
+                  {
+                    "columnId": "plan"
+                  },
+                  {
+                    "columnId": "properties"
+                  },
+                  {
+                    "columnId": "tags"
+                  },
+                  {
+                    "columnId": "identity"
+                  },
+                  {
+                    "columnId": "zones"
+                  }
+                ]
+              },
+              "sortBy": []
+            },
+            "showPin": false,
+            "name": "query - 3"
+          }
+        ]
+      },
+      "name": "group - Demo"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## select a workspace to see saved queries."
+      },
+      "conditionalVisibilities": [
+        {
+          "parameterName": "Workspace",
+          "comparison": "isEqualTo"
+        },
+        {
+          "parameterName": "Subscription",
+          "comparison": "isNotEqualTo"
+        }
+      ],
+      "name": "no workspace set"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## select one or more subscriptions, then pick a workspace to get started"
+      },
+      "conditionalVisibility": {
+        "parameterName": "Subscription",
+        "comparison": "isEqualTo"
+      },
+      "name": "no subscription selected"
+    }
+  ],
+  "fallbackResourceIds": [
+    "Azure Monitor"
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}
