@@ -1,0 +1,863 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "parameters": [
+          {
+            "id": "997c84bc-c454-47f7-a288-99429173dfeb",
+            "version": "KqlParameterItem/1.0",
+            "name": "Subscription",
+            "type": 6,
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "value": [],
+            "typeSettings": {
+              "additionalResourceOptions": [],
+              "includeAll": false
+            }
+          },
+          {
+            "id": "73638b3d-aa3f-4872-a56b-a0eaf3fc7714",
+            "version": "KqlParameterItem/1.0",
+            "name": "Workspace",
+            "type": 5,
+            "isRequired": true,
+            "query": "Resources | where type =~ \"microsoft.operationalinsights/workspaces\" | order by name | project id, name, selected=row_number()==1, group=resourceGroup",
+            "crossComponentResources": [
+              "{Subscription}"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": []
+            },
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources",
+            "value": "/subscriptions/7b76bfbc-cb1e-4df1-b6e8-b826eef6c592/resourceGroups/SOC/providers/Microsoft.OperationalInsights/workspaces/CyberSecuritySOC"
+          },
+          {
+            "id": "9fa77675-1222-4936-89d0-285da325bba0",
+            "version": "KqlParameterItem/1.0",
+            "name": "TimeRange",
+            "label": "Query Time Range",
+            "type": 4,
+            "description": "Used as the \"outer\" time range for the query. the query text may further alter the range",
+            "isRequired": true,
+            "value": {
+              "durationMs": 43200000
+            },
+            "typeSettings": {
+              "selectableValues": [
+                {
+                  "durationMs": 300000
+                },
+                {
+                  "durationMs": 900000
+                },
+                {
+                  "durationMs": 1800000
+                },
+                {
+                  "durationMs": 3600000
+                },
+                {
+                  "durationMs": 14400000
+                },
+                {
+                  "durationMs": 43200000
+                },
+                {
+                  "durationMs": 86400000
+                },
+                {
+                  "durationMs": 172800000
+                },
+                {
+                  "durationMs": 259200000
+                },
+                {
+                  "durationMs": 604800000
+                },
+                {
+                  "durationMs": 1209600000
+                },
+                {
+                  "durationMs": 2419200000
+                },
+                {
+                  "durationMs": 2592000000
+                }
+              ],
+              "allowCustom": true
+            }
+          },
+          {
+            "id": "1dd5b90a-0e64-45d5-a987-c5e09eee3fd5",
+            "version": "KqlParameterItem/1.0",
+            "name": "Help",
+            "label": "Show help?",
+            "type": 10,
+            "isRequired": true,
+            "query": "{\"version\":\"1.0.0\",\"content\":\"[\\r\\n { \\\"value\\\": \\\"Yes\\\", \\\"label\\\": \\\"Yes\\\"},\\r\\n {\\\"value\\\": \\\"No\\\", \\\"label\\\": \\\"No\\\", \\\"selected\\\":true },\\r\\n { \\\"value\\\": \\\"Change Log\\\", \\\"label\\\": \\\"Change Log\\\"}\\r\\n] \",\"transformers\":null}",
+            "value": "Yes",
+            "typeSettings": {
+              "additionalResourceOptions": []
+            },
+            "queryType": 8
+          }
+        ],
+        "style": "above",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
+      },
+      "name": "parameters - 1"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "Clive Watson: Microsoft\r\n### Find and filter for KQL saved Queries, Azure Workbooks and Azure Resource Graph\r\n\tv0.1   Find KQL keywords \r\n\tv0.2.1 Find Workbook keywords and merged view\r\n\tv0.2.2 Added ARG\r\n\tv0.2.3 Added Help",
+        "style": "info"
+      },
+      "conditionalVisibility": {
+        "parameterName": "Help",
+        "comparison": "isEqualTo",
+        "value": "Change Log"
+      },
+      "name": "text - 7"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "\r\nThis Workbook is useful for finding and searching on KQL, Azure Workbooks and Azure Resource Graph queries and data. The Workbook is particularly suitable when you have many resources.\r\n    * In some search boxes you can retrieve not only the named file & created date but also search for a keyword within the contents (if the api or method allows).\r\n    * The KQL tab allows you to also select a File to run it (if the file has multiple queries this may not work)",
+        "style": "info"
+      },
+      "conditionalVisibility": {
+        "parameterName": "Help",
+        "comparison": "isEqualTo",
+        "value": "Yes"
+      },
+      "name": "text - 7 - Copy"
+    },
+    {
+      "type": 11,
+      "content": {
+        "version": "LinkItem/1.0",
+        "style": "tabs",
+        "links": [
+          {
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "KQL",
+            "subTarget": "kql",
+            "style": "link"
+          },
+          {
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Workbooks",
+            "subTarget": "workbook",
+            "style": "link"
+          },
+          {
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Azure Resource Graph",
+            "subTarget": "arg",
+            "style": "link"
+          }
+        ]
+      },
+      "name": "links - 6"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "title": "KQL group",
+        "items": [
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"{Workspace}/savedSearches\",\"urlParams\":[{\"key\":\"api-version\",\"value\":\"2020-03-01-preview\"}],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$.value\",\"columns\":[{\"path\":\"$.properties.category\",\"columnid\":\"Category\"},{\"path\":\"$.properties.displayName\",\"columnid\":\"Name\"},{\"path\":\"$.properties.query\",\"columnid\":\"query\"},{\"path\":\"properties.version\",\"columnid\":\"version\"}]}}]}",
+              "size": 1,
+              "title": "Search in all columns, Category, Name & Query",
+              "noDataMessage": "no saved queries found in {Workspace:name}",
+              "exportedParameters": [
+                {
+                  "fieldName": "query",
+                  "parameterName": "query",
+                  "parameterType": 1,
+                  "defaultValue": " "
+                },
+                {
+                  "fieldName": "Name",
+                  "parameterName": "name",
+                  "parameterType": 1
+                }
+              ],
+              "showExportToExcel": true,
+              "queryType": 12,
+              "gridSettings": {
+                "rowLimit": 1000,
+                "filter": true
+              }
+            },
+            "conditionalVisibilities": [
+              {
+                "parameterName": "Subscription",
+                "comparison": "isNotEqualTo"
+              },
+              {
+                "parameterName": "Workspace",
+                "comparison": "isNotEqualTo"
+              }
+            ],
+            "name": "saved query grid"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "title": "Saved Query - {name}",
+              "items": [
+                {
+                  "type": 9,
+                  "content": {
+                    "version": "KqlParameterItem/1.0",
+                    "parameters": [
+                      {
+                        "id": "f3f7beb8-b287-45fb-8af2-c528ef55b704",
+                        "version": "KqlParameterItem/1.0",
+                        "name": "queryText",
+                        "type": 1,
+                        "value": null,
+                        "typeSettings": {
+                          "multiLineText": true,
+                          "editorLanguage": "kql"
+                        },
+                        "criteriaData": [
+                          {
+                            "condition": "else result = '{query}'",
+                            "criteriaContext": {
+                              "operator": "Default",
+                              "rightValType": "param",
+                              "resultValType": "static",
+                              "resultVal": "{query}"
+                            }
+                          }
+                        ],
+                        "label": "Saved Query Text"
+                      }
+                    ],
+                    "style": "above",
+                    "queryType": 0,
+                    "resourceType": "microsoft.operationalinsights/workspaces"
+                  },
+                  "name": "query text param"
+                },
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "{query}",
+                    "size": 2,
+                    "title": "Query Results",
+                    "timeContext": {
+                      "durationMs": 43200000
+                    },
+                    "timeContextFromParameter": "TimeRange",
+                    "queryType": 0,
+                    "resourceType": "microsoft.operationalinsights/workspaces",
+                    "crossComponentResources": [
+                      "{Workspace}"
+                    ],
+                    "sortBy": []
+                  },
+                  "name": "query - 3"
+                }
+              ]
+            },
+            "conditionalVisibilities": [
+              {
+                "parameterName": "query",
+                "comparison": "isNotEqualTo"
+              },
+              {
+                "parameterName": "Workspace",
+                "comparison": "isNotEqualTo"
+              }
+            ],
+            "name": "visible if query selected group"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "## select a saved query to run it"
+            },
+            "customWidth": "80",
+            "conditionalVisibilities": [
+              {
+                "parameterName": "query",
+                "comparison": "isEqualTo"
+              },
+              {
+                "parameterName": "Workspace",
+                "comparison": "isNotEqualTo"
+              }
+            ],
+            "name": "no query message"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "kql"
+      },
+      "name": "group - kql"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"/subscriptions/{Subscription:id}/providers/Microsoft.ResourceGraph/queries?api-version=2018-09-01-preview\",\"urlParams\":[{\"key\":\"$orderby\",\"value\":\"properties/timeModified asc\"}],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$.value\",\"columns\":[{\"path\":\"name\",\"columnid\":\"Name\"},{\"path\":\"properties.timeModified\",\"columnid\":\"timeModified\"},{\"path\":\"properties.query\",\"columnid\":\"querySyntax\"},{\"path\":\"properties.description\",\"columnid\":\"description\"},{\"path\":\"location\",\"columnid\":\"location\"},{\"path\":\"resourceGroup\",\"columnid\":\"resourceGroup\"},{\"path\":\"id\",\"columnid\":\"OpenQuery\"}]}}]}",
+        "size": 0,
+        "title": "Saved ResourceGraph queries - with keyword search 🔍",
+        "showExportToExcel": true,
+        "queryType": 12,
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "querySyntax",
+              "formatter": 7,
+              "formatOptions": {
+                "linkTarget": "CellDetails",
+                "linkIsContextBlade": true
+              }
+            }
+          ],
+          "filter": true,
+          "sortBy": [
+            {
+              "itemKey": "timeModified",
+              "sortOrder": 2
+            }
+          ]
+        },
+        "sortBy": [
+          {
+            "itemKey": "timeModified",
+            "sortOrder": 2
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "arg"
+      },
+      "name": "query - arg"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"/subscriptions/{Subscription:id}/providers/Microsoft.ResourceGraph/queries?api-version=2018-09-01-preview\",\"urlParams\":[{\"key\":\"$orderby\",\"value\":\"properties/timeModified asc\"}],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$.value\",\"columns\":[{\"path\":\"name\",\"columnid\":\"Name\"},{\"path\":\"properties.timeModified\",\"columnid\":\"timeModified\"},{\"path\":\"properties.query\",\"columnid\":\"querySyntax\"},{\"path\":\"properties.description\",\"columnid\":\"description\"},{\"path\":\"location\",\"columnid\":\"location\"},{\"path\":\"resourceGroup\",\"columnid\":\"resourceGroup\"},{\"path\":\"id\",\"columnid\":\"OpenQuery\"}]}}]}",
+        "size": 0,
+        "title": "Saved ResourceGraph queries - with keyword search 🔍",
+        "showExportToExcel": true,
+        "queryType": 12,
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "querySyntax",
+              "formatter": 7,
+              "formatOptions": {
+                "linkTarget": "CellDetails",
+                "linkIsContextBlade": true
+              }
+            }
+          ],
+          "filter": true,
+          "sortBy": [
+            {
+              "itemKey": "timeModified",
+              "sortOrder": 2
+            }
+          ]
+        },
+        "sortBy": [
+          {
+            "itemKey": "timeModified",
+            "sortOrder": 2
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "arg"
+      },
+      "name": "query - arg - Copy"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"/subscriptions/{Subscription:id}/resourceGroups/fabrikamltdprodrg/providers/Microsoft.ResourceGraph/queries\",\"urlParams\":[{\"key\":\"\",\"value\":\"\"},{\"key\":\"api-version\",\"value\":\"2018-09-01-preview\"}],\"batchDisabled\":true,\"transformers\":null}",
+        "size": 1,
+        "title": "ResourceGraph Shared Queries: {Subscription:id}",
+        "showExportToExcel": true,
+        "queryType": 12,
+        "gridSettings": {
+          "filter": true
+        }
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "hide"
+      },
+      "name": "query - arg - Copy"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "title": "Workbook group ",
+        "items": [
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"/subscriptions/{Subscription:id}/providers/microsoft.insights/myworkbooks\",\"urlParams\":[{\"key\":\"api-version\",\"value\":\"2020-02-12\"},{\"key\":\"$orderby\",\"value\":\"properties/timeModified asc\"}],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$.value\",\"columns\":[{\"path\":\"properties.displayName\",\"columnid\":\"DisplayName\"},{\"path\":\"properties.timeModified\",\"columnid\":\"timeModified\"},{\"path\":\"location\",\"columnid\":\"location\"},{\"path\":\"id\",\"columnid\":\"resourceGroup\"},{\"path\":\"properties.sourceId\",\"columnid\":\"sourceId\"},{\"path\":\"properties.version\",\"columnid\":\"version\"},{\"path\":\"id\",\"columnid\":\"id\"}]}}]}",
+              "size": 0,
+              "title": "Private & Shared Workbooks - no keyword search ⚠️",
+              "showExportToExcel": true,
+              "queryType": 12,
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "time",
+                    "formatter": 1
+                  },
+                  {
+                    "columnMatch": "resourceGroup",
+                    "formatter": 14,
+                    "formatOptions": {
+                      "linkTarget": null
+                    }
+                  },
+                  {
+                    "columnMatch": "type",
+                    "formatter": 5
+                  }
+                ],
+                "filter": true,
+                "sortBy": [
+                  {
+                    "itemKey": "timeModified",
+                    "sortOrder": 2
+                  }
+                ],
+                "labelSettings": [
+                  {
+                    "columnId": "DisplayName"
+                  },
+                  {
+                    "columnId": "timeModified",
+                    "label": "Time Modified"
+                  },
+                  {
+                    "columnId": "location"
+                  },
+                  {
+                    "columnId": "resourceGroup"
+                  },
+                  {
+                    "columnId": "sourceId"
+                  },
+                  {
+                    "columnId": "version"
+                  }
+                ]
+              },
+              "sortBy": [
+                {
+                  "itemKey": "timeModified",
+                  "sortOrder": 2
+                }
+              ]
+            },
+            "customWidth": "50",
+            "conditionalVisibility": {
+              "parameterName": "hide",
+              "comparison": "isEqualTo",
+              "value": "hide"
+            },
+            "name": "query - privateWorkbooks"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resources\r\n | where type == \"microsoft.insights/workbooks\"\r\n | project properties.displayName, properties.timeModified, location, kind,\r\n           resourceGroup, properties.category, properties.serializedData, properties.version, properties.userId, properties.sourceId, properties.tags[0] , properties.tags[1] \r\n| order by tostring(properties_timeModified) asc",
+              "size": 0,
+              "title": "Shared Workbooks - with keyword search 🔍",
+              "showExportToExcel": true,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscription}"
+              ],
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "properties_displayName",
+                    "formatter": 1
+                  },
+                  {
+                    "columnMatch": "properties_timeModified",
+                    "formatter": 1
+                  },
+                  {
+                    "columnMatch": "resourceGroup",
+                    "formatter": 14,
+                    "formatOptions": {
+                      "linkTarget": null
+                    }
+                  },
+                  {
+                    "columnMatch": "properties_category",
+                    "formatter": 1
+                  },
+                  {
+                    "columnMatch": "properties_userId",
+                    "formatter": 5
+                  }
+                ],
+                "filter": true,
+                "sortBy": [
+                  {
+                    "itemKey": "properties_timeModified",
+                    "sortOrder": 1
+                  }
+                ],
+                "labelSettings": [
+                  {
+                    "columnId": "properties_displayName",
+                    "label": "Display Name",
+                    "comment": "Workbook Name"
+                  },
+                  {
+                    "columnId": "properties_timeModified",
+                    "label": "Time Modified"
+                  },
+                  {
+                    "columnId": "location"
+                  },
+                  {
+                    "columnId": "kind"
+                  },
+                  {
+                    "columnId": "resourceGroup"
+                  },
+                  {
+                    "columnId": "properties_category",
+                    "label": "Category"
+                  },
+                  {
+                    "columnId": "properties_serializedData",
+                    "label": "Details"
+                  },
+                  {
+                    "columnId": "properties_version",
+                    "label": "Version"
+                  },
+                  {
+                    "columnId": "properties_userId",
+                    "label": "userId"
+                  },
+                  {
+                    "columnId": "properties_sourceId",
+                    "label": "sourceId"
+                  }
+                ]
+              },
+              "sortBy": [
+                {
+                  "itemKey": "properties_timeModified",
+                  "sortOrder": 1
+                }
+              ]
+            },
+            "customWidth": "50",
+            "name": "query - sharedWorkbook"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"0558641d-70b4-4f3d-a1ce-feba496c403a\",\"mergeType\":\"leftanti\",\"leftTable\":\"query - privateWorkbooks\",\"rightTable\":\"query - sharedWorkbook\",\"leftColumn\":\"DisplayName\",\"rightColumn\":\"properties_displayName\"}],\"projectRename\":[{\"originalName\":\"[query - privateWorkbooks].DisplayName\",\"mergedName\":\"DisplayName\",\"fromId\":\"0558641d-70b4-4f3d-a1ce-feba496c403a\"},{\"originalName\":\"[query - privateWorkbooks].timeModified\",\"mergedName\":\"Time Modified\",\"fromId\":\"0558641d-70b4-4f3d-a1ce-feba496c403a\"},{\"originalName\":\"[query - privateWorkbooks].location\",\"mergedName\":\"location\",\"fromId\":\"0558641d-70b4-4f3d-a1ce-feba496c403a\"},{\"originalName\":\"[query - privateWorkbooks].resourceGroup\",\"mergedName\":\"resourceGroup\",\"fromId\":\"0558641d-70b4-4f3d-a1ce-feba496c403a\"},{\"originalName\":\"[query - privateWorkbooks].sourceId\",\"mergedName\":\"sourceId\",\"fromId\":\"0558641d-70b4-4f3d-a1ce-feba496c403a\"},{\"originalName\":\"[query - privateWorkbooks].version\",\"mergedName\":\"version\",\"fromId\":\"0558641d-70b4-4f3d-a1ce-feba496c403a\"},{\"originalName\":\"[query - privateWorkbooks].id\",\"mergedName\":\"id\",\"fromId\":\"unknown\"}]}",
+              "size": 0,
+              "title": "Private Workbooks  - no keyword search ⚠️",
+              "showExportToExcel": true,
+              "queryType": 7,
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "resourceGroup",
+                    "formatter": 14,
+                    "formatOptions": {
+                      "linkTarget": null
+                    }
+                  },
+                  {
+                    "columnMatch": "id",
+                    "formatter": 16,
+                    "formatOptions": {
+                      "showIcon": true
+                    }
+                  },
+                  {
+                    "columnMatch": "Display Name",
+                    "formatter": 5
+                  },
+                  {
+                    "columnMatch": "location1",
+                    "formatter": 5
+                  },
+                  {
+                    "columnMatch": "kind",
+                    "formatter": 5
+                  },
+                  {
+                    "columnMatch": "resourceGroup1",
+                    "formatter": 5
+                  },
+                  {
+                    "columnMatch": "Version",
+                    "formatter": 5
+                  },
+                  {
+                    "columnMatch": "userId",
+                    "formatter": 5
+                  },
+                  {
+                    "columnMatch": "sourceId1",
+                    "formatter": 5
+                  }
+                ],
+                "filter": true,
+                "sortBy": [
+                  {
+                    "itemKey": "Time Modified",
+                    "sortOrder": 2
+                  }
+                ],
+                "labelSettings": [
+                  {
+                    "columnId": "DisplayName"
+                  },
+                  {
+                    "columnId": "Time Modified",
+                    "comment": "(private)"
+                  },
+                  {
+                    "columnId": "location"
+                  },
+                  {
+                    "columnId": "resourceGroup"
+                  },
+                  {
+                    "columnId": "sourceId"
+                  },
+                  {
+                    "columnId": "version"
+                  }
+                ]
+              },
+              "sortBy": [
+                {
+                  "itemKey": "Time Modified",
+                  "sortOrder": 2
+                }
+              ]
+            },
+            "customWidth": "50",
+            "showPin": false,
+            "name": "query - 7"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"0558641d-70b4-4f3d-a1ce-feba496c403a\",\"mergeType\":\"innerunique\",\"leftTable\":\"query - privateWorkbooks\",\"rightTable\":\"query - sharedWorkbook\",\"leftColumn\":\"DisplayName\",\"rightColumn\":\"properties_displayName\"}],\"projectRename\":[{\"originalName\":\"[query - privateWorkbooks].DisplayName\",\"mergedName\":\"DisplayName\",\"fromId\":\"0558641d-70b4-4f3d-a1ce-feba496c403a\"},{\"originalName\":\"[query - privateWorkbooks].timeModified\",\"mergedName\":\"Time Modified\",\"fromId\":\"0558641d-70b4-4f3d-a1ce-feba496c403a\"},{\"originalName\":\"[query - privateWorkbooks].location\",\"mergedName\":\"location\",\"fromId\":\"0558641d-70b4-4f3d-a1ce-feba496c403a\"},{\"originalName\":\"[query - privateWorkbooks].resourceGroup\",\"mergedName\":\"resourceGroup\",\"fromId\":\"0558641d-70b4-4f3d-a1ce-feba496c403a\"},{\"originalName\":\"[query - privateWorkbooks].sourceId\",\"mergedName\":\"sourceId\",\"fromId\":\"0558641d-70b4-4f3d-a1ce-feba496c403a\"},{\"originalName\":\"[query - privateWorkbooks].version\",\"mergedName\":\"version\",\"fromId\":\"0558641d-70b4-4f3d-a1ce-feba496c403a\"},{\"originalName\":\"[query - sharedWorkbook].properties_displayName\",\"mergedName\":\"Display Name\",\"fromId\":\"0558641d-70b4-4f3d-a1ce-feba496c403a\"},{\"originalName\":\"[query - sharedWorkbook].properties_timeModified\",\"mergedName\":\"Time Modified1\",\"fromId\":\"0558641d-70b4-4f3d-a1ce-feba496c403a\"},{\"originalName\":\"[query - sharedWorkbook].location\",\"mergedName\":\"location1\",\"fromId\":\"0558641d-70b4-4f3d-a1ce-feba496c403a\"},{\"originalName\":\"[query - sharedWorkbook].kind\",\"mergedName\":\"kind\",\"fromId\":\"0558641d-70b4-4f3d-a1ce-feba496c403a\"},{\"originalName\":\"[query - sharedWorkbook].resourceGroup\",\"mergedName\":\"resourceGroup1\",\"fromId\":\"0558641d-70b4-4f3d-a1ce-feba496c403a\"},{\"originalName\":\"[query - sharedWorkbook].properties_category\",\"mergedName\":\"Category\",\"fromId\":\"0558641d-70b4-4f3d-a1ce-feba496c403a\"},{\"originalName\":\"[query - sharedWorkbook].properties_serializedData\",\"mergedName\":\"Details\",\"fromId\":\"0558641d-70b4-4f3d-a1ce-feba496c403a\"},{\"originalName\":\"[query - sharedWorkbook].properties_version\",\"mergedName\":\"Version\",\"fromId\":\"0558641d-70b4-4f3d-a1ce-feba496c403a\"},{\"originalName\":\"[query - sharedWorkbook].properties_userId\",\"mergedName\":\"userId\",\"fromId\":\"0558641d-70b4-4f3d-a1ce-feba496c403a\"},{\"originalName\":\"[query - sharedWorkbook].properties_sourceId\",\"mergedName\":\"sourceId1\",\"fromId\":\"0558641d-70b4-4f3d-a1ce-feba496c403a\"},{\"originalName\":\"[query - sharedWorkbook].properties_tags_0\",\"mergedName\":\"properties_tags_0\",\"fromId\":\"unknown\"},{\"originalName\":\"[query - sharedWorkbook].properties_tags_1\",\"mergedName\":\"properties_tags_1\",\"fromId\":\"unknown\"}]}",
+              "size": 0,
+              "title": "Private Workbooks that have been shared  - with keyword search 🔍",
+              "showExportToExcel": true,
+              "queryType": 7,
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "resourceGroup",
+                    "formatter": 14,
+                    "formatOptions": {
+                      "linkTarget": null
+                    }
+                  },
+                  {
+                    "columnMatch": "Display Name",
+                    "formatter": 5
+                  },
+                  {
+                    "columnMatch": "location1",
+                    "formatter": 5
+                  },
+                  {
+                    "columnMatch": "kind",
+                    "formatter": 5
+                  },
+                  {
+                    "columnMatch": "resourceGroup1",
+                    "formatter": 5
+                  },
+                  {
+                    "columnMatch": "Version",
+                    "formatter": 5
+                  },
+                  {
+                    "columnMatch": "userId",
+                    "formatter": 5
+                  },
+                  {
+                    "columnMatch": "sourceId1",
+                    "formatter": 5
+                  }
+                ],
+                "filter": true,
+                "sortBy": [
+                  {
+                    "itemKey": "DisplayName",
+                    "sortOrder": 1
+                  }
+                ],
+                "labelSettings": [
+                  {
+                    "columnId": "DisplayName"
+                  },
+                  {
+                    "columnId": "Time Modified",
+                    "comment": "(private)"
+                  },
+                  {
+                    "columnId": "location"
+                  },
+                  {
+                    "columnId": "resourceGroup"
+                  },
+                  {
+                    "columnId": "sourceId"
+                  },
+                  {
+                    "columnId": "version"
+                  },
+                  {
+                    "columnId": "Display Name"
+                  },
+                  {
+                    "columnId": "Time Modified1",
+                    "comment": "(shared)"
+                  },
+                  {
+                    "columnId": "location1"
+                  },
+                  {
+                    "columnId": "kind"
+                  },
+                  {
+                    "columnId": "resourceGroup1"
+                  },
+                  {
+                    "columnId": "Category"
+                  },
+                  {
+                    "columnId": "Details"
+                  },
+                  {
+                    "columnId": "Version"
+                  },
+                  {
+                    "columnId": "userId"
+                  },
+                  {
+                    "columnId": "sourceId1"
+                  }
+                ]
+              },
+              "sortBy": [
+                {
+                  "itemKey": "DisplayName",
+                  "sortOrder": 1
+                }
+              ]
+            },
+            "customWidth": "50",
+            "conditionalVisibility": {
+              "parameterName": "hide",
+              "comparison": "isEqualTo",
+              "value": "hide"
+            },
+            "showPin": false,
+            "name": "query - 7 - Copy"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "workbook"
+      },
+      "name": "group - Workbook"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## select a workspace to see saved queries."
+      },
+      "conditionalVisibilities": [
+        {
+          "parameterName": "Workspace",
+          "comparison": "isEqualTo"
+        },
+        {
+          "parameterName": "Subscription",
+          "comparison": "isNotEqualTo"
+        }
+      ],
+      "name": "no workspace set"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## select one or more subscriptions, then pick a workspace to get started"
+      },
+      "conditionalVisibility": {
+        "parameterName": "Subscription",
+        "comparison": "isEqualTo"
+      },
+      "name": "no subscription selected"
+    }
+  ],
+  "fallbackResourceIds": [
+    "Azure Monitor"
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}
