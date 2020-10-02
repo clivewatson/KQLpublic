@@ -212,7 +212,7 @@
     {
       "type": 1,
       "content": {
-        "json": "v0.1 - Initial version \r\nvn.n - Matt Egan took the Workbook as the basis for his Blog Post - changes were made by him to the baseline\r\nv0.2 - Added Secure Score to v0.1 \r\nv0.2.1 - Add Azure Policy tab and reproting\r\nv0.2.1 - Add Azure Inventory tab based on new ARG example in the ASC portal. Azure Defender ARG subassessments added",
+        "json": "v0.1 - Initial version \r\nvn.n - Matt Egan took the Workbook as the basis for his Blog Post - changes were made by him to the baseline\r\nv0.2 - Added Secure Score to v0.1 \r\nv0.2.1 - Add Azure Policy tab and reproting\r\nv0.2.2 - Add Azure Inventory tab based on new ARG example in the ASC portal. Azure Defender ARG subassessments added",
         "style": "info"
       },
       "conditionalVisibility": {
@@ -2048,7 +2048,7 @@
               "version": "KqlItem/1.0",
               "query": "securityresources\r\n                    | where type =~ \"microsoft.security/assessments/subassessments\"\r\n                    | extend assessmentKey=extract(\"providers/Microsoft.Security/assessments/([^/]*)\", 1, id), subAssessmentId=tostring(properties.id)\r\n                    | where assessmentKey == \"1195afff-c881-495e-9bc5-1486211ae03f\"\r\n                    | where properties.status.severity == \"High\"\r\n                    | extend subAssessmentName=tostring(properties.displayName), resourceId = tostring(properties.resourceDetails.id)\r\n                    | summarize count() by subAssessmentName\r\n                    | order by(count_)",
               "size": 0,
-              "title": "Subassessments",
+              "title": "Subassessments.  from Portal Query",
               "showExportToExcel": true,
               "queryType": 1,
               "resourceType": "microsoft.resourcegraph/resources",
@@ -2069,6 +2069,51 @@
               }
             },
             "name": "query - 0"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "securityresources\r\n                    | where type =~ \"microsoft.security/assessments/subassessments\"\r\n                    | extend assessmentKey=extract(\"providers/Microsoft.Security/assessments/([^/]*)\", 1, id), subAssessmentId=tostring(properties.id)\r\n                    | where assessmentKey == \"1195afff-c881-495e-9bc5-1486211ae03f\"\r\n                    //| where properties.status.severity == \"High\"\r\n                    | extend subAssessmentName=tostring(properties.displayName), \r\n                             resourceId = tostring(properties.resourceDetails.id), \r\n                             cve = tostring(properties.additionalData.cve),\r\n                             statusSeverity = tostring(properties.status.severity),\r\n                             statusCode = tostring(properties.status.code),\r\n                             vendorTitle = tostring(properties.additionalData.vendorReferences)\r\n                    | summarize count(), make_set(statusSeverity), make_set(subAssessmentName), make_set(cve), make_set(vendorTitle) by  resourceId\r\n                    //, subAssessmentName, statusSeverity, statusCode,cve, vendorTitle\r\n                  | order by(count_)",
+              "size": 0,
+              "title": "Subassessments: Detailed View",
+              "showExportToExcel": true,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscription}"
+              ],
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "count_",
+                    "formatter": 8,
+                    "formatOptions": {
+                      "palette": "greenRed"
+                    }
+                  },
+                  {
+                    "columnMatch": "cve",
+                    "formatter": 7,
+                    "formatOptions": {
+                      "linkTarget": "CellDetails",
+                      "linkIsContextBlade": true
+                    }
+                  },
+                  {
+                    "columnMatch": "vendorTitle",
+                    "formatter": 7,
+                    "formatOptions": {
+                      "linkTarget": "GenericDetails",
+                      "linkIsContextBlade": true
+                    }
+                  }
+                ],
+                "filter": true
+              },
+              "sortBy": []
+            },
+            "name": "query - 0 - Copy"
           }
         ]
       },
