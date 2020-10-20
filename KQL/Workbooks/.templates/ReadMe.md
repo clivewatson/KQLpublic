@@ -6,9 +6,9 @@ They have a Subscription, Workspace and Time picker parameters.  They also have 
 
 1. _withHelp_ has the above features.
 2. _withHelpandTabs_ builds on #1, plus it has two example Tabs (Tab One and Tab Two, which you would rename)
+3. _withHelpandTabs_ builds on both the above and adds Groups to aid your workbook.  https://docs.microsoft.com/en-us/azure/azure-monitor/platform/workbooks-groups  
 
-
-I have added a small Gif file to show how you change these.  
+I have added a small Gif file to show how you change these, for example #1 and #2.  
 
 Feedback welcome
 
