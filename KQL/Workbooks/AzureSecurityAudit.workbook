@@ -15,6 +15,7 @@
         "style": "tabs",
         "links": [
           {
+            "id": "1d4ff9f8-0e06-4f67-9e4f-add4f5c3da2f",
             "cellValue": "selectedTab",
             "linkTarget": "parameter",
             "linkLabel": "Alerts and Incidents",
@@ -22,6 +23,7 @@
             "style": "link"
           },
           {
+            "id": "025d9eec-e423-462c-bc3c-67a941a8fc38",
             "cellValue": "selectedTab",
             "linkTarget": "parameter",
             "linkLabel": "Compliance",
@@ -29,6 +31,7 @@
             "style": "link"
           },
           {
+            "id": "1d96c534-1c94-432c-9d83-7cca991ca0f9",
             "cellValue": "selectedTab",
             "linkTarget": "parameter",
             "linkLabel": "Qualys",
@@ -36,6 +39,7 @@
             "style": "link"
           },
           {
+            "id": "a9fd967b-4bdc-4122-95a0-13b859a2bb62",
             "cellValue": "selectedTab",
             "linkTarget": "parameter",
             "linkLabel": "Advisor",
@@ -99,9 +103,6 @@
       "type": 9,
       "content": {
         "version": "KqlParameterItem/1.0",
-        "crossComponentResources": [
-          "{Subscription}"
-        ],
         "parameters": [
           {
             "id": "58f98b1b-d219-4e12-9d8c-53459c88d0bc",
@@ -116,8 +117,7 @@
               "additionalResourceOptions": []
             },
             "queryType": 1,
-            "resourceType": "microsoft.resourcegraph/resources",
-            "value": null
+            "resourceType": "microsoft.resourcegraph/resources"
           },
           {
             "id": "b79e1abb-237b-4e24-980f-064b30089a22",
@@ -176,8 +176,18 @@
                   "durationMs": 7776000000
                 }
               ]
+            }
+          },
+          {
+            "id": "ec52b558-79ed-4ee5-9fe0-e4ca081f5c9f",
+            "version": "KqlParameterItem/1.0",
+            "name": "Help",
+            "type": 10,
+            "isRequired": true,
+            "typeSettings": {
+              "additionalResourceOptions": []
             },
-            "resourceType": "microsoft.insights/components"
+            "jsonData": "[\r\n { \"value\": \"Yes\", \"label\": \"Yes\"},\r\n {\"value\": \"No\", \"label\": \"No\", \"selected\":true },\r\n { \"value\": \"Change Log\", \"label\": \"Change Log\"}\r\n]"
           }
         ],
         "style": "above",
@@ -193,6 +203,30 @@
       "name": "parameters - 30"
     },
     {
+      "type": 1,
+      "content": {
+        "json": "|Version|Description|\r\n|---|---|\r\n|v0.1 | Initial version| \r\n|v0.2 | Bug Fix Qualys Tab |\r\n"
+      },
+      "conditionalVisibility": {
+        "parameterName": "Help",
+        "comparison": "isEqualTo",
+        "value": "Change Log"
+      },
+      "name": "text - 40"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "### Help file\r\n"
+      },
+      "conditionalVisibility": {
+        "parameterName": "Help",
+        "comparison": "isEqualTo",
+        "value": "Yes"
+      },
+      "name": "text - help file"
+    },
+    {
       "type": 3,
       "content": {
         "version": "KqlItem/1.0",
@@ -200,7 +234,7 @@
         "size": 1,
         "title": "Alerts by Severity",
         "timeContext": {
-          "durationMs": 0
+          "durationMs": 1209600000
         },
         "timeContextFromParameter": "TimeRange",
         "queryType": 0,
@@ -211,13 +245,6 @@
         "visualization": "piechart",
         "gridSettings": {
           "formatters": [
-            {
-              "columnMatch": "name",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
             {
               "columnMatch": "passedControls",
               "formatter": 3,
@@ -260,13 +287,6 @@
               "formatter": 3,
               "formatOptions": {
                 "palette": "coldHot",
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "subscriptionId",
-              "formatter": 0,
-              "formatOptions": {
                 "showIcon": true
               }
             }
@@ -290,7 +310,7 @@
         "size": 1,
         "title": "Alerts by Provider Name",
         "timeContext": {
-          "durationMs": 0
+          "durationMs": 1209600000
         },
         "timeContextFromParameter": "TimeRange",
         "queryType": 0,
@@ -301,13 +321,6 @@
         "visualization": "piechart",
         "gridSettings": {
           "formatters": [
-            {
-              "columnMatch": "name",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
             {
               "columnMatch": "passedControls",
               "formatter": 3,
@@ -350,13 +363,6 @@
               "formatter": 3,
               "formatOptions": {
                 "palette": "coldHot",
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "subscriptionId",
-              "formatter": 0,
-              "formatOptions": {
                 "showIcon": true
               }
             }
@@ -380,7 +386,7 @@
         "size": 1,
         "title": "Distinct Alerts by Product Name",
         "timeContext": {
-          "durationMs": 0
+          "durationMs": 1209600000
         },
         "timeContextFromParameter": "TimeRange",
         "queryType": 0,
@@ -391,13 +397,6 @@
         "visualization": "piechart",
         "gridSettings": {
           "formatters": [
-            {
-              "columnMatch": "name",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
             {
               "columnMatch": "passedControls",
               "formatter": 3,
@@ -440,13 +439,6 @@
               "formatter": 3,
               "formatOptions": {
                 "palette": "coldHot",
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "subscriptionId",
-              "formatter": 0,
-              "formatOptions": {
                 "showIcon": true
               }
             }
@@ -492,7 +484,8 @@
             },
             "timeContextFromParameter": "TimeRange",
             "queryType": 0,
-            "resourceType": "microsoft.operationalinsights/workspaces"
+            "resourceType": "microsoft.operationalinsights/workspaces",
+            "value": []
           }
         ],
         "style": "above",
@@ -514,7 +507,7 @@
         "size": 0,
         "title": "Top Alerts {TimeRange:label}",
         "timeContext": {
-          "durationMs": 0
+          "durationMs": 1209600000
         },
         "timeContextFromParameter": "TimeRange",
         "exportedParameters": [
@@ -574,92 +567,8 @@
               }
             },
             {
-              "columnMatch": "Description",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "VendorName",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "SystemAlertId",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "ResourceId",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "AlertType",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "ConfidenceLevel",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "StartTime",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "EndTime",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "RemediationSteps",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "ProductName",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
               "columnMatch": "AlertLink",
               "formatter": 7,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "AlertCount",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "name",
-              "formatter": 0,
               "formatOptions": {
                 "showIcon": true
               }
@@ -706,13 +615,6 @@
               "formatter": 3,
               "formatOptions": {
                 "palette": "coldHot",
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "subscriptionId",
-              "formatter": 0,
-              "formatOptions": {
                 "showIcon": true
               }
             }
@@ -747,7 +649,7 @@
         "size": 1,
         "title": "Alerts trend for {TimeRange:label} ",
         "timeContext": {
-          "durationMs": 0
+          "durationMs": 1209600000
         },
         "timeContextFromParameter": "TimeRange",
         "queryType": 0,
@@ -758,13 +660,6 @@
         "visualization": "timechart",
         "gridSettings": {
           "formatters": [
-            {
-              "columnMatch": "name",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
             {
               "columnMatch": "passedControls",
               "formatter": 3,
@@ -807,13 +702,6 @@
               "formatter": 3,
               "formatOptions": {
                 "palette": "coldHot",
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "subscriptionId",
-              "formatter": 0,
-              "formatOptions": {
                 "showIcon": true
               }
             }
@@ -849,7 +737,9 @@
             "crossComponentResources": [
               "{Workspace}"
             ],
-            "value": null,
+            "value": [
+              "value::all"
+            ],
             "typeSettings": {
               "additionalResourceOptions": [
                 "value::all"
@@ -882,7 +772,7 @@
         "size": 0,
         "title": "Alerts Details for {TimeRange:label}",
         "timeContext": {
-          "durationMs": 0
+          "durationMs": 1209600000
         },
         "timeContextFromParameter": "TimeRange",
         "showExportToExcel": true,
@@ -932,92 +822,8 @@
               }
             },
             {
-              "columnMatch": "Description",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "VendorName",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "SystemAlertId",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "ResourceId",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "AlertType",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "ConfidenceLevel",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "StartTime",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "EndTime",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "RemediationSteps",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "ProductName",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
               "columnMatch": "AlertLink",
               "formatter": 7,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "AlertCount",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "name",
-              "formatter": 0,
               "formatOptions": {
                 "showIcon": true
               }
@@ -1064,13 +870,6 @@
               "formatter": 3,
               "formatOptions": {
                 "palette": "coldHot",
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "subscriptionId",
-              "formatter": 0,
-              "formatOptions": {
                 "showIcon": true
               }
             }
@@ -1111,13 +910,6 @@
         "gridSettings": {
           "formatters": [
             {
-              "columnMatch": "name",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
               "columnMatch": "passedControls",
               "formatter": 3,
               "formatOptions": {
@@ -1159,13 +951,6 @@
               "formatter": 3,
               "formatOptions": {
                 "palette": "coldHot",
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "subscriptionId",
-              "formatter": 0,
-              "formatOptions": {
                 "showIcon": true
               }
             }
@@ -1309,20 +1094,6 @@
         "gridSettings": {
           "formatters": [
             {
-              "columnMatch": "ControlName",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "name",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
               "columnMatch": "Status",
               "formatter": 18,
               "formatOptions": {
@@ -1371,13 +1142,6 @@
                   "style": "decimal",
                   "useGrouping": false
                 }
-              }
-            },
-            {
-              "columnMatch": "description",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
               }
             }
           ],
@@ -1429,20 +1193,6 @@
         ],
         "gridSettings": {
           "formatters": [
-            {
-              "columnMatch": "ControlName",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "description",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
             {
               "columnMatch": "Status",
               "formatter": 18,
@@ -1609,13 +1359,6 @@
         "gridSettings": {
           "formatters": [
             {
-              "columnMatch": "Catagory",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
               "columnMatch": "High",
               "formatter": 3,
               "formatOptions": {
@@ -1670,8 +1413,7 @@
               }
             }
           }
-        },
-        "chartSettings": {}
+        }
       },
       "conditionalVisibility": {
         "parameterName": "selectedTab",
@@ -1697,7 +1439,7 @@
       "type": 3,
       "content": {
         "version": "KqlItem/1.0",
-        "query": "securityresources\r\n | where type == \"microsoft.security/assessments\"\r\n | where * contains \"Remediate vulnerabilities found on your virtual machines (powered by Qualys)\"\r\n | summarize by assessmentKey=name //the ID of the assessment\r\n | join kind=inner (\r\n    securityresources\r\n     | where type == \"microsoft.security/assessments/subassessments\"\r\n     | extend assessmentKey = extract(\".*assessments/(.+?)/.*\",1,  id)\r\n ) on assessmentKey\r\n| project assessmentKey, subassessmentKey=name, id, parse_json(properties), resourceGroup, subscriptionId, tenantId\r\n| extend description = properties.description,\r\n         displayName = properties.displayName,\r\n         resourceId = properties.resourceDetails.id,\r\n         resourceSource = properties.resourceDetails.source,\r\n         category = properties.category,\r\n         severity = properties.status.severity,\r\n         code = properties.status.code,\r\n         timeGenerated = properties.timeGenerated,\r\n         remediation = properties.remediation,\r\n         impact = properties.impact,\r\n         vulnId = properties.id,\r\n         additionalData = properties.additionalData\r\n| summarize count() by  tostring(severity), tostring(category)",
+        "query": "securityresources\r\n | where type == \"microsoft.security/assessments\"\r\n | where * contains \"(powered by Qualys)\"\r\n | summarize by assessmentKey=name //the ID of the assessment\r\n | join kind=inner (\r\n    securityresources\r\n     | where type == \"microsoft.security/assessments/subassessments\"\r\n     | extend assessmentKey = extract(\".*assessments/(.+?)/.*\",1,  id)\r\n ) on assessmentKey\r\n| project assessmentKey, subassessmentKey=name, id, parse_json(properties), resourceGroup, subscriptionId, tenantId\r\n| extend description = properties.description,\r\n         displayName = properties.displayName,\r\n         resourceId = properties.resourceDetails.id,\r\n         resourceSource = properties.resourceDetails.source,\r\n         category = properties.category,\r\n         severity = properties.status.severity,\r\n         code = properties.status.code,\r\n         timeGenerated = properties.timeGenerated,\r\n         remediation = properties.remediation,\r\n         impact = properties.impact,\r\n         vulnId = properties.id,\r\n         additionalData = properties.additionalData\r\n| summarize count() by  tostring(severity), tostring(category)",
         "size": 1,
         "title": "Severity",
         "queryType": 1,
@@ -1735,7 +1477,7 @@
       "type": 3,
       "content": {
         "version": "KqlItem/1.0",
-        "query": "securityresources\r\n | where type == \"microsoft.security/assessments\"\r\n | where * contains \"Remediate vulnerabilities found on your virtual machines (powered by Qualys)\"\r\n | summarize by assessmentKey=name //the ID of the assessment\r\n | join kind=inner (\r\n    securityresources\r\n     | where type == \"microsoft.security/assessments/subassessments\"\r\n     | extend assessmentKey = extract(\".*assessments/(.+?)/.*\",1,  id)\r\n ) on assessmentKey\r\n| project assessmentKey, subassessmentKey=name, id, parse_json(properties), resourceGroup, subscriptionId, tenantId\r\n| extend description = properties.description,\r\n         displayName = properties.displayName,\r\n         resourceId = properties.resourceDetails.id,\r\n         resourceSource = properties.resourceDetails.source,\r\n         category = properties.category,\r\n         severity = properties.status.severity,\r\n         code = properties.status.code,\r\n         timeGenerated = properties.timeGenerated,\r\n         remediation = properties.remediation,\r\n         impact = properties.impact,\r\n         vulnId = properties.id,\r\n         additionalData = properties.additionalData\r\n| summarize count() by tostring(displayName), tostring(severity), tostring(category)",
+        "query": "securityresources\r\n | where type == \"microsoft.security/assessments\"\r\n | where * contains \" (powered by Qualys)\"\r\n | summarize by assessmentKey=name //the ID of the assessment\r\n | join kind=inner (\r\n    securityresources\r\n     | where type == \"microsoft.security/assessments/subassessments\"\r\n     | extend assessmentKey = extract(\".*assessments/(.+?)/.*\",1,  id)\r\n ) on assessmentKey\r\n| project assessmentKey, subassessmentKey=name, id, parse_json(properties), resourceGroup, subscriptionId, tenantId\r\n| extend description = properties.description,\r\n         displayName = properties.displayName,\r\n         resourceId = properties.resourceDetails.id,\r\n         resourceSource = properties.resourceDetails.source,\r\n         category = properties.category,\r\n         severity = properties.status.severity,\r\n         code = properties.status.code,\r\n         timeGenerated = properties.timeGenerated,\r\n         remediation = properties.remediation,\r\n         impact = properties.impact,\r\n         vulnId = properties.id,\r\n         additionalData = properties.additionalData\r\n| summarize count() by tostring(displayName), tostring(severity), tostring(category)",
         "size": 1,
         "title": "Description",
         "queryType": 1,
@@ -1757,7 +1499,7 @@
       "type": 3,
       "content": {
         "version": "KqlItem/1.0",
-        "query": "securityresources\r\n | where type == \"microsoft.security/assessments\"\r\n | where * contains \"Remediate vulnerabilities found on your virtual machines (powered by Qualys)\"\r\n | summarize by assessmentKey=name //the ID of the assessment\r\n | join kind=inner (\r\n    securityresources\r\n     | where type == \"microsoft.security/assessments/subassessments\"\r\n     | extend assessmentKey = extract(\".*assessments/(.+?)/.*\",1,  id)\r\n ) on assessmentKey\r\n| project assessmentKey, subassessmentKey=name, id, parse_json(properties), resourceGroup, subscriptionId, tenantId\r\n| extend description = properties.description,\r\n         displayName = properties.displayName,\r\n         resourceId = properties.resourceDetails.id,\r\n         resourceSource = properties.resourceDetails.source,\r\n         category = properties.category,\r\n         severity = properties.status.severity,\r\n         code = properties.status.code,\r\n         timeGenerated = properties.timeGenerated,\r\n         remediation = properties.remediation,\r\n         impact = properties.impact,\r\n         vulnId = properties.id,\r\n         additionalData = properties.additionalData\r\n| summarize count() by   tostring(category)",
+        "query": "securityresources\r\n | where type == \"microsoft.security/assessments\"\r\n | where * contains \"(powered by Qualys)\"\r\n | summarize by assessmentKey=name //the ID of the assessment\r\n | join kind=inner (\r\n    securityresources\r\n     | where type == \"microsoft.security/assessments/subassessments\"\r\n     | extend assessmentKey = extract(\".*assessments/(.+?)/.*\",1,  id)\r\n ) on assessmentKey\r\n| project assessmentKey, subassessmentKey=name, id, parse_json(properties), resourceGroup, subscriptionId, tenantId\r\n| extend description = properties.description,\r\n         displayName = properties.displayName,\r\n         resourceId = properties.resourceDetails.id,\r\n         resourceSource = properties.resourceDetails.source,\r\n         category = properties.category,\r\n         severity = properties.status.severity,\r\n         code = properties.status.code,\r\n         timeGenerated = properties.timeGenerated,\r\n         remediation = properties.remediation,\r\n         impact = properties.impact,\r\n         vulnId = properties.id,\r\n         additionalData = properties.additionalData\r\n| summarize count() by   tostring(category)",
         "size": 1,
         "title": "Category",
         "queryType": 1,
@@ -1797,13 +1539,14 @@
               "{Subscription}"
             ],
             "value": [
-              "High"
+              "value::all"
             ],
             "typeSettings": {
               "additionalResourceOptions": [
                 "value::all"
               ],
-              "selectAllValue": ""
+              "selectAllValue": "",
+              "showDefault": false
             },
             "queryType": 1,
             "resourceType": "microsoft.resourcegraph/resources"
@@ -1824,9 +1567,9 @@
       "type": 3,
       "content": {
         "version": "KqlItem/1.0",
-        "query": "securityresources\r\n | where type == \"microsoft.security/assessments\"\r\n | where * contains \"Remediate vulnerabilities found on your virtual machines (powered by Qualys)\"\r\n | summarize by assessmentKey=name //the ID of the assessment\r\n | join kind=inner (\r\n    securityresources\r\n     | where type == \"microsoft.security/assessments/subassessments\"\r\n     | extend assessmentKey = extract(\".*assessments/(.+?)/.*\",1,  id)\r\n ) on assessmentKey\r\n| parse id with * \"/virtualMachines/\" strCompName \"/providers\" * \r\n| project assessmentKey, subassessmentKey=name, id, parse_json(properties), resourceGroup, subscriptionId, tenantId, strCompName\r\n| extend description = properties.description,\r\n         displayName = properties.displayName,\r\n         resourceId = properties.resourceDetails.id,\r\n         resourceSource = properties.resourceDetails.source,\r\n         category = properties.category,\r\n         severity = properties.status.severity,\r\n         code = properties.status.code,\r\n         timeGenerated = properties.timeGenerated,\r\n         remediation = properties.remediation,\r\n         impact = properties.impact,\r\n         vulnId = properties.id,\r\n         additionalData = properties.additionalData,\r\n         assessedResourceType  = tostring(properties.additionalData.assessedResourceType),\r\n\t\t vendorReferences      = tostring(properties.additionalData.vendorReferences),\r\n\t\t patchable\t\t       = tostring(properties.additionalData.patchable),\r\n\t\t atype      \t\t   = tostring(properties.additionalData.type),\r\n\t\t threat      \t\t   = tostring(properties.additionalData.threat)\r\n//| project severity, '{Severity:name}'\r\n| where severity in ({Severity})\r\n| summarize by Severity = tostring(severity), ['Computer Name']=strCompName, Description = tostring(displayName) , Category = tostring(category) ,  tostring(remediation), tostring(impact), tostring(vulnId),  assessedResourceType, vendorReferences, patchable, Type=atype, threat\r\n\r\n",
+        "query": "securityresources\r\n | where type == \"microsoft.security/assessments\"\r\n | where * contains \" (powered by Qualys)\"\r\n | summarize by assessmentKey=name //the ID of the assessment\r\n | join kind=inner (\r\n    securityresources\r\n     | where type == \"microsoft.security/assessments/subassessments\"\r\n     | extend assessmentKey = extract(\".*assessments/(.+?)/.*\",1,  id)\r\n ) on assessmentKey\r\n| parse id with * \"/virtualMachines/\" strCompName \"/providers\" * \r\n| project assessmentKey, subassessmentKey=name, id, parse_json(properties), resourceGroup, subscriptionId, tenantId, strCompName\r\n| extend description = properties.description,\r\n         displayName = properties.displayName,\r\n         resourceId = properties.resourceDetails.id,\r\n         resourceSource = properties.resourceDetails.source,\r\n         category = properties.category,\r\n         severity = properties.status.severity,\r\n         code = properties.status.code,\r\n         timeGenerated = properties.timeGenerated,\r\n         remediation = properties.remediation,\r\n         impact = properties.impact,\r\n         vulnId = properties.id,\r\n         additionalData = properties.additionalData,\r\n         assessedResourceType  = tostring(properties.additionalData.assessedResourceType),\r\n\t\t vendorReferences      = tostring(properties.additionalData.vendorReferences),\r\n\t\t patchable\t\t       = tostring(properties.additionalData.patchable),\r\n\t\t atype      \t\t   = tostring(properties.additionalData.type),\r\n\t\t threat      \t\t   = tostring(properties.additionalData.threat)\r\n\r\n",
         "size": 0,
-        "title": "Qualys report",
+        "title": "Qualys report ",
         "noDataMessage": "No Qualsys data detected",
         "showExportToExcel": true,
         "queryType": 1,
@@ -1871,55 +1614,6 @@
               }
             },
             {
-              "columnMatch": "Description",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "Category",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "remediation",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "impact",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "vulnId",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "assessedResourceType",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "vendorReferences",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
               "columnMatch": "patchable",
               "formatter": 18,
               "formatOptions": {
@@ -1946,141 +1640,11 @@
                   }
                 ]
               }
-            },
-            {
-              "columnMatch": "Type",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "threat",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "assessmentKey",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "subassessmentKey",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "id",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "properties",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "resourceGroup",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "subscriptionId",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "tenantId",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "description",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "displayName",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "resourceId",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "resourceSource",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "category",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "code",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "timeGenerated",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "additionalData",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
             }
           ],
-          "filter": true,
-          "sortBy": [
-            {
-              "itemKey": "Computer Name",
-              "sortOrder": 2
-            }
-          ]
+          "filter": true
         },
-        "sortBy": [
-          {
-            "itemKey": "Computer Name",
-            "sortOrder": 2
-          }
-        ]
+        "sortBy": []
       },
       "conditionalVisibility": {
         "parameterName": "selectedTab",
@@ -2093,9 +1657,9 @@
       "type": 3,
       "content": {
         "version": "KqlItem/1.0",
-        "query": "SecurityAlert \r\n| where ProductName in ( {ProductSelection} )\r\n| extend HostName = tostring(parse_json(Entities)[0].HostName) \r\n| where isnotempty(HostName)\r\n| summarize by HostName, ProductName",
+        "query": "SecurityAlert \r\n| where ProductName in ( {ProductSelection} )\r\n| extend HostName = tostring(parse_json(Entities)[1].HostName) \r\n| where isnotempty(HostName)\r\n| summarize by HostName, ProductName",
         "size": 0,
-        "title": "Qualys issues by Hostname",
+        "title": "Qualys issues by Hostname  {ProductSelection} ",
         "noDataMessage": "No Qualsys data detected",
         "exportFieldName": "HostName",
         "exportParameterName": "HostName",
@@ -2142,55 +1706,6 @@
               }
             },
             {
-              "columnMatch": "Description",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "Category",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "remediation",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "impact",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "vulnId",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "assessedResourceType",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "vendorReferences",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
               "columnMatch": "patchable",
               "formatter": 18,
               "formatOptions": {
@@ -2217,125 +1732,6 @@
                   }
                 ]
               }
-            },
-            {
-              "columnMatch": "Type",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "threat",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "assessmentKey",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "subassessmentKey",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "id",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "properties",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "resourceGroup",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "subscriptionId",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "tenantId",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "description",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "displayName",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "resourceId",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "resourceSource",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "category",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "code",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "timeGenerated",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "additionalData",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
             }
           ],
           "filter": true
@@ -2353,19 +1749,12 @@
       "type": 3,
       "content": {
         "version": "KqlItem/1.0",
-        "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"92c10563-65e8-47a3-af5c-f3195a23f0f3\",\"mergeType\":\"innerunique\",\"leftTable\":\"query - 12\",\"rightTable\":\"query - 12 - Copy\",\"leftColumn\":\"Computer Name\",\"rightColumn\":\"HostName\"}],\"projectRename\":[{\"originalName\":\"[query - 12 - Copy].ProductName\",\"mergedName\":\"ProductName\",\"fromId\":\"unknown\"},{\"originalName\":\"[query - 12].Severity\",\"mergedName\":\"Severity\",\"fromId\":\"92c10563-65e8-47a3-af5c-f3195a23f0f3\"},{\"originalName\":\"[query - 12].Computer Name\",\"mergedName\":\"Computer Name\",\"fromId\":\"92c10563-65e8-47a3-af5c-f3195a23f0f3\"},{\"originalName\":\"[query - 12].Description\",\"mergedName\":\"Description\",\"fromId\":\"92c10563-65e8-47a3-af5c-f3195a23f0f3\"},{\"originalName\":\"[query - 12].Category\",\"mergedName\":\"Category\",\"fromId\":\"92c10563-65e8-47a3-af5c-f3195a23f0f3\"},{\"originalName\":\"[query - 12].remediation\",\"mergedName\":\"remediation\",\"fromId\":\"92c10563-65e8-47a3-af5c-f3195a23f0f3\"},{\"originalName\":\"[query - 12].impact\",\"mergedName\":\"impact\",\"fromId\":\"92c10563-65e8-47a3-af5c-f3195a23f0f3\"},{\"originalName\":\"[query - 12].vulnId\",\"mergedName\":\"vulnId\",\"fromId\":\"92c10563-65e8-47a3-af5c-f3195a23f0f3\"},{\"originalName\":\"[query - 12].assessedResourceType\",\"mergedName\":\"assessedResourceType\",\"fromId\":\"92c10563-65e8-47a3-af5c-f3195a23f0f3\"},{\"originalName\":\"[query - 12].vendorReferences\",\"mergedName\":\"vendorReferences\",\"fromId\":\"92c10563-65e8-47a3-af5c-f3195a23f0f3\"},{\"originalName\":\"[query - 12].patchable\",\"mergedName\":\"patchable\",\"fromId\":\"92c10563-65e8-47a3-af5c-f3195a23f0f3\"},{\"originalName\":\"[query - 12].Type\",\"mergedName\":\"Type\",\"fromId\":\"92c10563-65e8-47a3-af5c-f3195a23f0f3\"},{\"originalName\":\"[query - 12].threat\",\"mergedName\":\"threat\",\"fromId\":\"92c10563-65e8-47a3-af5c-f3195a23f0f3\"},{\"originalName\":\"[query - 12 - Copy].HostName\",\"mergedName\":\"HostName\",\"fromId\":\"92c10563-65e8-47a3-af5c-f3195a23f0f3\"}]}",
+        "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"92c10563-65e8-47a3-af5c-f3195a23f0f3\",\"mergeType\":\"innerunique\",\"leftTable\":\"query - 12\",\"rightTable\":\"query - 12 - Copy\",\"leftColumn\":\"strCompName\",\"rightColumn\":\"HostName\"}],\"projectRename\":[{\"originalName\":\"[query - 12 - Copy].ProductName\",\"mergedName\":\"ProductName\",\"fromId\":\"unknown\"},{\"originalName\":\"[query - 12].assessmentKey\",\"mergedName\":\"assessmentKey\",\"fromId\":\"92c10563-65e8-47a3-af5c-f3195a23f0f3\"},{\"originalName\":\"[query - 12].subassessmentKey\",\"mergedName\":\"subassessmentKey\",\"fromId\":\"92c10563-65e8-47a3-af5c-f3195a23f0f3\"},{\"originalName\":\"[query - 12].id\",\"mergedName\":\"id\",\"fromId\":\"92c10563-65e8-47a3-af5c-f3195a23f0f3\"},{\"originalName\":\"[query - 12].properties\",\"mergedName\":\"properties\",\"fromId\":\"92c10563-65e8-47a3-af5c-f3195a23f0f3\"},{\"originalName\":\"[query - 12].resourceGroup\",\"mergedName\":\"resourceGroup\",\"fromId\":\"92c10563-65e8-47a3-af5c-f3195a23f0f3\"},{\"originalName\":\"[query - 12].subscriptionId\",\"mergedName\":\"subscriptionId\",\"fromId\":\"92c10563-65e8-47a3-af5c-f3195a23f0f3\"},{\"originalName\":\"[query - 12].tenantId\",\"mergedName\":\"tenantId\",\"fromId\":\"92c10563-65e8-47a3-af5c-f3195a23f0f3\"},{\"originalName\":\"[query - 12].strCompName\",\"mergedName\":\"strCompName\",\"fromId\":\"92c10563-65e8-47a3-af5c-f3195a23f0f3\"},{\"originalName\":\"[query - 12].description\",\"mergedName\":\"description\",\"fromId\":\"92c10563-65e8-47a3-af5c-f3195a23f0f3\"},{\"originalName\":\"[query - 12].displayName\",\"mergedName\":\"displayName\",\"fromId\":\"92c10563-65e8-47a3-af5c-f3195a23f0f3\"},{\"originalName\":\"[query - 12].resourceId\",\"mergedName\":\"resourceId\",\"fromId\":\"92c10563-65e8-47a3-af5c-f3195a23f0f3\"},{\"originalName\":\"[query - 12].resourceSource\",\"mergedName\":\"resourceSource\",\"fromId\":\"92c10563-65e8-47a3-af5c-f3195a23f0f3\"},{\"originalName\":\"[query - 12].category\",\"mergedName\":\"category\",\"fromId\":\"92c10563-65e8-47a3-af5c-f3195a23f0f3\"},{\"originalName\":\"[query - 12].severity\",\"mergedName\":\"severity\",\"fromId\":\"92c10563-65e8-47a3-af5c-f3195a23f0f3\"},{\"originalName\":\"[query - 12].code\",\"mergedName\":\"code\",\"fromId\":\"92c10563-65e8-47a3-af5c-f3195a23f0f3\"},{\"originalName\":\"[query - 12].timeGenerated\",\"mergedName\":\"timeGenerated\",\"fromId\":\"92c10563-65e8-47a3-af5c-f3195a23f0f3\"},{\"originalName\":\"[query - 12].remediation\",\"mergedName\":\"remediation\",\"fromId\":\"92c10563-65e8-47a3-af5c-f3195a23f0f3\"},{\"originalName\":\"[query - 12].impact\",\"mergedName\":\"impact\",\"fromId\":\"92c10563-65e8-47a3-af5c-f3195a23f0f3\"},{\"originalName\":\"[query - 12].vulnId\",\"mergedName\":\"vulnId\",\"fromId\":\"92c10563-65e8-47a3-af5c-f3195a23f0f3\"},{\"originalName\":\"[query - 12].additionalData\",\"mergedName\":\"additionalData\",\"fromId\":\"92c10563-65e8-47a3-af5c-f3195a23f0f3\"},{\"originalName\":\"[query - 12].assessedResourceType\",\"mergedName\":\"assessedResourceType\",\"fromId\":\"92c10563-65e8-47a3-af5c-f3195a23f0f3\"},{\"originalName\":\"[query - 12].vendorReferences\",\"mergedName\":\"vendorReferences\",\"fromId\":\"92c10563-65e8-47a3-af5c-f3195a23f0f3\"},{\"originalName\":\"[query - 12].patchable\",\"mergedName\":\"patchable\",\"fromId\":\"92c10563-65e8-47a3-af5c-f3195a23f0f3\"},{\"originalName\":\"[query - 12].atype\",\"mergedName\":\"atype\",\"fromId\":\"92c10563-65e8-47a3-af5c-f3195a23f0f3\"},{\"originalName\":\"[query - 12].threat\",\"mergedName\":\"threat\",\"fromId\":\"92c10563-65e8-47a3-af5c-f3195a23f0f3\"},{\"originalName\":\"[query - 12 - Copy].HostName\",\"mergedName\":\"HostName\",\"fromId\":\"92c10563-65e8-47a3-af5c-f3195a23f0f3\"}]}",
         "size": 0,
         "title": "Computers with Alerts and Qualys recommendations",
         "queryType": 7,
         "gridSettings": {
           "formatters": [
-            {
-              "columnMatch": "Severity",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
             {
               "columnMatch": "Computer Name",
               "formatter": 18,
@@ -2383,92 +1772,8 @@
               }
             },
             {
-              "columnMatch": "Description",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "Category",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "remediation",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "impact",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "vulnId",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "assessedResourceType",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
               "columnMatch": "vendorReferences",
               "formatter": 7,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "patchable",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "Type",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "threat",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "HostName",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "ProductName",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "$gen_group",
-              "formatter": 0,
               "formatOptions": {
                 "showIcon": true
               }
@@ -2659,41 +1964,6 @@
         "gridSettings": {
           "formatters": [
             {
-              "columnMatch": "category",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "id",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "shortDescSolution",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "impactedField",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "lastUpdated",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
               "columnMatch": "impact",
               "formatter": 18,
               "formatOptions": {
@@ -2725,20 +1995,6 @@
                     "text": "{0}{1}"
                   }
                 ]
-              }
-            },
-            {
-              "columnMatch": "resourceGroup",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "subscriptionId",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
               }
             }
           ],
@@ -2780,41 +2036,6 @@
         "gridSettings": {
           "formatters": [
             {
-              "columnMatch": "category",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "id",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "shortDescSolution",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "impactedField",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "lastUpdated",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
               "columnMatch": "impact",
               "formatter": 18,
               "formatOptions": {
@@ -2846,20 +2067,6 @@
                     "text": "{0}{1}"
                   }
                 ]
-              }
-            },
-            {
-              "columnMatch": "resourceGroup",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "subscriptionId",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
               }
             }
           ],
@@ -2948,13 +2155,6 @@
         "gridSettings": {
           "formatters": [
             {
-              "columnMatch": "Description",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
               "columnMatch": "impact",
               "formatter": 18,
               "formatOptions": {
@@ -2986,20 +2186,6 @@
                     "text": "{0}{1}"
                   }
                 ]
-              }
-            },
-            {
-              "columnMatch": "ResourceType",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "count_",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
               }
             }
           ],
@@ -3042,22 +2228,6 @@
         "gridSettings": {
           "formatters": [
             {
-              "columnMatch": "Description",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "Resource Name",
-              "formatter": 0,
-              "formatOptions": {
-                "linkColumn": "Resource Name",
-                "linkTarget": "Url",
-                "showIcon": true
-              }
-            },
-            {
               "columnMatch": "impact",
               "formatter": 18,
               "formatOptions": {
@@ -3090,20 +2260,6 @@
                   }
                 ]
               }
-            },
-            {
-              "columnMatch": "ResourceType",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
-            },
-            {
-              "columnMatch": "count_",
-              "formatter": 0,
-              "formatOptions": {
-                "showIcon": true
-              }
             }
           ],
           "filter": true
@@ -3118,6 +2274,8 @@
       "name": "query - 24 - Copy"
     }
   ],
-  "fromTemplateId": "community-Workbooks/Azure Monitor - Workspaces/Workspace Usage",
+  "fallbackResourceIds": [
+    "Azure Monitor"
+  ],
   "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
 }
