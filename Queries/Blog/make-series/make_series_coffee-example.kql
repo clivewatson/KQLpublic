@@ -1,0 +1,14 @@
+let T = datatable (TimeGenerated:datetime, drinkType:string, CounterValue:int)
+[
+"2020-11-18","Coffee",3,
+"2020-11-19","Coffee",2,
+"2020-11-20","Coffee",2,
+"2020-11-21","Coffee",1,
+"2020-11-22","Coffee",4,
+"2020-11-23","Coffee",5,
+"2020-11-24","Coffee",2,
+];
+T
+| make-series y=sum(CounterValue) default=0 on TimeGenerated from ago(7d) to now()+7d step 1d 
+| extend Forecast = series_decompose_forecast(y, 7)
+| render timechart 
