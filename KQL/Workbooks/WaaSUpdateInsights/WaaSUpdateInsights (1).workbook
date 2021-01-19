@@ -1,0 +1,400 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "parameters": [
+          {
+            "id": "997c84bc-c454-47f7-a288-99429173dfeb",
+            "version": "KqlParameterItem/1.0",
+            "name": "Subscription",
+            "type": 6,
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "value": [
+              "/subscriptions/d1d8779d-38d7-4f06-91db-9cbc8de0176f"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": [],
+              "includeAll": false
+            }
+          },
+          {
+            "id": "73638b3d-aa3f-4872-a56b-a0eaf3fc7714",
+            "version": "KqlParameterItem/1.0",
+            "name": "Workspace",
+            "type": 5,
+            "isRequired": true,
+            "query": "Resources | where type =~ \"microsoft.operationalinsights/workspaces\" | order by name | project id, name, selected=row_number()==1, group=resourceGroup",
+            "crossComponentResources": [
+              "{Subscription}"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": []
+            },
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources",
+            "value": "/subscriptions/d1d8779d-38d7-4f06-91db-9cbc8de0176f/resourceGroups/soc/providers/Microsoft.OperationalInsights/workspaces/cybersecuritysoc"
+          },
+          {
+            "id": "9fa77675-1222-4936-89d0-285da325bba0",
+            "version": "KqlParameterItem/1.0",
+            "name": "TimeRange",
+            "type": 4,
+            "isRequired": true,
+            "typeSettings": {
+              "selectableValues": [
+                {
+                  "durationMs": 300000
+                },
+                {
+                  "durationMs": 900000
+                },
+                {
+                  "durationMs": 1800000
+                },
+                {
+                  "durationMs": 3600000
+                },
+                {
+                  "durationMs": 14400000
+                },
+                {
+                  "durationMs": 43200000
+                },
+                {
+                  "durationMs": 86400000
+                },
+                {
+                  "durationMs": 172800000
+                },
+                {
+                  "durationMs": 259200000
+                },
+                {
+                  "durationMs": 604800000
+                },
+                {
+                  "durationMs": 1209600000
+                },
+                {
+                  "durationMs": 2419200000
+                },
+                {
+                  "durationMs": 2592000000
+                }
+              ],
+              "allowCustom": true
+            },
+            "value": {
+              "durationMs": 86400000
+            }
+          },
+          {
+            "id": "a0406b61-d150-4fd8-80d7-b2e0f97585c4",
+            "version": "KqlParameterItem/1.0",
+            "name": "Help",
+            "type": 10,
+            "isRequired": true,
+            "typeSettings": {
+              "additionalResourceOptions": []
+            },
+            "jsonData": "[\r\n { \"value\": \"Yes\", \"label\": \"Yes\"},\r\n {\"value\": \"No\", \"label\": \"No\", \"selected\":true },\r\n { \"value\": \"Change Log\", \"label\": \"Change Log\"}\r\n]"
+          }
+        ],
+        "style": "above",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components"
+      },
+      "name": "parameters - 1"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "### Help file\r\n\r\nSource: https://github.com/microsoft/AzureMonitorCommunity/blob/master/Solutions/WaaSUpdateInsights/Queries/Diagnostics/Devices%20pending%20reboot%20to%20complete%20update.kql"
+      },
+      "conditionalVisibility": {
+        "parameterName": "Help",
+        "comparison": "isEqualTo",
+        "value": "Yes"
+      },
+      "name": "text - 7"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "### Change Log \r\n\r\n|Version|Description|\r\n|---|---|\r\n|v1.0|Initial Version.| "
+      },
+      "conditionalVisibility": {
+        "parameterName": "Help",
+        "comparison": "isEqualTo",
+        "value": "Change Log"
+      },
+      "name": "text - 7 - Copy"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## select a workspace to see saved queries."
+      },
+      "conditionalVisibilities": [
+        {
+          "parameterName": "Workspace",
+          "comparison": "isEqualTo"
+        },
+        {
+          "parameterName": "Subscription",
+          "comparison": "isNotEqualTo"
+        }
+      ],
+      "name": "no workspace set"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## select one or more subscriptions, then pick a workspace to get started"
+      },
+      "conditionalVisibility": {
+        "parameterName": "Subscription",
+        "comparison": "isEqualTo"
+      },
+      "name": "no subscription selected"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "// Author: Microsoft Azure\r\n// Display name: Devices pending reboot to complete update\r\n// Description: Devices with pending reboot to complete update.\r\n// Categories: desktopanalytics\r\n// Solutions: WaaSUpdateInsights\r\n// Topic: Diagnostics\r\n\r\nWaaSDeploymentStatus\r\n| where DetailedStatus == \"Reboot pending\"\r\n| summarize arg_max(TimeGenerated, *) by ComputerID, UpdateClassification\r\n| project Computer, ComputerID, DetailedStatus, ReleaseName, UpdateCategory, UpdateClassification, LastScan",
+        "size": 0,
+        "title": "Devices pending reboot to complete update",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "crossComponentResources": [
+          "{Workspace}"
+        ]
+      },
+      "name": "query - 5"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "// Author: Microsoft Azure\r\n// Display name: Distribution of device OS Edition\r\n// Description: Counts devices by OS edition.\r\n// Categories: desktopanalytics\r\n// Solutions: WaaSUpdateInsights\r\n// Topic: Diagnostics\r\n\r\nWaaSUpdateStatus\r\n| summarize arg_max(TimeGenerated, *) by ComputerID\r\n| project TimeGenerated, ComputerID, OSEdition\r\n| summarize dcount(ComputerID) by OSEdition",
+        "size": 0,
+        "title": "Distribution of device OS Edition",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "crossComponentResources": [
+          "{Workspace}"
+        ]
+      },
+      "name": "query - 6"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "// Author: Microsoft Azure\r\n// Display name: Distribution of device Servicing Branch\r\n// Description: Pie chart of devices distribution by servicing branch.\r\n// Categories: desktopanalytics\r\n// Solutions: WaaSUpdateInsights\r\n// Topic: Diagnostics\r\n\r\nWaaSUpdateStatus\r\n| summarize arg_max(TimeGenerated, *) by ComputerID\r\n| project ComputerID, OSServicingBranch\r\n| summarize dcount(ComputerID) by OSServicingBranch\r\n| render piechart",
+        "size": 0,
+        "title": "Distribution of device Servicing Branch",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "crossComponentResources": [
+          "{Workspace}"
+        ]
+      },
+      "name": "query - 6 - Copy"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "// Author: Microsoft Azure\r\n// Display name: Distribution of device Servicing Branch\r\n// Description: Pie chart of devices distribution by servicing branch.\r\n// Categories: desktopanalytics\r\n// Solutions: WaaSUpdateInsights\r\n// Topic: Diagnostics\r\n\r\nWaaSUpdateStatus\r\n| summarize arg_max(TimeGenerated, *) by ComputerID\r\n| project ComputerID, OSServicingBranch\r\n| summarize dcount(ComputerID) by OSServicingBranch\r\n| render piechart",
+        "size": 0,
+        "title": "Distribution of device Servicing Branch",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "crossComponentResources": [
+          "{Workspace}"
+        ]
+      },
+      "name": "query - 6 - Copy - Copy"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "// Author: Microsoft Azure\r\n// Display name: Feature Update Deferral Configurations\r\n// Description: Chart of device count by feature update deferral configurations.\r\n// Categories: desktopanalytics\r\n// Solutions: WaaSUpdateInsights\r\n// Topic: Diagnostics\r\n\r\nWaaSUpdateStatus\r\n| summarize arg_max(TimeGenerated, *) by ComputerID\r\n| project TimeGenerated, ComputerID, FeatureDeferralDays\r\n| summarize dcount(ComputerID) by FeatureDeferralDays\r\n| sort by FeatureDeferralDays asc\r\n| render columnchart",
+        "size": 0,
+        "title": "Feature Update Deferral Configurations",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "crossComponentResources": [
+          "{Workspace}"
+        ]
+      },
+      "name": "query - 6 - Copy - Copy - Copy"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "// Author: Microsoft Azure\r\n// Display name: Feature Update Pause Configurations\r\n// Description: Count devices by feature update pause configurations.\r\n// Categories: desktopanalytics\r\n// Solutions: WaaSUpdateInsights\r\n// Topic: Diagnostics\r\n\r\nWaaSUpdateStatus\r\n| summarize arg_max(TimeGenerated, *) by ComputerID\r\n| project TimeGenerated, ComputerID, FeaturePauseState\r\n| summarize dcount(ComputerID) by FeaturePauseState",
+        "size": 0,
+        "title": "Feature Update Pause Configurations",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "crossComponentResources": [
+          "{Workspace}"
+        ]
+      },
+      "name": "query - 6 - Copy - Copy - Copy - Copy"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "// Author: Microsoft Azure\r\n// Display name: Distribution of device Servicing Branch\r\n// Description: Pie chart of devices distribution by servicing branch.\r\n// Categories: desktopanalytics\r\n// Solutions: WaaSUpdateInsights\r\n// Topic: Diagnostics\r\n\r\nWaaSUpdateStatus\r\n| summarize arg_max(TimeGenerated, *) by ComputerID\r\n| project ComputerID, OSServicingBranch\r\n| summarize dcount(ComputerID) by OSServicingBranch\r\n| render piechart",
+        "size": 0,
+        "title": "Feature Update Pause Configurations",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "crossComponentResources": [
+          "{Workspace}"
+        ]
+      },
+      "name": "query - 6 - Copy - Copy - Copy - Copy - Copy"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "// Author: Microsoft Azure\r\n// Display name: Quality Update Deferral Configurations\r\n// Description: Chart of device count by quality update deferral configurations.\r\n// Categories: desktopanalytics\r\n// Solutions: WaaSUpdateInsights\r\n// Topic: Diagnostics\r\n\r\nWaaSUpdateStatus\r\n| summarize arg_max(TimeGenerated, *) by ComputerID\r\n| project TimeGenerated, ComputerID, QualityDeferralDays\r\n| summarize dcount(ComputerID) by QualityDeferralDays\r\n| sort by QualityDeferralDays asc\r\n| render columnchart",
+        "size": 0,
+        "title": "Quality Update Deferral Configurations",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "crossComponentResources": [
+          "{Workspace}"
+        ]
+      },
+      "name": "query - 6 - Copy - Copy - Copy - Copy - Copy - Copy"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "// Author: Microsoft Azure\r\n// Display name: Quality Update Pause Configurations\r\n// Description: Count devices by quality update pause configurations.\r\n// Categories: desktopanalytics\r\n// Solutions: WaaSUpdateInsights\r\n// Topic: Diagnostics\r\n\r\nWaaSUpdateStatus\r\n| summarize arg_max(TimeGenerated, *) by ComputerID\r\n| project TimeGenerated, ComputerID, QualityPauseState\r\n| summarize dcount(ComputerID) by QualityPauseState",
+        "size": 0,
+        "title": "Quality Update Pause Configurations",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "crossComponentResources": [
+          "{Workspace}"
+        ]
+      },
+      "name": "query - 6 - Copy - Copy - Copy - Copy - Copy - Copy - Copy"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "// Author: Microsoft Azure\r\n// Display name: Update deployment failures\r\n// Description: Update deployment failures by device and update classification.\r\n// Categories: desktopanalytics\r\n// Solutions: WaaSUpdateInsights\r\n// Topic: Diagnostics\r\n\r\nWaaSDeploymentStatus\r\n| where DeploymentStatus == \"Failed\"\r\n| summarize arg_max(TimeGenerated, *) by ComputerID, UpdateClassification \r\n| project Computer, ComputerID, ReleaseName, UpdateCategory, UpdateClassification, DeploymentError, DeploymentErrorCode",
+        "size": 0,
+        "title": "Update deployment failures",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "crossComponentResources": [
+          "{Workspace}"
+        ]
+      },
+      "name": "query - 6 - Copy - Copy - Copy - Copy - Copy - Copy - Copy - Copy"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "// Author: Microsoft Azure\r\n// Display name: Devices with a Safeguard Hold\r\n// Description: This query shows the device data for all devices that are impacted by safeguard holds.\r\n// Categories: desktopanalytics\r\n// Solutions: WaaSUpdateInsights\r\n// Topic: Errors\r\n\r\nWaaSDeploymentStatus\r\n| where DetailedStatus == \"Safeguard Hold\"\r\n| summarize arg_max(TimeGenerated, *) by ComputerID, UpdateClassification\r\n| project TimeGenerated, DetailedStatus, ComputerID, ReleaseName, UpdateCategory, UpdateClassification",
+        "size": 0,
+        "title": "Devices with a Safeguard Hold",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "crossComponentResources": [
+          "{Workspace}"
+        ]
+      },
+      "name": "query - 6 - Copy - Copy - Copy - Copy - Copy - Copy - Copy - Copy - Copy"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "// Author: Microsoft Azure\r\n// Display name: Target build distribution of devices with a safeguard hold\r\n// Description: Pie chart of target build distribution of devices impacted by safeguards.\r\n// Categories: desktopanalytics\r\n// Solutions: WaaSUpdateInsights\r\n// Topic: Errors\r\n\r\nWaaSDeploymentStatus\r\n| where DetailedStatus == \"Safeguard Hold\"\r\n| summarize count(ComputerID) by TargetBuild\r\n| render piechart",
+        "size": 0,
+        "title": "Target build distribution of devices with a safeguard hold",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "crossComponentResources": [
+          "{Workspace}"
+        ]
+      },
+      "name": "query - 6 - Copy - Copy - Copy - Copy - Copy - Copy - Copy - Copy - Copy - Copy"
+    }
+  ],
+  "fallbackResourceIds": [
+    "Azure Monitor"
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}
