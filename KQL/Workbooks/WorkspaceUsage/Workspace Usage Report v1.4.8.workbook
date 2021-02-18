@@ -49,7 +49,7 @@
             "crossComponentResources": [
               "{Subscription}"
             ],
-            "value": "/subscriptions/d1d8779d-38d7-4f06-91db-9cbc8de0176f/resourceGroups/soc/providers/microsoft.operationalinsights/workspaces/cybersecuritysoc",
+            "value": "",
             "typeSettings": {
               "resourceTypeFilter": {
                 "microsoft.operationalinsights/workspaces": true
@@ -10265,5 +10265,6 @@
   "fallbackResourceIds": [
     "Azure Monitor"
   ],
+  "fromTemplateId":"sentinel-WorkspaceUsage",
   "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
 }
