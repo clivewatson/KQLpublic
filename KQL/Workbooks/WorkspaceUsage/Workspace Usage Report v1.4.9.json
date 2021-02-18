@@ -38,7 +38,7 @@
             },
             "queryType": 1,
             "resourceType": "microsoft.resourcegraph/resources",
-            "value": null
+            "value": ""
           },
           {
             "id": "e94aafa3-c5d9-4523-89f0-4e87aa754511",
@@ -49,7 +49,7 @@
             "crossComponentResources": [
               "{Subscription}"
             ],
-            "value": "",
+            "value": "/subscriptions/82931e73-05c6-4da8-a666-bc4a7dd1bd3e/resourceGroups/fabrikamltdstartstopvmrg/providers/Microsoft.OperationalInsights/workspaces/fabrikamltd-startstop",
             "typeSettings": {
               "resourceTypeFilter": {
                 "microsoft.operationalinsights/workspaces": true
@@ -58,26 +58,6 @@
             },
             "queryType": 1,
             "resourceType": "microsoft.resourcegraph/resources"
-          },
-          {
-            "version": "KqlParameterItem/1.0",
-            "name": "WorkspaceAudit",
-            "type": 5,
-            "query": "where type =~ 'microsoft.operationalinsights/workspaces'\n| project id",
-            "crossComponentResources": [
-              "{Subscription}"
-            ],
-            "value": "",
-            "typeSettings": {
-              "resourceTypeFilter": {
-                "microsoft.operationalinsights/workspaces": true
-              },
-              "additionalResourceOptions": [],
-              "showDefault": false
-            },
-            "queryType": 1,
-            "resourceType": "microsoft.resourcegraph/resources",
-            "id": "379bfc28-7b08-492d-bc18-96da57b4e87c"
           },
           {
             "id": "eafaa0ec-7c3a-4ee5-babe-9850080c909d",
@@ -194,7 +174,7 @@
           }
         ],
         "style": "above",
-        "queryType": 0,
+        "queryType": 1,
         "resourceType": "microsoft.resourcegraph/resources"
       },
       "name": "parameters - 1"
@@ -1425,7 +1405,6 @@
               "groupType": "editable",
               "title": "Basic Workspace Details",
               "expandable": true,
-              "expanded": true,
               "items": [
                 {
                   "type": 3,
@@ -1519,6 +1498,44 @@
                   "name": "text - 12"
                 },
                 {
+                  "type": 9,
+                  "content": {
+                    "version": "KqlParameterItem/1.0",
+                    "crossComponentResources": [
+                      "{Subscription}"
+                    ],
+                    "parameters": [
+                      {
+                        "id": "d23b4bfd-16c6-4aa1-a261-9d9e5a249ba9",
+                        "version": "KqlParameterItem/1.0",
+                        "name": "WorkspaceAudit",
+                        "label": "Workspace to Audit",
+                        "type": 5,
+                        "description": "Audit any Workspace",
+                        "isRequired": true,
+                        "query": "where type =~ 'microsoft.operationalinsights/workspaces'\r\n| extend _selected = iif(id == '{Workspace}', true, false)\r\n| project id, val=id, _selected",
+                        "crossComponentResources": [
+                          "{Subscription}"
+                        ],
+                        "value": "/subscriptions/82931e73-05c6-4da8-a666-bc4a7dd1bd3e/resourceGroups/fabrikamltdprodrg/providers/Microsoft.OperationalInsights/workspaces/fabrikamltdprod",
+                        "typeSettings": {
+                          "additionalResourceOptions": [],
+                          "showDefault": false
+                        },
+                        "timeContext": {
+                          "durationMs": 86400000
+                        },
+                        "queryType": 1,
+                        "resourceType": "microsoft.resourcegraph/resources"
+                      }
+                    ],
+                    "style": "above",
+                    "queryType": 1,
+                    "resourceType": "microsoft.resourcegraph/resources"
+                  },
+                  "name": "parameters - 8"
+                },
+                {
                   "type": 3,
                   "content": {
                     "version": "KqlItem/1.0",
@@ -1526,7 +1543,7 @@
                     "size": 1,
                     "title": "LAQuery Diagnostics: count by Status",
                     "timeContext": {
-                      "durationMs": 2592000000
+                      "durationMs": 0
                     },
                     "timeContextFromParameter": "TimeRange",
                     "queryType": 0,
@@ -1552,7 +1569,7 @@
                     "size": 1,
                     "title": "LAQuery Diagnostics: count by product ",
                     "timeContext": {
-                      "durationMs": 2592000000
+                      "durationMs": 0
                     },
                     "timeContextFromParameter": "TimeRange",
                     "queryType": 0,
@@ -1744,7 +1761,7 @@
                         "crossComponentResources": [
                           "{WorkspaceAudit}"
                         ],
-                        "value": null,
+                        "value": "clwatson@microsoft.com",
                         "typeSettings": {
                           "additionalResourceOptions": [],
                           "showDefault": false
@@ -1771,7 +1788,7 @@
                     "size": 1,
                     "title": "LAQuery Diagnostics: Statistics for: {filterAADuser:label}",
                     "timeContext": {
-                      "durationMs": 2592000000
+                      "durationMs": 0
                     },
                     "timeContextFromParameter": "TimeRange",
                     "showExportToExcel": true,
@@ -10289,7 +10306,7 @@
     }
   ],
   "fallbackResourceIds": [
-    ""
+    "Azure Monitor"
   ],
   "fromTemplateId": "sentinel-UserWorkbook",
   "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
