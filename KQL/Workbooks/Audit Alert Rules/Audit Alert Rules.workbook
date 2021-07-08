@@ -1,0 +1,422 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "crossComponentResources": [
+          "{Subscription}"
+        ],
+        "parameters": [
+          {
+            "id": "997c84bc-c454-47f7-a288-99429173dfeb",
+            "version": "KqlParameterItem/1.0",
+            "name": "Subscription",
+            "type": 6,
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "value": [
+              ""
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": [],
+              "includeAll": false
+            }
+          },
+          {
+            "id": "73638b3d-aa3f-4872-a56b-a0eaf3fc7714",
+            "version": "KqlParameterItem/1.0",
+            "name": "Workspace",
+            "type": 5,
+            "isRequired": true,
+            "query": "Resources | where type =~ \"microsoft.operationalinsights/workspaces\" | order by name | project id, name, selected=row_number()==1, group=resourceGroup",
+            "crossComponentResources": [
+              "{Subscription}"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": []
+            },
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources"
+          },
+          {
+            "id": "6d5456f3-f1c0-48fd-b148-c28605342d47",
+            "version": "KqlParameterItem/1.0",
+            "name": "resourceGroup",
+            "type": 1,
+            "query": "resources\r\n| where type =~ 'microsoft.operationalinsights/workspaces'\r\n| where id == \"{Workspace}\"\r\n| project resourceGroup",
+            "crossComponentResources": [
+              "{Subscription}"
+            ],
+            "isHiddenWhenLocked": true,
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources"
+          },
+          {
+            "id": "9fa77675-1222-4936-89d0-285da325bba0",
+            "version": "KqlParameterItem/1.0",
+            "name": "TimeRange",
+            "type": 4,
+            "isRequired": true,
+            "typeSettings": {
+              "selectableValues": [
+                {
+                  "durationMs": 300000
+                },
+                {
+                  "durationMs": 900000
+                },
+                {
+                  "durationMs": 1800000
+                },
+                {
+                  "durationMs": 3600000
+                },
+                {
+                  "durationMs": 14400000
+                },
+                {
+                  "durationMs": 43200000
+                },
+                {
+                  "durationMs": 86400000
+                },
+                {
+                  "durationMs": 172800000
+                },
+                {
+                  "durationMs": 259200000
+                },
+                {
+                  "durationMs": 604800000
+                },
+                {
+                  "durationMs": 1209600000
+                },
+                {
+                  "durationMs": 2419200000
+                },
+                {
+                  "durationMs": 2592000000
+                }
+              ],
+              "allowCustom": true
+            },
+            "value": {
+              "durationMs": 2592000000
+            }
+          },
+          {
+            "id": "a0406b61-d150-4fd8-80d7-b2e0f97585c4",
+            "version": "KqlParameterItem/1.0",
+            "name": "Help",
+            "type": 10,
+            "isRequired": true,
+            "typeSettings": {
+              "additionalResourceOptions": []
+            },
+            "jsonData": "[\r\n { \"value\": \"Yes\", \"label\": \"Yes\"},\r\n {\"value\": \"No\", \"label\": \"No\", \"selected\":true },\r\n { \"value\": \"Change Log\", \"label\": \"Change Log\"}\r\n]"
+          }
+        ],
+        "style": "above",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources"
+      },
+      "name": "parameters - 1"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "### Help file\r\n\r\nData required: AzureActivity, Azure Resource Graph\r\n\r\n- Allows you to see all the Azure Sentinel rules that have been modified and who by\r\n"
+      },
+      "conditionalVisibility": {
+        "parameterName": "Help",
+        "comparison": "isEqualTo",
+        "value": "Yes"
+      },
+      "name": "text - 7"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "### Change Log \r\n\r\n|Version|Description|\r\n|---|---|\r\n|v1.0|Initial Version. Clive Watson - Microsoft| "
+      },
+      "conditionalVisibility": {
+        "parameterName": "Help",
+        "comparison": "isEqualTo",
+        "value": "Change Log"
+      },
+      "name": "text - 7 - Copy"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## select a workspace to see saved queries."
+      },
+      "conditionalVisibilities": [
+        {
+          "parameterName": "Workspace",
+          "comparison": "isEqualTo"
+        },
+        {
+          "parameterName": "Subscription",
+          "comparison": "isNotEqualTo"
+        }
+      ],
+      "name": "no workspace set"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## select one or more subscriptions, then pick a workspace to get started"
+      },
+      "conditionalVisibility": {
+        "parameterName": "Subscription",
+        "comparison": "isEqualTo"
+      },
+      "name": "no subscription selected"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"/subscriptions/{Subscription:id}/resourceGroups/{resourceGroup}/providers/Microsoft.OperationalInsights/workspaces/{Workspace:name}/providers/Microsoft.SecurityInsights/AlertRules\",\"urlParams\":[{\"key\":\"api-version\",\"value\":\"2020-01-01\"},{\"key\":\"$orderby\",\"value\":\"properties/createdDateUTC desc\"}],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$.value\",\"columns\":[{\"path\":\"properties.displayName\",\"columnid\":\"displayName\"},{\"path\":\"kind\",\"columnid\":\"kind\"},{\"path\":\"properties.enabled\",\"columnid\":\"status\"},{\"path\":\"properties.lastModifiedUtc\",\"columnid\":\"lastModifiedUtc\"},{\"path\":\"properties.productFilter\",\"columnid\":\"productFilter\"},{\"path\":\"properties.tactics\",\"columnid\":\"tactics\"},{\"path\":\"properties.query\",\"columnid\":\"queryText\"},{\"path\":\"name\",\"columnid\":\"name_\"}]}}]}",
+        "size": 1,
+        "title": "3a. Active Rules via Rest API ",
+        "showExportToExcel": true,
+        "queryType": 12,
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "tactics",
+              "formatter": 7,
+              "formatOptions": {
+                "linkTarget": "CellDetails",
+                "linkIsContextBlade": true
+              }
+            },
+            {
+              "columnMatch": "queryText",
+              "formatter": 7,
+              "formatOptions": {
+                "linkTarget": "CellDetails",
+                "linkIsContextBlade": true
+              }
+            },
+            {
+              "columnMatch": "resourcegroup",
+              "formatter": 14,
+              "formatOptions": {
+                "linkTarget": null,
+                "showIcon": true
+              }
+            },
+            {
+              "columnMatch": "id",
+              "formatter": 5
+            }
+          ],
+          "filter": true,
+          "sortBy": [
+            {
+              "itemKey": "lastModifiedUtc",
+              "sortOrder": 2
+            }
+          ]
+        },
+        "sortBy": [
+          {
+            "itemKey": "lastModifiedUtc",
+            "sortOrder": 2
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "hide",
+        "comparison": "isEqualTo",
+        "value": "hide"
+      },
+      "name": "query - 21 - Rules in use "
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "AzureActivity \r\n| where OperationNameValue startswith \"MICROSOFT.SECURITYINSIGHTS/ALERTRULES\" or OperationNameValue startswith 'Microsoft.SecurityInsights/automationRules'\r\n| summarize count(), arg_max(TimeGenerated, OperationName, Caller, CallerIpAddress, Category, Level, Resource) by OperationName, Caller, CallerIpAddress, Category, Level, Resource, Properties\r\n| order by TimeGenerated desc\r\n",
+        "size": 1,
+        "title": "3a. Audit of Rules in AzureActivity - Detailed, count: {$rowCount}",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "showExportToExcel": true,
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "crossComponentResources": [
+          "{Workspace}"
+        ],
+        "visualization": "table",
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "OperationName",
+              "formatter": 18,
+              "formatOptions": {
+                "thresholdsOptions": "colors",
+                "thresholdsGrid": [
+                  {
+                    "operator": "startsWith",
+                    "thresholdValue": "Update",
+                    "representation": "orange",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "startsWith",
+                    "thresholdValue": "Delete",
+                    "representation": "redBright",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "text": "{0}{1}"
+                  }
+                ]
+              }
+            },
+            {
+              "columnMatch": "Resource",
+              "formatter": 16,
+              "formatOptions": {
+                "showIcon": true
+              }
+            },
+            {
+              "columnMatch": "Properties",
+              "formatter": 7,
+              "formatOptions": {
+                "linkTarget": "CellDetails",
+                "linkIsContextBlade": true
+              }
+            },
+            {
+              "columnMatch": "count_",
+              "formatter": 8,
+              "formatOptions": {
+                "palette": "greenRed"
+              }
+            }
+          ],
+          "filter": true
+        }
+      },
+      "conditionalVisibility": {
+        "parameterName": "hide",
+        "comparison": "isEqualTo",
+        "value": "hide"
+      },
+      "name": "query - 31 - AuditRules All"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"a69d00da-9f82-42ab-a0f0-fa764fcfe04a\",\"mergeType\":\"innerunique\",\"leftTable\":\"query - 21 - Rules in use \",\"rightTable\":\"query - 31 - AuditRules All\",\"leftColumn\":\"name_\",\"rightColumn\":\"Resource\"}],\"projectRename\":[{\"originalName\":\"[query - 21 - Rules in use ].displayName\",\"mergedName\":\"displayName\",\"fromId\":\"a69d00da-9f82-42ab-a0f0-fa764fcfe04a\"},{\"originalName\":\"[query - 21 - Rules in use ].kind\",\"mergedName\":\"kind\",\"fromId\":\"a69d00da-9f82-42ab-a0f0-fa764fcfe04a\"},{\"originalName\":\"[query - 21 - Rules in use ].status\",\"mergedName\":\"status\",\"fromId\":\"a69d00da-9f82-42ab-a0f0-fa764fcfe04a\"},{\"originalName\":\"[query - 21 - Rules in use ].lastModifiedUtc\",\"mergedName\":\"lastModifiedUtc\",\"fromId\":\"a69d00da-9f82-42ab-a0f0-fa764fcfe04a\"},{\"originalName\":\"[query - 21 - Rules in use ].productFilter\",\"mergedName\":\"productFilter\",\"fromId\":\"a69d00da-9f82-42ab-a0f0-fa764fcfe04a\"},{\"originalName\":\"[query - 21 - Rules in use ].tactics\",\"mergedName\":\"tactics\",\"fromId\":\"a69d00da-9f82-42ab-a0f0-fa764fcfe04a\"},{\"originalName\":\"[query - 21 - Rules in use ].queryText\",\"mergedName\":\"queryText\",\"fromId\":\"a69d00da-9f82-42ab-a0f0-fa764fcfe04a\"},{\"originalName\":\"[query - 21 - Rules in use ].name_\",\"mergedName\":\"name_\",\"fromId\":\"a69d00da-9f82-42ab-a0f0-fa764fcfe04a\"},{\"originalName\":\"[query - 31 - AuditRules All].OperationName\",\"mergedName\":\"OperationName\",\"fromId\":\"a69d00da-9f82-42ab-a0f0-fa764fcfe04a\"},{\"originalName\":\"[query - 31 - AuditRules All].Caller\",\"mergedName\":\"Caller\",\"fromId\":\"a69d00da-9f82-42ab-a0f0-fa764fcfe04a\"},{\"originalName\":\"[query - 31 - AuditRules All].CallerIpAddress\",\"mergedName\":\"CallerIpAddress\",\"fromId\":\"a69d00da-9f82-42ab-a0f0-fa764fcfe04a\"},{\"originalName\":\"[query - 31 - AuditRules All].Category\",\"mergedName\":\"Category\",\"fromId\":\"a69d00da-9f82-42ab-a0f0-fa764fcfe04a\"},{\"originalName\":\"[query - 31 - AuditRules All].Level\",\"mergedName\":\"Level\",\"fromId\":\"a69d00da-9f82-42ab-a0f0-fa764fcfe04a\"},{\"originalName\":\"[query - 31 - AuditRules All].Resource\",\"mergedName\":\"Resource\",\"fromId\":\"a69d00da-9f82-42ab-a0f0-fa764fcfe04a\"},{\"originalName\":\"[query - 31 - AuditRules All].Properties\",\"mergedName\":\"Properties\",\"fromId\":\"a69d00da-9f82-42ab-a0f0-fa764fcfe04a\"},{\"originalName\":\"[query - 31 - AuditRules All].count_\",\"mergedName\":\"count_\",\"fromId\":\"a69d00da-9f82-42ab-a0f0-fa764fcfe04a\"},{\"originalName\":\"[query - 31 - AuditRules All].TimeGenerated\",\"mergedName\":\"TimeGenerated\",\"fromId\":\"a69d00da-9f82-42ab-a0f0-fa764fcfe04a\"},{\"originalName\":\"[query - 31 - AuditRules All].OperationName1\",\"mergedName\":\"OperationName1\",\"fromId\":\"a69d00da-9f82-42ab-a0f0-fa764fcfe04a\"},{\"originalName\":\"[query - 31 - AuditRules All].Caller1\",\"mergedName\":\"Caller1\",\"fromId\":\"a69d00da-9f82-42ab-a0f0-fa764fcfe04a\"},{\"originalName\":\"[query - 31 - AuditRules All].CallerIpAddress1\",\"mergedName\":\"CallerIpAddress1\",\"fromId\":\"a69d00da-9f82-42ab-a0f0-fa764fcfe04a\"},{\"originalName\":\"[query - 31 - AuditRules All].Category1\",\"mergedName\":\"Category1\",\"fromId\":\"a69d00da-9f82-42ab-a0f0-fa764fcfe04a\"},{\"originalName\":\"[query - 31 - AuditRules All].Level1\",\"mergedName\":\"Level1\",\"fromId\":\"a69d00da-9f82-42ab-a0f0-fa764fcfe04a\"},{\"originalName\":\"[query - 31 - AuditRules All].Resource1\",\"mergedName\":\"Resource1\",\"fromId\":\"a69d00da-9f82-42ab-a0f0-fa764fcfe04a\"}]}",
+        "size": 0,
+        "title": "Rules modified: {$rowCount}",
+        "queryType": 7,
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "status",
+              "formatter": 18,
+              "formatOptions": {
+                "thresholdsOptions": "icons",
+                "thresholdsGrid": [
+                  {
+                    "operator": "==",
+                    "thresholdValue": "true",
+                    "representation": "success",
+                    "text": "Enabled"
+                  },
+                  {
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "representation": "failed",
+                    "text": "Disabled"
+                  }
+                ]
+              }
+            },
+            {
+              "columnMatch": "productFilter",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "tactics",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "queryText",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "name_",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "Category",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "Level",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "Resource",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "Properties",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "count_",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "Caller1",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "CallerIpAddress1",
+              "formatter": 5
+            }
+          ],
+          "rowLimit": 1000,
+          "filter": true,
+          "sortBy": [
+            {
+              "itemKey": "lastModifiedUtc",
+              "sortOrder": 2
+            }
+          ]
+        },
+        "sortBy": [
+          {
+            "itemKey": "lastModifiedUtc",
+            "sortOrder": 2
+          }
+        ]
+      },
+      "name": "query - 7"
+    }
+  ],
+  "fallbackResourceIds": [
+    "Azure Monitor"
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}
