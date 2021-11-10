@@ -1,0 +1,253 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "crossComponentResources": [
+          "{Subscription}"
+        ],
+        "parameters": [
+          {
+            "id": "997c84bc-c454-47f7-a288-99429173dfeb",
+            "version": "KqlParameterItem/1.0",
+            "name": "Subscription",
+            "type": 6,
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "value": [],
+            "typeSettings": {
+              "additionalResourceOptions": [],
+              "includeAll": false
+            }
+          },
+          {
+            "id": "73638b3d-aa3f-4872-a56b-a0eaf3fc7714",
+            "version": "KqlParameterItem/1.0",
+            "name": "Workspace",
+            "type": 5,
+            "isRequired": true,
+            "query": "Resources | where type =~ \"microsoft.operationalinsights/workspaces\" | order by name | project id, name, selected=row_number()==1, group=resourceGroup",
+            "crossComponentResources": [
+              "{Subscription}"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": []
+            },
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources",
+            "value": ""
+          },
+          {
+            "id": "9a4aad20-be5d-48c0-8ebb-9cf3a11d0ea8",
+            "version": "KqlParameterItem/1.0",
+            "name": "resourceGroup",
+            "type": 1,
+            "query": "resources\r\n| where type =~ 'microsoft.operationalinsights/workspaces'\r\n| where id == \"{Workspace}\"\r\n| project resourceGroup",
+            "crossComponentResources": [
+              "{Subscription}"
+            ],
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources"
+          },
+          {
+            "id": "1d68ae22-4503-48f5-aa83-57d9f19c7088",
+            "version": "KqlParameterItem/1.0",
+            "name": "ipAddress",
+            "type": 1,
+            "value": "11.1.1.1"
+          },
+          {
+            "id": "a0406b61-d150-4fd8-80d7-b2e0f97585c4",
+            "version": "KqlParameterItem/1.0",
+            "name": "Help",
+            "type": 10,
+            "isRequired": true,
+            "typeSettings": {
+              "additionalResourceOptions": []
+            },
+            "jsonData": "[\r\n { \"value\": \"Yes\", \"label\": \"Yes\"},\r\n {\"value\": \"No\", \"label\": \"No\", \"selected\":true },\r\n { \"value\": \"Change Log\", \"label\": \"Change Log\"}\r\n]"
+          }
+        ],
+        "style": "above",
+        "queryType": 0,
+        "resourceType": "microsoft.resourcegraph/resources"
+      },
+      "name": "parameters - 1"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "### Help file\r\n\r\nSelect an Ip Adress and look it up via API\r\n\r\nSource: https://docs.microsoft.com/en-us/azure/sentinel/geolocation-data-api"
+      },
+      "conditionalVisibility": {
+        "parameterName": "Help",
+        "comparison": "isEqualTo",
+        "value": "Yes"
+      },
+      "name": "text - 7"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "### Change Log \r\n\r\n|Version|Description|\r\n|---|---|\r\n|v1.0|Initial Version.| "
+      },
+      "conditionalVisibility": {
+        "parameterName": "Help",
+        "comparison": "isEqualTo",
+        "value": "Change Log"
+      },
+      "name": "text - 7 - Copy"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## select a workspace to see saved queries."
+      },
+      "conditionalVisibilities": [
+        {
+          "parameterName": "Workspace",
+          "comparison": "isEqualTo"
+        },
+        {
+          "parameterName": "Subscription",
+          "comparison": "isNotEqualTo"
+        }
+      ],
+      "name": "no workspace set"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## select one or more subscriptions, then pick a workspace to get started"
+      },
+      "conditionalVisibility": {
+        "parameterName": "Subscription",
+        "comparison": "isEqualTo"
+      },
+      "name": "no subscription selected"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"/subscriptions/{Workspace:subscriptionid}/resourceGroups/{resourceGroup}/providers/Microsoft.SecurityInsights/enrichment/ip/geodata/?ipaddress={ipAddress}&api-version=2019-01-01-preview\",\"urlParams\":[],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\"}]}",
+        "size": 4,
+        "title": "Lookup IP Address: {ipAddress}",
+        "queryType": 12,
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "country",
+              "formatter": 18,
+              "formatOptions": {
+                "thresholdsOptions": "icons",
+                "thresholdsGrid": [
+                  {
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "representation": "Globe",
+                    "text": "{0}{1}"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "name": "query - 5"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"/subscriptions/{Workspace:subscriptionid}/resourceGroups/{resourceGroup}/providers/Microsoft.SecurityInsights/enrichment/ip/geodata/?ipaddress={ipAddress}&api-version=2019-01-01-preview\",\"urlParams\":[],\"batchDisabled\":false,\"transformers\":[null]}",
+        "size": 0,
+        "title": "Lookup IP Address: {ipAddress}",
+        "queryType": 12,
+        "visualization": "map",
+        "mapSettings": {
+          "locInfo": "LatLong",
+          "latitude": "latitude",
+          "longitude": "longitude",
+          "sizeSettings": "asn",
+          "sizeAggregation": "Sum",
+          "legendAggregation": "Count",
+          "itemColorSettings": {
+            "nodeColorField": "asn",
+            "colorAggregation": "Sum",
+            "type": "heatmap",
+            "heatmapPalette": "greenRed"
+          }
+        }
+      },
+      "name": "query - Map result"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "let IP_Data = external_data(network:string,geoname_id:long,continent_code:string,continent_name:string ,country_iso_code:string,country_name:string,is_anonymous_proxy:bool,is_satellite_provider:bool)\r\n    ['https://raw.githubusercontent.com/datasets/geoip2-ipv4/master/data/geoip2-ipv4.csv']\r\n    with (ignoreFirstRecord=true, format=\"csv\");\r\nIP_Data\r\n| evaluate ipv4_lookup(IP_Data, '{ipAddress}', network, return_unmatched = true)\r\n//| summarize count() by country_iso_code",
+        "size": 0,
+        "title": "From GeoIp2: {ipAddress}",
+        "timeContext": {
+          "durationMs": 86400000
+        },
+        "showExportToExcel": true,
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "crossComponentResources": [
+          "{Workspace}"
+        ],
+        "gridSettings": {
+          "filter": true
+        }
+      },
+      "name": "query - 7"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "let IP_Data = external_data(network:string,geoname_id:long,continent_code:string,continent_name:string ,country_iso_code:string,country_name:string,is_anonymous_proxy:bool,is_satellite_provider:bool)\r\n    ['https://raw.githubusercontent.com/datasets/geoip2-ipv4/master/data/geoip2-ipv4.csv']\r\n    with (ignoreFirstRecord=true, format=\"csv\");\r\nIP_Data\r\n| evaluate ipv4_lookup(IP_Data, '{ipAddress}', network, return_unmatched = true)\r\n//| summarize count() by country_iso_code",
+        "size": 0,
+        "title": "From GeoIp2: {ipAddress}",
+        "timeContext": {
+          "durationMs": 86400000
+        },
+        "showExportToExcel": true,
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "crossComponentResources": [
+          "{Workspace}"
+        ],
+        "visualization": "map",
+        "gridSettings": {
+          "filter": true
+        },
+        "mapSettings": {
+          "locInfo": "CountryRegion",
+          "locInfoColumn": "country_name1",
+          "sizeSettings": "geoname_id",
+          "sizeAggregation": "Sum",
+          "legendMetric": "geoname_id",
+          "legendAggregation": "Sum",
+          "itemColorSettings": {
+            "nodeColorField": "geoname_id",
+            "colorAggregation": "Sum",
+            "type": "heatmap",
+            "heatmapPalette": "greenRed"
+          }
+        }
+      },
+      "name": "query - 7 - Copy"
+    }
+  ],
+  "fallbackResourceIds": [
+    "Azure Monitor"
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}
