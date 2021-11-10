@@ -42,6 +42,60 @@
             "value": ""
           },
           {
+            "id": "0350b122-c768-428c-8b6b-13bcfc833673",
+            "version": "KqlParameterItem/1.0",
+            "name": "TimeRange",
+            "type": 4,
+            "isRequired": true,
+            "value": {
+              "durationMs": 604800000
+            },
+            "typeSettings": {
+              "selectableValues": [
+                {
+                  "durationMs": 1800000
+                },
+                {
+                  "durationMs": 3600000
+                },
+                {
+                  "durationMs": 14400000
+                },
+                {
+                  "durationMs": 43200000
+                },
+                {
+                  "durationMs": 86400000
+                },
+                {
+                  "durationMs": 172800000
+                },
+                {
+                  "durationMs": 259200000
+                },
+                {
+                  "durationMs": 604800000
+                },
+                {
+                  "durationMs": 1209600000
+                },
+                {
+                  "durationMs": 2419200000
+                },
+                {
+                  "durationMs": 2592000000
+                },
+                {
+                  "durationMs": 5184000000
+                },
+                {
+                  "durationMs": 7776000000
+                }
+              ],
+              "allowCustom": true
+            }
+          },
+          {
             "id": "9a4aad20-be5d-48c0-8ebb-9cf3a11d0ea8",
             "version": "KqlParameterItem/1.0",
             "name": "resourceGroup",
@@ -58,7 +112,7 @@
             "version": "KqlParameterItem/1.0",
             "name": "ipAddress",
             "type": 1,
-            "value": "11.1.1.1"
+            "value": "1.1.1.1"
           },
           {
             "id": "a0406b61-d150-4fd8-80d7-b2e0f97585c4",
@@ -74,7 +128,7 @@
         ],
         "style": "above",
         "queryType": 0,
-        "resourceType": "microsoft.resourcegraph/resources"
+        "resourceType": "microsoft.operationalinsights/workspaces"
       },
       "name": "parameters - 1"
     },
@@ -134,7 +188,7 @@
       "type": 3,
       "content": {
         "version": "KqlItem/1.0",
-        "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"/subscriptions/{Workspace:subscriptionid}/resourceGroups/{resourceGroup}/providers/Microsoft.SecurityInsights/enrichment/ip/geodata/?ipaddress={ipAddress}&api-version=2019-01-01-preview\",\"urlParams\":[],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\"}]}",
+        "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"/subscriptions/{Workspace:subscriptionid}/resourceGroups/{resourceGroup}/providers/Microsoft.SecurityInsights/enrichment/ip/geodata/?ipaddress={ipAddress}&api-version=2019-01-01-preview\",\"urlParams\":[],\"batchDisabled\":false,\"transformers\":[null]}",
         "size": 4,
         "title": "Lookup IP Address: {ipAddress}",
         "queryType": 12,
@@ -164,7 +218,7 @@
       "type": 3,
       "content": {
         "version": "KqlItem/1.0",
-        "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"/subscriptions/{Workspace:subscriptionid}/resourceGroups/{resourceGroup}/providers/Microsoft.SecurityInsights/enrichment/ip/geodata/?ipaddress={ipAddress}&api-version=2019-01-01-preview\",\"urlParams\":[],\"batchDisabled\":false,\"transformers\":[null]}",
+        "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"/subscriptions/{Workspace:subscriptionid}/resourceGroups/{resourceGroup}/providers/Microsoft.SecurityInsights/enrichment/ip/geodata/?ipaddress={ipAddress}&api-version=2019-01-01-preview\",\"urlParams\":[],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$\",\"columns\":[]}}]}",
         "size": 0,
         "title": "Lookup IP Address: {ipAddress}",
         "queryType": 12,
@@ -244,6 +298,28 @@
         }
       },
       "name": "query - 7 - Copy"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "ThreatIntelligenceIndicator\r\n| extend  Indicator = strcat(NetworkSourceIP, NetworkIP, NetworkDestinationIP, EmailSourceIpAddress, EmailSenderAddress, DomainName)\r\n| where isnotempty( Indicator)\r\n| where Indicator == '{ipAddress}'\r\n| summarize count(), arg_max(TimeGenerated,*) by Description ",
+        "size": 0,
+        "title": "Microsoft TI for: {ipAddress}",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "crossComponentResources": [
+          "{Workspace}"
+        ],
+        "gridSettings": {
+          "filter": true
+        }
+      },
+      "name": "query - 9"
     }
   ],
   "fallbackResourceIds": [
