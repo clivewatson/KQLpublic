@@ -13,7 +13,7 @@ on:
   push:
     branches: [ master ]
     paths:
-    - '**'
+    - 'Workbooks/**'
     - '!.github/workflows/**'  # this filter prevents other workflow changes from triggering this workflow
     - '.github/workflows/sentinel-deploy-8502d4a1-7741-46a7-8f5b-1c12bd9a0009.yml'
 
