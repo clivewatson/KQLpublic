@@ -188,7 +188,7 @@
       "type": 3,
       "content": {
         "version": "KqlItem/1.0",
-        "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"/subscriptions/{Workspace:subscriptionid}/resourceGroups/{resourceGroup}/providers/Microsoft.SecurityInsights/enrichment/ip/geodata/?ipaddress={ipAddress}&api-version=2019-01-01-preview\",\"urlParams\":[],\"batchDisabled\":false,\"transformers\":[null]}",
+        "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"/subscriptions/{Workspace:subscriptionid}/resourceGroups/{resourceGroup}/providers/Microsoft.SecurityInsights/enrichment/ip/geodata/?ipaddress={ipAddress}&api-version=2019-01-01-preview\",\"urlParams\":[],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$\",\"columns\":[]}}]}",
         "size": 4,
         "title": "Lookup IP Address: {ipAddress}",
         "queryType": 12,
@@ -248,8 +248,9 @@
         "size": 0,
         "title": "From GeoIp2: {ipAddress}",
         "timeContext": {
-          "durationMs": 86400000
+          "durationMs": 0
         },
+        "timeContextFromParameter": "TimeRange",
         "showExportToExcel": true,
         "queryType": 0,
         "resourceType": "microsoft.operationalinsights/workspaces",
@@ -270,8 +271,9 @@
         "size": 0,
         "title": "From GeoIp2: {ipAddress}",
         "timeContext": {
-          "durationMs": 86400000
+          "durationMs": 0
         },
+        "timeContextFromParameter": "TimeRange",
         "showExportToExcel": true,
         "queryType": 0,
         "resourceType": "microsoft.operationalinsights/workspaces",
