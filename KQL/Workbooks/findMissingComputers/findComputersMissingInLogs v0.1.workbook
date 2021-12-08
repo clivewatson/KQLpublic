@@ -1,0 +1,608 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "crossComponentResources": [
+          "value::selected"
+        ],
+        "parameters": [
+          {
+            "id": "688dc7cb-bea3-41ae-ae94-32d22e09568c",
+            "version": "KqlParameterItem/1.0",
+            "name": "DefaultWorkspace",
+            "type": 5,
+            "isRequired": true,
+            "value": "value::1",
+            "isHiddenWhenLocked": true,
+            "typeSettings": {
+              "resourceTypeFilter": {
+                "microsoft.operationalinsights/workspaces": true
+              },
+              "additionalResourceOptions": [
+                "value::1"
+              ]
+            }
+          },
+          {
+            "id": "c11b5651-cf86-4865-b23d-9ecc4f16b712",
+            "version": "KqlParameterItem/1.0",
+            "name": "ContextFree",
+            "type": 1,
+            "query": "{\"version\":\"1.0.0\",\"content\":\"\\\"{DefaultWorkspace}\\\"\"}",
+            "isHiddenWhenLocked": true,
+            "queryType": 8
+          },
+          {
+            "id": "bbbc300a-6f91-4b2b-b4b5-842b4bf8577a",
+            "version": "KqlParameterItem/1.0",
+            "name": "Selection",
+            "type": 1,
+            "query": "where type =~ 'microsoft.operationalinsights/workspaces'\r\n| extend match = strcat(\"'\", id, \"'\") =~ \"{DefaultWorkspace:value}\"\r\n| order by match desc, name asc\r\n| take 1\r\n| project value = tostring(pack('sub', subscriptionId, 'rg', resourceGroup, 'ws', id))",
+            "crossComponentResources": [
+              "value::selected"
+            ],
+            "isHiddenWhenLocked": true,
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources"
+          }
+        ],
+        "style": "above",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources"
+      },
+      "conditionalVisibility": {
+        "parameterName": "_",
+        "comparison": "isEqualTo",
+        "value": "_"
+      },
+      "name": "parameters - 0"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "# Show Azure Resources that are *not* in Log Analytics\r\n<br />\r\n💡 Select a Tab below for the Resource type needed\r\n<br />\r\n<br />"
+      },
+      "conditionalVisibility": {
+        "parameterName": "ContextFree",
+        "comparison": "isEqualTo",
+        "value": "value::1"
+      },
+      "name": "text - 1"
+    },
+    {
+      "type": 11,
+      "content": {
+        "version": "LinkItem/1.0",
+        "style": "tabs",
+        "links": [
+          {
+            "id": "7d278197-9802-4f40-b551-c691c4e241da",
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "VirtualMachine",
+            "subTarget": "VirtualMachine",
+            "preText": "Virtual Machines",
+            "style": "link"
+          },
+          {
+            "id": "39a2e64a-855f-47b4-8917-f8abac6100fb",
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Network",
+            "subTarget": "Network",
+            "preText": "Network ",
+            "style": "link"
+          }
+        ]
+      },
+      "name": "links -  tab"
+    },
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "crossComponentResources": [
+          "/subscriptions/5e303868-677c-4b4f-b2e8-4b288932f6d4/resourcegroups/securityrg/providers/microsoft.operationalinsights/workspaces/securityworkspace"
+        ],
+        "parameters": [
+          {
+            "id": "1db5ee15-fe52-458b-91d1-7ee39d8c2cd3",
+            "version": "KqlParameterItem/1.0",
+            "name": "Subscriptions",
+            "type": 6,
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "query": "summarize by subscriptionId\r\n| project value = strcat('/subscriptions/', subscriptionId), label = subscriptionId, selected = iff(subscriptionId =~ todynamic('{Selection}').sub, true, false)",
+            "crossComponentResources": [
+              "value::selected"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": []
+            },
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources",
+            "value": [
+            ]
+          },
+          {
+            "id": "9732eff8-fb57-4cbd-8ade-5ae746f33760",
+            "version": "KqlParameterItem/1.0",
+            "name": "Workspaces",
+            "type": 5,
+            "isRequired": true,
+            "query": "resources\r\n| where type =~ 'microsoft.operationalinsights/workspaces'\r\n| summarize by id, name\r\n| project id, selected = iff(id =~ todynamic('{Selection}').ws, true, false)",
+            "crossComponentResources": [
+              "{Subscriptions}"
+            ],
+            "value": "",
+            "typeSettings": {
+              "resourceTypeFilter": {
+                "microsoft.operationalinsights/workspaces": true
+              },
+              "additionalResourceOptions": []
+            },
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources"
+          },
+          {
+            "id": "5f8cce4b-9c4c-47da-8683-7e5ccc9faed3",
+            "version": "KqlParameterItem/1.0",
+            "name": "TimeRange",
+            "type": 4,
+            "typeSettings": {
+              "selectableValues": [
+                {
+                  "durationMs": 300000,
+                  "createdTime": "2018-10-04T22:01:18.372Z",
+                  "isInitialTime": false,
+                  "grain": 1,
+                  "useDashboardTimeRange": false
+                },
+                {
+                  "durationMs": 900000,
+                  "createdTime": "2018-10-04T22:01:18.372Z",
+                  "isInitialTime": false,
+                  "grain": 1,
+                  "useDashboardTimeRange": false
+                },
+                {
+                  "durationMs": 1800000,
+                  "createdTime": "2018-10-04T22:01:18.372Z",
+                  "isInitialTime": false,
+                  "grain": 1,
+                  "useDashboardTimeRange": false
+                },
+                {
+                  "durationMs": 3600000,
+                  "createdTime": "2018-10-04T22:01:18.372Z",
+                  "isInitialTime": false,
+                  "grain": 1,
+                  "useDashboardTimeRange": false
+                },
+                {
+                  "durationMs": 14400000,
+                  "createdTime": "2018-10-04T22:01:18.374Z",
+                  "isInitialTime": false,
+                  "grain": 1,
+                  "useDashboardTimeRange": false
+                },
+                {
+                  "durationMs": 43200000,
+                  "createdTime": "2018-10-04T22:01:18.374Z",
+                  "isInitialTime": false,
+                  "grain": 1,
+                  "useDashboardTimeRange": false
+                },
+                {
+                  "durationMs": 86400000,
+                  "createdTime": "2018-10-04T22:01:18.374Z",
+                  "isInitialTime": false,
+                  "grain": 1,
+                  "useDashboardTimeRange": false
+                },
+                {
+                  "durationMs": 172800000,
+                  "createdTime": "2018-10-04T22:01:18.374Z",
+                  "isInitialTime": false,
+                  "grain": 1,
+                  "useDashboardTimeRange": false
+                },
+                {
+                  "durationMs": 259200000,
+                  "createdTime": "2018-10-04T22:01:18.375Z",
+                  "isInitialTime": false,
+                  "grain": 1,
+                  "useDashboardTimeRange": false
+                },
+                {
+                  "durationMs": 604800000,
+                  "createdTime": "2018-10-04T22:01:18.375Z",
+                  "isInitialTime": false,
+                  "grain": 1,
+                  "useDashboardTimeRange": false
+                },
+                {
+                  "durationMs": 1209600000,
+                  "createdTime": "2018-10-04T22:01:18.375Z",
+                  "isInitialTime": false,
+                  "grain": 1,
+                  "useDashboardTimeRange": false
+                },
+                {
+                  "durationMs": 2592000000,
+                  "createdTime": "2018-10-04T22:01:18.375Z",
+                  "isInitialTime": false,
+                  "grain": 1,
+                  "useDashboardTimeRange": false
+                },
+                {
+                  "durationMs": 5184000000,
+                  "createdTime": "2018-10-04T22:01:18.375Z",
+                  "isInitialTime": false,
+                  "grain": 1,
+                  "useDashboardTimeRange": false
+                },
+                {
+                  "durationMs": 7776000000,
+                  "createdTime": "2018-10-04T22:01:18.375Z",
+                  "isInitialTime": false,
+                  "grain": 1,
+                  "useDashboardTimeRange": false
+                }
+              ],
+              "allowCustom": true
+            },
+            "value": {
+              "durationMs": 7776000000
+            }
+          },
+          {
+            "id": "d6de19ff-cde4-41c2-9fba-b441312ea5c9",
+            "version": "KqlParameterItem/1.0",
+            "name": "Test",
+            "type": 1,
+            "query": "Perf\r\n| where TimeGenerated {TimeRange}\r\n| take 1",
+            "crossComponentResources": [
+              "{Workspaces}"
+            ],
+            "isHiddenWhenLocked": true,
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces"
+          },
+          {
+            "id": "f93be24a-db8b-4ac5-a643-c42c409cb3c6",
+            "version": "KqlParameterItem/1.0",
+            "name": "Help",
+            "label": "Show Help",
+            "type": 10,
+            "isRequired": true,
+            "typeSettings": {
+              "additionalResourceOptions": []
+            },
+            "jsonData": "[\r\n { \"value\": \"Yes\", \"label\": \"Yes\"},\r\n {\"value\": \"No\", \"label\": \"No\", \"selected\":true },\r\n { \"value\": \"ChangeLog\", \"label\": \"Change Log\"}\r\n]"
+          }
+        ],
+        "style": "above",
+        "queryType": 0,
+        "resourceType": "microsoft.resourcegraph/resources"
+      },
+      "name": "parameters - 2"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "⚠ A subscription has not yet been selected. Select a subscription under the `Subscriptions` dropdown or refresh the workbook."
+      },
+      "conditionalVisibility": {
+        "parameterName": "Subscriptions",
+        "comparison": "isEqualTo",
+        "value": null
+      },
+      "name": "text - 29"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "### Help File \r\nThis report will show data found by Azure Resource Graph queries (ARG), this is compared to the data seen in the Logs (in your selected Workspace).  \r\n\r\nThis addresses the Use Case where you wish to confirm that you have all resources covered - do you have computers without the agents (MMA or AMA) or have they failed to report back recently?\r\n\r\nThe time range is also key, you may have a server that last wrote its log data into the Workspace and now the data is beyond the retention, or you havent set the look back far enough.  \r\ne.g.  The workbook maybe set for 30days, but the log data is at 50 days - in which case please change the Time Range parameter. \r\n\r\n- The first grid is the result of the ARG query, so you could see more resources here than in the next grod.\r\n- The second grid is the result of the KQL used against the Workspace\r\n- finally the third grid (Merge) is the data seen in Grid #1 but **not** in Grid #2 "
+      },
+      "conditionalVisibility": {
+        "parameterName": "Help",
+        "comparison": "isEqualTo",
+        "value": "Yes"
+      },
+      "name": "text - 15"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "### Change Log\r\n\r\n|Version|Description|\r\n|---|---|\r\n|v1.0| Compare ARG to KQL queries to detect missing reources| \r\n"
+      },
+      "conditionalVisibility": {
+        "parameterName": "Help",
+        "comparison": "isEqualTo",
+        "value": "ChangeLog"
+      },
+      "name": "text - change log"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "---"
+      },
+      "name": "text - 4"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "resources\r\n | where type == \"microsoft.compute/virtualmachines\"\r\n | project name, type, location, resourceGroup",
+        "size": 4,
+        "title": "ARG: Check Azure api for Resources: {$rowCount}",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Workspaces}"
+        ],
+        "gridSettings": {
+          "filter": true
+        }
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "VirtualMachine"
+      },
+      "customWidth": "50",
+      "name": "query - 5"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "resources\r\n | where type == \"microsoft.compute/virtualmachines\"\r\n | summarize count() by name",
+        "size": 4,
+        "title": "Server count by ARG query",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Workspaces}"
+        ],
+        "visualization": "piechart",
+        "tileSettings": {
+          "showBorder": false
+        }
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "VirtualMachine"
+      },
+      "customWidth": "50",
+      "name": "query - 5 - Copy"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "Heartbeat\r\n| distinct Computer, ComputerEnvironment\r\n| extend Computer = split(Computer,\".\").[0]\r\n| where ComputerEnvironment == \"Azure\" ",
+        "size": 4,
+        "title": "KQL: Check Log Analytics for Resources: {$rowCount}",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "crossComponentResources": [
+          "{Workspaces}"
+        ],
+        "gridSettings": {
+          "filter": true
+        }
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "VirtualMachine"
+      },
+      "customWidth": "50",
+      "name": "query - 6"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "Heartbeat\r\n| distinct Computer, ComputerEnvironment\r\n| where ComputerEnvironment == \"Azure\" \r\n| summarize count() by Computer",
+        "size": 4,
+        "title": "Server count in KQL query",
+        "timeContext": {
+          "durationMs": 2592000000
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "crossComponentResources": [
+          "{Workspaces}"
+        ],
+        "visualization": "piechart"
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "VirtualMachine"
+      },
+      "customWidth": "50",
+      "name": "query - 6 - Copy"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"2d93f689-ffa6-4923-ab77-33b60a2610e5\",\"mergeType\":\"leftanti\",\"leftTable\":\"query - 5\",\"rightTable\":\"query - 6\",\"leftColumn\":\"name\",\"rightColumn\":\"Computer\"}],\"projectRename\":[{\"originalName\":\"[query - 5].name\",\"mergedName\":\"name\",\"fromId\":\"2d93f689-ffa6-4923-ab77-33b60a2610e5\"},{\"originalName\":\"[query - 5].type\",\"mergedName\":\"type\",\"fromId\":\"2d93f689-ffa6-4923-ab77-33b60a2610e5\"},{\"originalName\":\"[query - 5].location\",\"mergedName\":\"location\",\"fromId\":\"2d93f689-ffa6-4923-ab77-33b60a2610e5\"},{\"originalName\":\"[query - 5].resourceGroup\",\"mergedName\":\"resourceGroup\",\"fromId\":\"2d93f689-ffa6-4923-ab77-33b60a2610e5\"}]}",
+        "size": 0,
+        "title": "Machines in Azure but NOT in Log Analytics in {TimeRange:label} : {$rowCount}",
+        "showExportToExcel": true,
+        "queryType": 7,
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "name",
+              "formatter": 18,
+              "formatOptions": {
+                "showIcon": true,
+                "thresholdsOptions": "colors",
+                "thresholdsGrid": [
+                  {
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "representation": "gray",
+                    "text": "{0}{1}"
+                  }
+                ]
+              }
+            },
+            {
+              "columnMatch": "resourceGroup",
+              "formatter": 14,
+              "formatOptions": {
+                "linkTarget": null,
+                "showIcon": true
+              }
+            }
+          ],
+          "filter": true
+        }
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "VirtualMachine"
+      },
+      "name": "query - 7"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## Network section - Tab "
+      },
+      "conditionalVisibility": {
+        "parameterName": "1",
+        "comparison": "isEqualTo",
+        "value": "2"
+      },
+      "name": "text - 11"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "resources\r\n| where type == \"microsoft.network/networksecuritygroups\" or  type == \"microsoft.network/virtualnetworks\"\r\n| summarize count() by ['ResourceProvider']=type, name, resourceGroup, location ",
+        "size": 4,
+        "title": "ARG: NSG and vNET",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Subscriptions}"
+        ],
+        "gridSettings": {
+          "filter": true
+        }
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "Network"
+      },
+      "name": "Network-ARG"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "AzureActivity\r\n| where ResourceProvider == \"Microsoft.Network\"\r\n| parse _ResourceId with * \"/virtualnetworks/\" strVnet \r\n| where Resource has \"nsg\" or isnotempty(strVnet)\r\n| extend netType = case (Resource has \"nsg\", netType = \"NSG\",\r\n                         Resource !has \"nsg\", netType = \"VNET\", \"unknown\")     \r\n| distinct Resource,  strVnet, ResourceProvider, ResourceGroup, netType\r\n| project  ResourceProvider, name = Resource, ResourceGroup, netType\r\n\r\n",
+        "size": 4,
+        "title": "KQL: NSG and VNet",
+        "timeContext": {
+          "durationMs": 2592000000
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "crossComponentResources": [
+          "{Workspaces}"
+        ],
+        "gridSettings": {
+          "filter": true
+        },
+        "sortBy": []
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "Network"
+      },
+      "name": "Network-KQL and Vnet"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"5bbbb17a-0464-4611-b59c-c70935118069\",\"mergeType\":\"leftanti\",\"leftTable\":\"Network-ARG\",\"rightTable\":\"Network-KQL and Vnet\",\"leftColumn\":\"name\",\"rightColumn\":\"name\"}],\"projectRename\":[{\"originalName\":\"[Network-ARG].type\",\"mergedName\":\"type\",\"fromId\":\"5bbbb17a-0464-4611-b59c-c70935118069\"},{\"originalName\":\"[Network-ARG].name\",\"mergedName\":\"name\",\"fromId\":\"5bbbb17a-0464-4611-b59c-c70935118069\"},{\"originalName\":\"[Network-ARG].resourceGroup\",\"mergedName\":\"resourceGroup\",\"fromId\":\"5bbbb17a-0464-4611-b59c-c70935118069\"},{\"originalName\":\"[Network-ARG].location\",\"mergedName\":\"location\",\"fromId\":\"5bbbb17a-0464-4611-b59c-c70935118069\"},{\"originalName\":\"[Network-ARG].count_\",\"mergedName\":\"count_\",\"fromId\":\"5bbbb17a-0464-4611-b59c-c70935118069\"},{\"originalName\":\"[Network-ARG].ResourceProvider\",\"mergedName\":\"ResourceProvider\",\"fromId\":\"unknown\"}]}",
+        "size": 0,
+        "title": "Network Resources (NSG & vNet) in Azure but NOT in Log Analytics in {TimeRange:label}",
+        "queryType": 7,
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "name",
+              "formatter": 18,
+              "formatOptions": {
+                "palette": "green",
+                "showIcon": true,
+                "thresholdsOptions": "colors",
+                "thresholdsGrid": [
+                  {
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "representation": "gray",
+                    "text": "{0}{1}"
+                  }
+                ]
+              },
+              "numberFormat": {
+                "unit": 0,
+                "options": {
+                  "style": "decimal",
+                  "useGrouping": false
+                }
+              }
+            },
+            {
+              "columnMatch": "resourceGroup",
+              "formatter": 14,
+              "formatOptions": {
+                "linkTarget": null,
+                "showIcon": true
+              }
+            }
+          ],
+          "filter": true
+        },
+        "sortBy": []
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "Network"
+      },
+      "name": "query - 14"
+    }
+  ],
+  "fromTemplateId": "sentinel-UserWorkbook",
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}
