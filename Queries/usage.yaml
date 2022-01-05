@@ -1,0 +1,1 @@
+Usage | summarize count() by DataType | order by count_ desc
