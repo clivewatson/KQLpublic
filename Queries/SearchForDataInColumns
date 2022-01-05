@@ -1,4 +1,4 @@
-let srch = "clwatson@";
+let srch = "clive";
 search in (AzureActivity) srch
 | evaluate narrow()
 | where Value contains srch
