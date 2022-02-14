@@ -9,9 +9,15 @@ This is repeated in a file (open the instructions file in *RAW* mode and downloa
 
 ### Installation Instructions:
  
-1. Select the [RAW] button, [Copy] the workbook file content (these are JSON files),  open Azure Monitor Workbooks (from portal.azure.com) - open the “empty” Azure Monitor Workbook, in “advanced edit” mode (press the </> icon ).  Please [paste] over any json that exists.   
+1. Select the [RAW] button, [Copy] the workbook file content (these are JSON files),  
 
-2. Then Press [apply] then [Done Editing]
+ - Open **Azure Monitor Workbooks** (from portal.azure.com) - open the “empty” Azure Monitor Workbook, in “advanced edit” mode (press the </> icon ).  [paste] over any json that exists.
+
+ or
+
+ -  To install into **Sentinel**, create a New Workbook: Add-Workbook --> Edit --> then use Advanced Edit (press the </> icon) then [paste] over any json that exists.  
+
+2. Then Press **[apply]** then **[Done Editing]**
 
 ### Export:
 
