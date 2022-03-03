@@ -1,0 +1,18 @@
+// This works best on a small data set i.e You know the Table and a few rows of data, and use this to refine the search to the exact column
+
+
+// find a search item in a named Table, but only show the column its in.
+
+let srch = "clive";
+search in (AzureActivity) srch
+| evaluate narrow()
+| where Value contains srch
+| summarize count() by Column, txtFound = srch
+
+// also show the full row of data (value)
+
+let srch = "https://";         // search for 
+search in (SigninLogs) srch    // Table to search in
+| evaluate narrow()
+| where Value contains srch    // also try "has" for better efficiency rather than "contains"
+| summarize count() by Column, txtFound = srch, Value
