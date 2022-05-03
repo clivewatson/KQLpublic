@@ -9,7 +9,7 @@ This is repeated in a file (open the instructions file in *RAW* mode and downloa
 
 ### Installation Instructions:
  
-1. Select the [RAW] button, [Copy] the workbook file content (these are JSON files),  
+1. If the file is in Github, select the [**RAW**] button, [Copy] the workbook file content (these are JSON files),  
 
  - Open **Azure Monitor Workbooks** (from portal.azure.com) - open the “empty” Azure Monitor Workbook, in “advanced edit” mode (press the </> icon ).  [paste] over any json that exists.
 
