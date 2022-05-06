@@ -1,0 +1,529 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "parameters": [
+          {
+            "id": "997c84bc-c454-47f7-a288-99429173dfeb",
+            "version": "KqlParameterItem/1.0",
+            "name": "Subscription",
+            "type": 6,
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "value": [
+              ""
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": [],
+              "includeAll": false
+            },
+            "label": "☁️ Subscription"
+          },
+          {
+            "id": "73638b3d-aa3f-4872-a56b-a0eaf3fc7714",
+            "version": "KqlParameterItem/1.0",
+            "name": "Workspace",
+            "type": 5,
+            "isRequired": true,
+            "query": "Resources | where type =~ \"microsoft.operationalinsights/workspaces\" | order by name | project id, name, selected=row_number()==1, group=resourceGroup",
+            "crossComponentResources": [
+              "{Subscription}"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": []
+            },
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources",
+            "value": "",
+            "label": "🗂️ Workspace"
+          },
+          {
+            "id": "0350b122-c768-428c-8b6b-13bcfc833673",
+            "version": "KqlParameterItem/1.0",
+            "name": "TimeRange",
+            "type": 4,
+            "isRequired": true,
+            "value": {
+              "durationMs": 2592000000
+            },
+            "typeSettings": {
+              "selectableValues": [
+                {
+                  "durationMs": 1800000
+                },
+                {
+                  "durationMs": 3600000
+                },
+                {
+                  "durationMs": 14400000
+                },
+                {
+                  "durationMs": 43200000
+                },
+                {
+                  "durationMs": 86400000
+                },
+                {
+                  "durationMs": 172800000
+                },
+                {
+                  "durationMs": 259200000
+                },
+                {
+                  "durationMs": 604800000
+                },
+                {
+                  "durationMs": 1209600000
+                },
+                {
+                  "durationMs": 2419200000
+                },
+                {
+                  "durationMs": 2592000000
+                },
+                {
+                  "durationMs": 5184000000
+                },
+                {
+                  "durationMs": 7776000000
+                }
+              ],
+              "allowCustom": true
+            },
+            "label": "⏱️ Time Range"
+          },
+          {
+            "id": "9a4aad20-be5d-48c0-8ebb-9cf3a11d0ea8",
+            "version": "KqlParameterItem/1.0",
+            "name": "resourceGroup",
+            "type": 1,
+            "query": "resources\r\n| where type =~ 'microsoft.operationalinsights/workspaces'\r\n| where id == \"{Workspace}\"\r\n| project resourceGroup",
+            "crossComponentResources": [
+              "{Subscription}"
+            ],
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources"
+          },
+          {
+            "id": "1d68ae22-4503-48f5-aa83-57d9f19c7088",
+            "version": "KqlParameterItem/1.0",
+            "name": "ipAddress",
+            "type": 1,
+            "value": "192.1.1.1",
+            "label": "🖧 IP Address "
+          },
+          {
+            "id": "4cdef0d0-c0d2-45ba-921e-e649a6853205",
+            "version": "KqlParameterItem/1.0",
+            "name": "WhoisDomanName",
+            "type": 1,
+            "value": "microsoft.com",
+            "label": "🌐 whois Domain Name"
+          },
+          {
+            "id": "a0406b61-d150-4fd8-80d7-b2e0f97585c4",
+            "version": "KqlParameterItem/1.0",
+            "name": "Help",
+            "type": 10,
+            "isRequired": true,
+            "typeSettings": {
+              "additionalResourceOptions": []
+            },
+            "jsonData": "[\r\n { \"value\": \"Yes\", \"label\": \"Yes\"},\r\n {\"value\": \"No\", \"label\": \"No\", \"selected\":true },\r\n { \"value\": \"Change Log\", \"label\": \"Change Log\"}\r\n]",
+            "label": "📖 Help"
+          }
+        ],
+        "style": "above",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
+      },
+      "name": "parameters - 1"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "### Help file\r\nGeolocation lookup. \r\nAuthor: Clive Watson \r\n\r\nPlease add an IP Address or Domain Name and look it up via API\r\n\r\nSource: https://docs.microsoft.com/en-us/azure/sentinel/geolocation-data-api\r\n\r\nGeoIP data is secondary to the Geolocation api (often outdated), please use the Geolocation API as the default."
+      },
+      "conditionalVisibility": {
+        "parameterName": "Help",
+        "comparison": "isEqualTo",
+        "value": "Yes"
+      },
+      "name": "text - 7"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "### Change Log \r\n\r\n|Version|Description|\r\n|---|---|\r\n|v1.0|Initial Version.| \r\n|v1.1|Fix GeoIP2 join, displaying wrong data.| \r\n|v1.2|Add WhoIs for Domain Name lookup.| "
+      },
+      "conditionalVisibility": {
+        "parameterName": "Help",
+        "comparison": "isEqualTo",
+        "value": "Change Log"
+      },
+      "name": "text - 7 - Copy"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## select a workspace to see saved queries."
+      },
+      "conditionalVisibilities": [
+        {
+          "parameterName": "Workspace",
+          "comparison": "isEqualTo"
+        },
+        {
+          "parameterName": "Subscription",
+          "comparison": "isNotEqualTo"
+        }
+      ],
+      "name": "no workspace set"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## select one or more subscriptions, then pick a workspace to get started"
+      },
+      "conditionalVisibility": {
+        "parameterName": "Subscription",
+        "comparison": "isEqualTo"
+      },
+      "name": "no subscription selected"
+    },
+    {
+      "type": 11,
+      "content": {
+        "version": "LinkItem/1.0",
+        "style": "tabs",
+        "links": [
+          {
+            "id": "2df824ff-aae4-4f65-8d60-c6e9c4feeb08",
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "🖧  GeoLocation API",
+            "subTarget": "geo",
+            "preText": "GeoLocation api",
+            "style": "link"
+          },
+          {
+            "id": "a0a962fc-54ff-4a2a-8ed9-50c7f0862587",
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "🗺️ GeoIP2",
+            "subTarget": "ip2",
+            "style": "link"
+          },
+          {
+            "id": "2bfa480e-8513-4f25-b42a-b2a0c3a427aa",
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "🌐 WhoIs",
+            "subTarget": "whois",
+            "style": "link"
+          }
+        ]
+      },
+      "name": "links - 10"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "title": "geoLocation API",
+        "items": [
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"/subscriptions/{Workspace:subscriptionid}/resourceGroups/{resourceGroup}/providers/Microsoft.SecurityInsights/enrichment/ip/geodata/?ipaddress={ipAddress}&api-version=2021-09-01-preview\",\"urlParams\":[],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$\",\"columns\":[]}}]}",
+              "size": 4,
+              "title": "Lookup IP Address: {ipAddress}",
+              "queryType": 12,
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "country",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        {
+                          "operator": "Default",
+                          "thresholdValue": null,
+                          "representation": "Globe",
+                          "text": "{0}{1}"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "name": "query - 5"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"/subscriptions/{Workspace:subscriptionid}/resourceGroups/{resourceGroup}/providers/Microsoft.SecurityInsights/enrichment/ip/geodata/?ipaddress={ipAddress}&api-version=2019-01-01-preview\",\"urlParams\":[],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$\",\"columns\":[]}}]}",
+              "size": 0,
+              "title": "Lookup IP Address: {ipAddress}",
+              "queryType": 12,
+              "visualization": "map",
+              "mapSettings": {
+                "locInfo": "LatLong",
+                "latitude": "latitude",
+                "longitude": "longitude",
+                "sizeSettings": "asn",
+                "sizeAggregation": "Sum",
+                "legendAggregation": "Count",
+                "itemColorSettings": {
+                  "nodeColorField": "asn",
+                  "colorAggregation": "Sum",
+                  "type": "heatmap",
+                  "heatmapPalette": "greenRed"
+                }
+              }
+            },
+            "name": "query - Map result"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "geo"
+      },
+      "name": "group - geo API"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "title": "GeoIP2 data",
+        "items": [
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let IP_Data = external_data(network:string,geoname_id:long,continent_code:string,continent_name:string ,country_iso_code:string,country_name:string,is_anonymous_proxy:bool,is_satellite_provider:bool)\r\n    ['https://raw.githubusercontent.com/datasets/geoip2-ipv4/master/data/geoip2-ipv4.csv']\r\n    with (ignoreFirstRecord=true, format=\"csv\");\r\nIP_Data\r\n| evaluate ipv4_lookup(IP_Data, '{ipAddress}', network)\r\n| summarize arg_max(network,*) by '{ipAddress}'\r\n| extend IPaddress = '{ipAddress}'\r\n| project-away *1\r\n| project-reorder IPaddress\r\n",
+              "size": 4,
+              "title": "From GeoIp2: {ipAddress}",
+              "timeContextFromParameter": "TimeRange",
+              "showExportToExcel": true,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{Workspace}"
+              ],
+              "gridSettings": {
+                "filter": true
+              }
+            },
+            "name": "query - 7"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let IP_Data = external_data(network:string,geoname_id:long,continent_code:string,continent_name:string ,country_iso_code:string,country_name:string,is_anonymous_proxy:bool,is_satellite_provider:bool)\r\n    ['https://raw.githubusercontent.com/datasets/geoip2-ipv4/master/data/geoip2-ipv4.csv']\r\n    with (ignoreFirstRecord=true, format=\"csv\");\r\nIP_Data\r\n| evaluate ipv4_lookup(IP_Data, '{ipAddress}', network)\r\n| summarize arg_max(network,*) by '{ipAddress}'\r\n| project-away *1\r\n",
+              "size": 0,
+              "title": "From GeoIp2: {ipAddress}",
+              "timeContextFromParameter": "TimeRange",
+              "showExportToExcel": true,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{Workspace}"
+              ],
+              "visualization": "map",
+              "gridSettings": {
+                "filter": true
+              },
+              "mapSettings": {
+                "locInfo": "CountryRegion",
+                "locInfoColumn": "country_name",
+                "sizeSettings": "geoname_id",
+                "sizeAggregation": "Sum",
+                "legendMetric": "geoname_id",
+                "legendAggregation": "Sum",
+                "itemColorSettings": {
+                  "nodeColorField": "geoname_id",
+                  "colorAggregation": "Sum",
+                  "type": "heatmap",
+                  "heatmapPalette": "greenRed"
+                }
+              }
+            },
+            "name": "query - 7 - Copy"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "ThreatIntelligenceIndicator\r\n| extend  Indicator = strcat(NetworkSourceIP, NetworkIP, NetworkDestinationIP, EmailSourceIpAddress, EmailSenderAddress, DomainName)\r\n| where isnotempty( Indicator)\r\n| where Indicator == '{ipAddress}'\r\n| summarize count(), arg_max(TimeGenerated,*) by Description ",
+              "size": 0,
+              "title": "Microsoft TI for: {ipAddress}",
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{Workspace}"
+              ],
+              "gridSettings": {
+                "filter": true
+              }
+            },
+            "name": "query - 9"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "ip2"
+      },
+      "name": "group - ip2"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "title": "group: whois",
+        "items": [
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"/subscriptions/{Workspace:subscriptionid}/resourceGroups/{resourceGroup}/providers/Microsoft.SecurityInsights/enrichment/domain/whois/?api-version=2021-10-01-preview&domain={WhoisDomanName}\",\"urlParams\":[],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$\",\"columns\":[]}}]}",
+              "size": 4,
+              "title": "Lookup Domain Name: {WhoisDomanName}",
+              "showExportToExcel": true,
+              "queryType": 12,
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "country",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        {
+                          "operator": "Default",
+                          "thresholdValue": null,
+                          "representation": "Globe",
+                          "text": "{0}{1}"
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "filter": true
+              }
+            },
+            "name": "query - 5 - who is lookup"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"/subscriptions/{Workspace:subscriptionid}/resourceGroups/{resourceGroup}/providers/Microsoft.SecurityInsights/enrichment/domain/whois/?api-version=2021-10-01-preview&domain={WhoisDomanName}\",\"urlParams\":[],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"parsedWhois.contacts.admin\",\"columns\":[]}}]}",
+              "size": 4,
+              "title": "Contacts for: {WhoisDomanName}",
+              "showExportToExcel": true,
+              "queryType": 12,
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "country",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        {
+                          "operator": "Default",
+                          "thresholdValue": null,
+                          "representation": "Globe",
+                          "text": "{0}{1}"
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "filter": true
+              },
+              "mapSettings": {
+                "locInfo": "CountryRegion",
+                "locInfoColumn": "parsedWhois",
+                "sizeAggregation": "Sum",
+                "legendAggregation": "Sum",
+                "itemColorSettings": null
+              }
+            },
+            "name": "query - 5 -who is Contacts "
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"/subscriptions/{Workspace:subscriptionid}/resourceGroups/{resourceGroup}/providers/Microsoft.SecurityInsights/enrichment/domain/whois/?api-version=2021-10-01-preview&domain={WhoisDomanName}\",\"urlParams\":[],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"parsedWhois.contacts.registrant\",\"columns\":[]}}]}",
+              "size": 1,
+              "title": "Country Location for: {WhoisDomanName}",
+              "showExportToExcel": true,
+              "queryType": 12,
+              "visualization": "map",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "country",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        {
+                          "operator": "Default",
+                          "thresholdValue": null,
+                          "representation": "Globe",
+                          "text": "{0}{1}"
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "filter": true
+              },
+              "mapSettings": {
+                "locInfo": "CountryRegion",
+                "locInfoColumn": "country",
+                "sizeSettings": "city",
+                "sizeAggregation": "Sum",
+                "legendAggregation": "Sum",
+                "itemColorSettings": null
+              }
+            },
+            "customWidth": "50",
+            "name": "query - 5 - who is Map"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "whois"
+      },
+      "name": "group - whois"
+    }
+  ],
+  "fromTemplateId": "sentinel-GeoLocationWorkbook",
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}
