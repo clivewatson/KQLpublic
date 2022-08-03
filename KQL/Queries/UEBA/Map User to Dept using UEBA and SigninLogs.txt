@@ -1,0 +1,10 @@
+SecurityAlert
+| extend AccountUPN = tostring(parse_json(ExtendedProperties).["User Account"])
+| where isnotempty(AccountUPN)
+| join 
+  (
+  // look at UEBA data for Dept. name
+  IdentityInfo
+  | summarize count() by Department, AccountUPN
+  ) on AccountUPN
+| project AlertName, Department, AccountUPN
