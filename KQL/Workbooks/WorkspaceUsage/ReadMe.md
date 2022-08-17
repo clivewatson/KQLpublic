@@ -1,6 +1,8 @@
 ## Workspace Usage Report
 
-[![Deploy to Workbook Instance](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FCliveW-MSFT%2FKQLpublic%2Fmaster%2FKQL%2FWorkbooks%2FWorkspaceUsage%2FWorkspace%20Usage%20V1.6.1.json)
+[![Deploy to Workbook Instance](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https://raw.githubusercontent.com/clivewatson/KQLpublic/master/KQL/Workbooks/WorkspaceUsage/Workspace%20Usage%20V1.6.1.json)
+
+https://raw.githubusercontent.com/clivewatson/KQLpublic/master/KQL/Workbooks/WorkspaceUsage/Workspace%20Usage%20V1.6.1.json
 
 ### Overview Page
 
