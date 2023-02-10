@@ -15,9 +15,9 @@ This is repeated in a file (open the instructions file in *RAW* mode and downloa
 
  or
 
- -  To install into **Sentinel**, create a New Workbook: Add-Workbook --> Edit --> then use Advanced Edit (press the </> icon) then [paste] over any json that exists.  
+2.  To install into **Sentinel**, create a New Workbook: Add-Workbook --> Edit --> then use Advanced Edit (press the </> icon) then [paste] over any json that exists.  
 
-2. Then Press **[apply]** then **[Done Editing]**
+ - Then Press **[apply]** then **[Done Editing]**
 
 ### Export:
 
