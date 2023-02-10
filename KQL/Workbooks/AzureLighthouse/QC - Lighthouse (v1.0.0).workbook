@@ -1,0 +1,355 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "crossComponentResources": [
+          "value::selected"
+        ],
+        "parameters": [
+          {
+            "id": "01868289-27ef-4b5e-ae83-1715cacde421",
+            "version": "KqlParameterItem/1.0",
+            "name": "region",
+            "label": "🌍 Region",
+            "type": 2,
+            "description": "Filter by Azure Region (location)",
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "query": "Resources \r\n//| where type =~ \"microsoft.operationalinsights/workspaces\"\r\n| where type =~ \"microsoft.operationsmanagement/solutions\"\r\n| where name has \"SecurityInsights\"\r\n| summarize WorkspaceCount = count(name) by location\r\n| order by location asc\r\n| project value=location, display=strcat(location,'(',WorkspaceCount,')')",
+            "crossComponentResources": [
+              "value::selected"
+            ],
+            "value": [
+              "value::all"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ],
+              "selectAllValue": "*",
+              "showDefault": false
+            },
+            "defaultValue": "value::all",
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources"
+          },
+          {
+            "id": "1ca69445-60fc-4806-b43d-ac7e6aad630a",
+            "version": "KqlParameterItem/1.0",
+            "name": "Subscription",
+            "type": 6,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "query": "resources\r\n| where '*' in ({region}) or location in ({region})\r\n| where type =~ 'microsoft.operationalinsights/workspaces'\r\n| distinct subscriptionId, location\r\n| summarize by value = strcat(\"/subscriptions/\", subscriptionId), label = subscriptionId\r\n| order by value asc\r\n",
+            "crossComponentResources": [
+              "value::selected"
+            ],
+            "value": [
+              "value::all"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ],
+              "showDefault": false
+            },
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources",
+            "label": "☁️ Subscription"
+          },
+          {
+            "id": "a005f3fa-bdf0-4591-b85d-0369ce1eb87d",
+            "version": "KqlParameterItem/1.0",
+            "name": "selectCustomer",
+            "type": 2,
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "query": "resources\r\n    | where type =~ 'microsoft.operationsmanagement/solutions' \r\n    // just Sentinel\r\n    | where name has \"SecurityInsights\"\r\n    | parse name with *'(' name ')'*\r\n    | extend name =tolower(name)\r\n| join kind=fullouter (\r\n    ManagedServicesResources \r\n    | project managed_ = properties.registrationDefinition.properties.manageeTenantName, subscriptionId, tenantId, resourceGroup\r\n    | where isnotnull(managed_)\r\n) on subscriptionId\r\n| summarize by tostring(managed_), name, resourceGroup, location\r\n| extend managed_ = iif(isempty(managed_),name, managed_)\r\n| order by tostring(managed_) asc \r\n| project value=name, display=strcat(managed_,'(', name ,')')",
+            "crossComponentResources": [
+              "{Subscription}"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ],
+              "showDefault": false
+            },
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources",
+            "value": [
+              "value::all"
+            ]
+          },
+          {
+            "id": "e94aafa3-c5d9-4523-89f0-4e87aa754511",
+            "version": "KqlParameterItem/1.0",
+            "name": "Workspace",
+            "label": "🗂️ Workspace",
+            "type": 5,
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "query": "resources\n| where type =~ 'microsoft.operationalinsights/workspaces'\n| extend customerID = trim(' ', tostring(properties.customerId))\n| project id, customerID, name=tolower(name)\n| where name in ({selectCustomer})\n|join \n(\n\tresources\n\t// Just show Workspaces that have Sentinel enabled\n\t| where type =~ \"microsoft.operationsmanagement/solutions\"\n\t| where name has \"SecurityInsights\"\n\t| parse name with * '(' s_workspace ')'*\n\t| project name=tolower(s_workspace)\n) on name\n| project tolower(id), customerID, name",
+            "crossComponentResources": [
+              "{Subscription}"
+            ],
+            "typeSettings": {
+              "resourceTypeFilter": {
+                "microsoft.operationalinsights/workspaces": true
+              },
+              "additionalResourceOptions": [
+                "value::all"
+              ],
+              "showDefault": false
+            },
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources",
+            "value": [
+              "value::all"
+            ]
+          },
+          {
+            "id": "66f59acd-2628-457d-a5cd-176aa453472a",
+            "version": "KqlParameterItem/1.0",
+            "name": "TimeRange",
+            "type": 4,
+            "isRequired": true,
+            "value": {
+              "durationMs": 1209600000
+            },
+            "typeSettings": {
+              "selectableValues": [
+                {
+                  "durationMs": 300000
+                },
+                {
+                  "durationMs": 900000
+                },
+                {
+                  "durationMs": 1800000
+                },
+                {
+                  "durationMs": 3600000
+                },
+                {
+                  "durationMs": 14400000
+                },
+                {
+                  "durationMs": 43200000
+                },
+                {
+                  "durationMs": 86400000
+                },
+                {
+                  "durationMs": 172800000
+                },
+                {
+                  "durationMs": 259200000
+                },
+                {
+                  "durationMs": 604800000
+                },
+                {
+                  "durationMs": 1209600000
+                },
+                {
+                  "durationMs": 2419200000
+                },
+                {
+                  "durationMs": 2592000000
+                },
+                {
+                  "durationMs": 5184000000
+                },
+                {
+                  "durationMs": 7776000000
+                }
+              ],
+              "allowCustom": true
+            },
+            "label": "⏱️ Time Range"
+          },
+          {
+            "id": "04338a2a-010c-409d-91ac-4b74a0e9d56c",
+            "version": "KqlParameterItem/1.0",
+            "name": "Help",
+            "type": 10,
+            "isRequired": true,
+            "typeSettings": {
+              "additionalResourceOptions": [],
+              "showDefault": false
+            },
+            "jsonData": "[\r\n { \"value\": \"Yes\", \"label\": \"Yes\"},\r\n { \"value\": \"No\", \"label\": \"No\", \"selected\":true },\r\n { \"value\": \"Change Log\", \"label\": \"Change Log\"}\r\n]",
+            "timeContextFromParameter": "TimeRange",
+            "label": "📖 Help"
+          },
+          {
+            "version": "KqlParameterItem/1.0",
+            "name": "workspaceCount",
+            "type": 1,
+            "isRequired": true,
+            "query": "resources\n| where type =~ 'microsoft.operationalinsights/workspaces'\n| extend customerID = trim(' ', tostring(properties.customerId))\n| project id, customerID, name=tolower(name)\n|join \n(\n\tresources\n\t// Just show Workspaces that have Sentinel enabled\n\t| where type =~ \"microsoft.operationsmanagement/solutions\"\n\t| where name has \"SecurityInsights\"\n\t| parse name with * '(' s_workspace ')'*\n\t| project name=tolower(s_workspace)\n) on name\n| count",
+            "crossComponentResources": [
+              "{Subscription}"
+            ],
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources",
+            "id": "68b2ec88-bfaa-49bc-8e99-f6045476fe36"
+          }
+        ],
+        "style": "above",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources"
+      },
+      "customWidth": "75",
+      "name": "parameters - 1"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "resources\r\n| where type =~ 'microsoft.operationsmanagement/solutions' \r\n// filter on just Sentinel workspaces\r\n| where name has \"SecurityInsights\"\r\n| parse name with *'(' name ')'*\r\n| extend name =tolower(name)\r\n| where name in ({selectCustomer:value}) and location in ({region:value}) or {region:value} == \"*\"\r\n| join (\r\n    ManagedServicesResources \r\n    | extend managed_         = tostring(properties.registrationDefinition.properties.manageeTenantName),\r\n            provisioningState = tostring(properties.registrationDefinition.properties.provisioningState),\r\n            systemData        = tostring(parse_json(properties.registrationDefinition).systemData),\r\n            authorizations    = tostring(parse_json( properties.registrationDefinition.properties).authorizations),\r\n            subscriptionId,\r\n            tenantId,\r\n            properties\r\n    | summarize resourceGroups=dcount(resourceGroup), arg_max(name,tenantId, provisioningState,SystemData=systemData, authorizations)  by Directory=managed_ \r\n) on tenantId\r\n| where isnotempty(Directory)\r\n| project Directory,CustomerID =tenantId, WorkspaceName = name, location, resourceGroups, SystemData, authorizations, LightHouseprovisioningState=provisioningState\r\n| order by ['Directory'] asc",
+        "size": 0,
+        "title": "Looking for {$rowCount} Workspaces",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Workspace}"
+        ],
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "SystemData",
+              "formatter": 1,
+              "formatOptions": {
+                "linkTarget": "CellDetails",
+                "linkIsContextBlade": true
+              }
+            },
+            {
+              "columnMatch": "authorizations",
+              "formatter": 1,
+              "formatOptions": {
+                "linkTarget": "CellDetails",
+                "linkIsContextBlade": true
+              }
+            },
+            {
+              "columnMatch": "LightHouseprovisioningState",
+              "formatter": 18,
+              "formatOptions": {
+                "thresholdsOptions": "icons",
+                "thresholdsGrid": [
+                  {
+                    "operator": "==",
+                    "thresholdValue": "Succeeded",
+                    "representation": "success",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "!=",
+                    "thresholdValue": "Succeeded",
+                    "representation": "2",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "representation": "more",
+                    "text": "{0}{1}"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "name": "query - 1"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "resources\r\n| where type =~ 'microsoft.operationsmanagement/solutions' \r\n// filter on just Sentinel workspaces\r\n| where name has \"SecurityInsights\"\r\n| parse name with *'(' name ')'*\r\n| extend name =tolower(name)\r\n| where name in ({selectCustomer:value}) and location in ({region:value}) or {region:value} == \"*\"\r\n| join (\r\n    ManagedServicesResources \r\n    | extend managed_         = tostring(properties.registrationDefinition.properties.manageeTenantName),\r\n            provisioningState = tostring(properties.registrationDefinition.properties.provisioningState),\r\n            systemData        = tostring(parse_json(properties.registrationDefinition).systemData),\r\n            authorizations    = tostring(parse_json( properties.registrationDefinition.properties).authorizations),\r\n            subscriptionId,\r\n            tenantId,\r\n            properties\r\n    | summarize resourceGroups=dcount(resourceGroup), arg_max(name,tenantId, provisioningState,SystemData=systemData, authorizations)  by Directory=managed_ \r\n) on tenantId\r\n| where isnotempty(Directory)\r\n| project Directory,CustomerID =tenantId, WorkspaceName = name, location, SystemData\r\n| extend lastModifiedAt = parse_json(SystemData).lastModifiedAt,\r\n         lastModifiedBy = parse_json(SystemData).lastModifiedBy\r\n| where isnotempty(lastModifiedAt)         \r\n| order by tostring(lastModifiedAt) asc",
+        "size": 0,
+        "title": "Last Modified when and by, count:  {$rowCount}",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Workspace}"
+        ],
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "SystemData",
+              "formatter": 1,
+              "formatOptions": {
+                "linkTarget": "CellDetails",
+                "linkIsContextBlade": true
+              }
+            },
+            {
+              "columnMatch": "authorizations",
+              "formatter": 1,
+              "formatOptions": {
+                "linkTarget": "CellDetails",
+                "linkIsContextBlade": true
+              }
+            },
+            {
+              "columnMatch": "LightHouseprovisioningState",
+              "formatter": 18,
+              "formatOptions": {
+                "thresholdsOptions": "icons",
+                "thresholdsGrid": [
+                  {
+                    "operator": "==",
+                    "thresholdValue": "Succeeded",
+                    "representation": "success",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "!=",
+                    "thresholdValue": "Succeeded",
+                    "representation": "2",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "representation": "more",
+                    "text": "{0}{1}"
+                  }
+                ]
+              }
+            }
+          ],
+          "sortBy": [
+            {
+              "itemKey": "$gen_link_lastModifiedAt_5",
+              "sortOrder": 2
+            }
+          ]
+        },
+        "sortBy": [
+          {
+            "itemKey": "$gen_link_lastModifiedAt_5",
+            "sortOrder": 2
+          }
+        ]
+      },
+      "name": "query - 1 - Copy"
+    }
+  ],
+  "fromTemplateId": "sentinel-LighthouseWorkbook",
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}
