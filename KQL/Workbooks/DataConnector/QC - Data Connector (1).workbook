@@ -1,0 +1,537 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "crossComponentResources": [
+          "value::selected"
+        ],
+        "parameters": [
+          {
+            "id": "ccd5adcd-8d59-4cfe-99ec-98075de2e253",
+            "version": "KqlParameterItem/1.0",
+            "name": "DefaultSubscription_Internal",
+            "type": 1,
+            "isRequired": true,
+            "query": "where type =~ 'microsoft.operationalinsights/workspaces'\r\n| take 1\r\n| project subscriptionId",
+            "crossComponentResources": [
+              "value::selected"
+            ],
+            "isHiddenWhenLocked": true,
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources"
+          },
+          {
+            "id": "1ca69445-60fc-4806-b43d-ac7e6aad630a",
+            "version": "KqlParameterItem/1.0",
+            "name": "Subscription",
+            "type": 6,
+            "query": "summarize by subscriptionId\r\n| project value = strcat(\"/subscriptions/\", subscriptionId), label = subscriptionId, selected = iff(subscriptionId =~ '{DefaultSubscription_Internal}', true, false)\r\n",
+            "crossComponentResources": [
+              "value::selected"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": [],
+              "showDefault": false
+            },
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources",
+            "label": "☁️ Subscription",
+            "value": null
+          },
+          {
+            "id": "e94aafa3-c5d9-4523-89f0-4e87aa754511",
+            "version": "KqlParameterItem/1.0",
+            "name": "Workspace",
+            "label": "🗂️ Workspace",
+            "type": 5,
+            "isRequired": true,
+            "query": "resources\n| where type =~ 'microsoft.operationalinsights/workspaces' \n//| where subscriptionId == '{Subscription:id}'\n| project id",
+            "crossComponentResources": [
+              "{Subscription}"
+            ],
+            "value": "",
+            "typeSettings": {
+              "resourceTypeFilter": {
+                "microsoft.operationalinsights/workspaces": true
+              },
+              "additionalResourceOptions": []
+            },
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources"
+          },
+          {
+            "id": "eafaa0ec-7c3a-4ee5-babe-9850080c909d",
+            "version": "KqlParameterItem/1.0",
+            "name": "resourceGroup",
+            "type": 1,
+            "query": "resources\r\n| where type =~ 'microsoft.operationalinsights/workspaces'\r\n| where id == \"{Workspace}\"\r\n| project resourceGroup",
+            "crossComponentResources": [
+              "value::selected"
+            ],
+            "isHiddenWhenLocked": true,
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources"
+          },
+          {
+            "id": "c4b69c01-2263-4ada-8d9c-43433b739ff3",
+            "version": "KqlParameterItem/1.0",
+            "name": "TimeRange",
+            "type": 4,
+            "value": {
+              "durationMs": 2592000000
+            },
+            "typeSettings": {
+              "selectableValues": [
+                {
+                  "durationMs": 300000
+                },
+                {
+                  "durationMs": 900000
+                },
+                {
+                  "durationMs": 1800000
+                },
+                {
+                  "durationMs": 3600000
+                },
+                {
+                  "durationMs": 14400000
+                },
+                {
+                  "durationMs": 43200000
+                },
+                {
+                  "durationMs": 86400000
+                },
+                {
+                  "durationMs": 172800000
+                },
+                {
+                  "durationMs": 259200000
+                },
+                {
+                  "durationMs": 604800000
+                },
+                {
+                  "durationMs": 1209600000
+                },
+                {
+                  "durationMs": 2419200000
+                },
+                {
+                  "durationMs": 2592000000
+                },
+                {
+                  "durationMs": 5184000000
+                },
+                {
+                  "durationMs": 7776000000
+                }
+              ],
+              "allowCustom": true
+            },
+            "label": "⏱️ Time Range"
+          },
+          {
+            "id": "c71f3009-a3f4-4aa5-aaf0-d0f667100e56",
+            "version": "KqlParameterItem/1.0",
+            "name": "Help",
+            "label": "📖 Help",
+            "type": 10,
+            "description": "This will show some help information to help you understand the page you are on",
+            "isRequired": true,
+            "typeSettings": {
+              "additionalResourceOptions": [],
+              "showDefault": false
+            },
+            "jsonData": "[\r\n { \"value\": \"Yes\", \"label\": \"Yes\"},\r\n { \"value\": \"No\", \"label\": \"No\", \"selected\":true },\r\n { \"value\": \"Change Log\", \"label\": \"Change Log\"}\r\n]"
+          }
+        ],
+        "style": "above",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources"
+      },
+      "name": "parameters - 1"
+    },
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "parameters": [
+          {
+            "id": "d06fe1a2-b7ae-4af1-a1f2-47adefe4d851",
+            "version": "KqlParameterItem/1.0",
+            "name": "intTitle",
+            "type": 1,
+            "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"/subscriptions/{Subscription:id}/resourceGroups/{resourceGroup}/providers/Microsoft.OperationalInsights/workspaces/{Workspace:name}/providers/Microsoft.SecurityInsights/dataConnectors\",\"urlParams\":[{\"key\":\"api-version\",\"value\":\"2023-07-01-preview\"}],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$.value\",\"columns\":[{\"path\":\"properties.connectorUiConfig.title\",\"columnid\":\"title\"}]}}]}",
+            "isHiddenWhenLocked": true,
+            "timeContext": {
+              "durationMs": 86400000
+            },
+            "queryType": 12
+          },
+          {
+            "id": "d06fe1a2-b7ae-4af1-a1f2-47adefe4d851",
+            "version": "KqlParameterItem/1.0",
+            "name": "intKind",
+            "type": 1,
+            "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"/subscriptions/{Subscription:id}/resourceGroups/{resourceGroup}/providers/Microsoft.OperationalInsights/workspaces/{Workspace:name}/providers/Microsoft.SecurityInsights/dataConnectors\",\"urlParams\":[{\"key\":\"api-version\",\"value\":\"2023-07-01-preview\"}],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$.value\",\"columns\":[{\"path\":\"kind\",\"columnid\":\"kind\"}]}}]}",
+            "isHiddenWhenLocked": true,
+            "timeContext": {
+              "durationMs": 86400000
+            },
+            "queryType": 12
+          }
+        ],
+        "style": "pills",
+        "queryType": 12
+      },
+      "conditionalVisibility": {
+        "parameterName": "hide",
+        "comparison": "isEqualTo",
+        "value": "hide"
+      },
+      "name": "parameters - 4"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "// Use Usage as a common Table that always exists - its data isnt required. \r\nunion isfuzzy=true \r\n(\r\n Usage\r\n | project a = '{intTitle:value}'\r\n | limit 1\r\n | extend a = split(trim(@\"[^\\w]+\",a),\",\"), name_= \"Titles\"\r\n | mv-expand a to typeof (string)\r\n | summarize value=dcount(a) by name_\r\n),\r\n(\r\n Usage\r\n | project b = '{intKind:value}'\r\n | limit 1\r\n | extend b = split(trim(@\"[^\\w]+\",b),\",\"), name_= \"Kind\"\r\n | mv-expand b to typeof (string)\r\n | where not( b has_any('StaticUI','GenericUI','APIPolling') )\r\n | summarize value=dcount(b) by name_\r\n)\r\n| summarize sum(value)",
+        "size": 4,
+        "title": "Distinct Data Connector count:",
+        "timeContext": {
+          "durationMs": 604800000
+        },
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "crossComponentResources": [
+          "{Workspace}"
+        ],
+        "visualization": "tiles",
+        "tileSettings": {
+          "titleContent": {
+            "columnMatch": "sum_value",
+            "formatter": 1
+          },
+          "leftContent": {
+            "columnMatch": "value",
+            "formatter": 12,
+            "formatOptions": {
+              "palette": "auto"
+            },
+            "numberFormat": {
+              "unit": 17,
+              "options": {
+                "maximumSignificantDigits": 3,
+                "maximumFractionDigits": 2
+              }
+            }
+          },
+          "showBorder": false
+        }
+      },
+      "name": "query - 5"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"/subscriptions/{Subscription:id}/resourceGroups/{resourceGroup}/providers/Microsoft.OperationalInsights/workspaces/{Workspace:name}/providers/Microsoft.SecurityInsights/dataConnectors\",\"urlParams\":[{\"key\":\"api-version\",\"value\":\"2023-07-01-preview\"}],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$.value\",\"columns\":[{\"path\":\"properties.connectorUiConfig.title\",\"columnid\":\"Title\"},{\"path\":\"name\",\"columnid\":\"name\"},{\"path\":\"kind\",\"columnid\":\"kind\"},{\"path\":\"properties.connectorUiConfig.descriptionMarkdown\",\"columnid\":\"Description\"},{\"path\":\"properties\",\"columnid\":\"properties\"},{\"path\":\"properties.connectorUiConfig.publisher\",\"columnid\":\"publisher\"},{\"path\":\"properties.connectorUiConfig.availability\",\"columnid\":\"availability\"},{\"path\":\"properties.connectorUiConfig.connectivityCriterias\",\"columnid\":\"connectivityCriterias\"},{\"path\":\"properties..dataTypes[*].state\",\"columnid\":\"state\"},{\"path\":\"properties.subscriptionId\",\"columnid\":\"Subscription\"}]}}]}",
+        "size": 2,
+        "title": "Microsoft Data Connectors, count: {$rowCount}.  Click row for RAW details",
+        "exportFieldName": "name",
+        "exportParameterName": "exportName",
+        "queryType": 12,
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "kind",
+              "formatter": 18,
+              "formatOptions": {
+                "thresholdsOptions": "colors",
+                "thresholdsGrid": [
+                  {
+                    "operator": "==",
+                    "thresholdValue": "StaticUI",
+                    "representation": "gray",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "==",
+                    "thresholdValue": "GenericUI",
+                    "representation": "greenDark",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "==",
+                    "thresholdValue": "APIPolling",
+                    "representation": "pink",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "text": "{0}{1}"
+                  }
+                ]
+              }
+            },
+            {
+              "columnMatch": "publisher",
+              "formatter": 18,
+              "formatOptions": {
+                "thresholdsOptions": "colors",
+                "thresholdsGrid": [
+                  {
+                    "operator": "==",
+                    "thresholdValue": "Microsoft",
+                    "representation": "blue",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "text": "{0}{1}"
+                  }
+                ]
+              }
+            },
+            {
+              "columnMatch": "state",
+              "formatter": 18,
+              "formatOptions": {
+                "thresholdsOptions": "icons",
+                "thresholdsGrid": [
+                  {
+                    "operator": "==",
+                    "thresholdValue": "enabled",
+                    "representation": "success",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "representation": "success",
+                    "text": "{0}{1}"
+                  }
+                ]
+              }
+            },
+            {
+              "columnMatch": "Group",
+              "formatter": 1
+            }
+          ],
+          "sortBy": [
+            {
+              "itemKey": "Title",
+              "sortOrder": 2
+            }
+          ]
+        },
+        "sortBy": [
+          {
+            "itemKey": "Title",
+            "sortOrder": 2
+          }
+        ]
+      },
+      "name": "query - All Connectors"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"/subscriptions/{Subscription:id}/resourceGroups/{resourceGroup}/providers/Microsoft.OperationalInsights/workspaces/{Workspace:name}/providers/Microsoft.SecurityInsights/dataConnectors/{exportName}?api-version=2023-07-01-preview\",\"urlParams\":[],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\"}]}",
+        "size": 2,
+        "title": "RAW details, for {exportName}",
+        "queryType": 12,
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "state",
+              "formatter": 18,
+              "formatOptions": {
+                "thresholdsOptions": "icons",
+                "thresholdsGrid": [
+                  {
+                    "operator": "==",
+                    "thresholdValue": "enabled",
+                    "representation": "success",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "representation": "success",
+                    "text": "{0}{1}"
+                  }
+                ]
+              }
+            },
+            {
+              "columnMatch": "id",
+              "formatter": 1
+            },
+            {
+              "columnMatch": "Group",
+              "formatter": 1
+            }
+          ]
+        },
+        "sortBy": []
+      },
+      "conditionalVisibility": {
+        "parameterName": "exportName",
+        "comparison": "isNotEqualTo"
+      },
+      "name": "query - select a Connector"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "// Use Usage as a common Table that always exists - its data isnt required. \r\nunion isfuzzy=true \r\n(\r\n Usage\r\n | project a = '{intTitle:value}'\r\n | limit 1\r\n | extend a = split(trim(@\"[^\\w]+\",a),\",\"), name_= \"Titles\"\r\n | mv-expand a to typeof (string)\r\n// | summarize value=dcount(a) by name_\r\n),\r\n(\r\n Usage\r\n | project b = '{intKind:value}'\r\n | limit 1\r\n | extend b = split(trim(@\"[^\\w]+\",b),\",\"), name_= \"Kind\"\r\n | mv-expand b to typeof (string)\r\n | where not( b has_any('StaticUI','GenericUI','APIPolling') )\r\n// | summarize value=dcount(b) by name_\r\n)\r\n| extend connectorName = iif(isempty(a),b,a) \r\n| distinct connectorName\r\n| order by connectorName asc\r\n//| project-away name_,a, b",
+        "size": 4,
+        "title": "Data Connectors, count: {$rowCount}",
+        "timeContext": {
+          "durationMs": 604800000
+        },
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "crossComponentResources": [
+          "{Workspace}"
+        ],
+        "visualization": "table",
+        "tileSettings": {
+          "titleContent": {
+            "columnMatch": "sum_value",
+            "formatter": 1
+          },
+          "leftContent": {
+            "columnMatch": "value",
+            "formatter": 12,
+            "formatOptions": {
+              "palette": "auto"
+            },
+            "numberFormat": {
+              "unit": 17,
+              "options": {
+                "maximumSignificantDigits": 3,
+                "maximumFractionDigits": 2
+              }
+            }
+          },
+          "showBorder": false
+        }
+      },
+      "conditionalVisibility": {
+        "parameterName": "hide",
+        "comparison": "isEqualTo",
+        "value": "hide"
+      },
+      "name": "query - 5 - Copy"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "-----------------------------------------------------------"
+      },
+      "name": "text - 8"
+    },
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "crossComponentResources": [
+          "{Workspace}"
+        ],
+        "parameters": [
+          {
+            "id": "4eaf92dc-be34-410b-a81c-c88890e0579d",
+            "version": "KqlParameterItem/1.0",
+            "name": "selectConnector",
+            "type": 2,
+            "isRequired": true,
+            "query": "// Use Usage as a common Table that always exists - its data isnt required. \r\nunion isfuzzy=true \r\n(\r\n Usage\r\n | project a = '{intTitle:value}'\r\n | limit 1\r\n | extend a = split(trim(@\"[^\\w]+\",a),\",\"), name_= \"Titles\"\r\n | mv-expand a to typeof (string)\r\n// | summarize value=dcount(a) by name_\r\n),\r\n(\r\n Usage\r\n | project b = '{intKind:value}'\r\n | limit 1\r\n | extend b = split(trim(@\"[^\\w]+\",b),\",\"), name_= \"Kind\"\r\n | mv-expand b to typeof (string)\r\n | where not( b has_any('StaticUI','GenericUI','APIPolling') )\r\n// | summarize value=dcount(b) by name_\r\n)\r\n| extend connectorName = iif(isempty(a),b,a) \r\n| distinct connectorName\r\n| project connectorName=trim(@\"[^\\w]+\",connectorName), display=connectorName, 1\r\n| order by connectorName asc\r\n//| project-away name_,a, b",
+            "crossComponentResources": [
+              "{Workspace}"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": [],
+              "showDefault": false
+            },
+            "timeContext": {
+              "durationMs": 604800000
+            },
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces",
+            "value": "Azure Activity"
+          }
+        ],
+        "style": "pills",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
+      },
+      "name": "parameters - 7"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"/subscriptions/{Subscription:id}/resourceGroups/{resourceGroup}/providers/Microsoft.OperationalInsights/workspaces/{Workspace:name}/providers/Microsoft.SecurityInsights/dataConnectors\",\"urlParams\":[{\"key\":\"api-version\",\"value\":\"2023-06-01-preview\"},{\"key\":\"$orderby\",\"value\":\"kind asc\"}],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$.value[?((@.kind=='{selectConnector}') || (@.properties.connectorUiConfig.title=='{selectConnector}'))]\",\"columns\":[{\"path\":\"name\",\"columnid\":\"name\"},{\"path\":\"properties\",\"columnid\":\"properties\"},{\"path\":\"kind\",\"columnid\":\"kind\"},{\"path\":\"properties.connectorUiConfig.title\",\"columnid\":\"Title\"},{\"path\":\"properties.connectorUiConfig.descriptionMarkdown\",\"columnid\":\"Description\"},{\"path\":\"properties.connectorUiConfig.publisher\",\"columnid\":\"publisher\"},{\"path\":\"properties.connectorUiConfig.availability\",\"columnid\":\"availability\"},{\"path\":\"properties.connectorUiConfig.connectivityCriterias\",\"columnid\":\"connectivityCriterias\"},{\"path\":\"properties..dataTypes[*].state\",\"columnid\":\"state\"},{\"path\":\"properties.subscriptionId\",\"columnid\":\"Subscription\"}]}}]}",
+        "size": 2,
+        "title": "extract Defender for Cloud, count: {$rowCount}   {selectConnector}  ",
+        "queryType": 12,
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "Group",
+              "formatter": 1
+            },
+            {
+              "columnMatch": "state",
+              "formatter": 18,
+              "formatOptions": {
+                "thresholdsOptions": "icons",
+                "thresholdsGrid": [
+                  {
+                    "operator": "==",
+                    "thresholdValue": "enabled",
+                    "representation": "success",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "representation": "success",
+                    "text": "{0}{1}"
+                  }
+                ]
+              }
+            }
+          ],
+          "sortBy": [
+            {
+              "itemKey": "Title",
+              "sortOrder": 2
+            }
+          ]
+        },
+        "sortBy": [
+          {
+            "itemKey": "Title",
+            "sortOrder": 2
+          }
+        ]
+      },
+      "name": "query - All Connectors - Copy"
+    }
+  ],
+  "fromTemplateId": "sentinel-UserWorkbook",
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}
