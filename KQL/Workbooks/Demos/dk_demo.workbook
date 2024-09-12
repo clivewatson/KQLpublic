@@ -1,0 +1,142 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "crossComponentResources": [
+          "value::all"
+        ],
+        "parameters": [
+          {
+            "id": "1d57ee91-9317-41e2-858b-9b70c6fbee64",
+            "version": "KqlParameterItem/1.0",
+            "name": "Workspaces",
+            "type": 5,
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "query": "Resources \r\n| where type =~ \"microsoft.operationalinsights/workspaces\" \r\n| order by name \r\n| project id, name, selected=row_number()==1, group=resourceGroup",
+            "crossComponentResources": [
+              "value::all"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": [],
+              "showDefault": false
+            },
+            "timeContext": {
+              "durationMs": 86400000
+            },
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources",
+            "value": [],
+            "label": ""
+          },
+          {
+            "id": "c4c5558d-573c-411c-b481-fd108eff2a8a",
+            "version": "KqlParameterItem/1.0",
+            "name": "TimeRange",
+            "type": 4,
+            "isRequired": true,
+            "typeSettings": {
+              "selectableValues": [
+                {
+                  "durationMs": 300000
+                },
+                {
+                  "durationMs": 900000
+                },
+                {
+                  "durationMs": 1800000
+                },
+                {
+                  "durationMs": 3600000
+                },
+                {
+                  "durationMs": 14400000
+                },
+                {
+                  "durationMs": 43200000
+                },
+                {
+                  "durationMs": 86400000
+                },
+                {
+                  "durationMs": 172800000
+                },
+                {
+                  "durationMs": 259200000
+                },
+                {
+                  "durationMs": 604800000
+                },
+                {
+                  "durationMs": 1209600000
+                },
+                {
+                  "durationMs": 2419200000
+                },
+                {
+                  "durationMs": 2592000000
+                },
+                {
+                  "durationMs": 5184000000
+                },
+                {
+                  "durationMs": 7776000000
+                }
+              ]
+            },
+            "timeContext": {
+              "durationMs": 86400000
+            },
+            "value": {
+              "durationMs": 604800000
+            }
+          }
+        ],
+        "style": "pills",
+        "queryType": 1,
+        "resourceType": "microsoft.operationalinsights/workspaces"
+      },
+      "name": "parameters - 1"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "let fake_dt_ = datatable(fake:string,TimeGenerated:datetime, Type:string)[];\r\nlet monitoring_baseline = 30d; union isfuzzy=true fake_dt_, CommonSecurityLog, fortigate_logs_CL, SecurityEvent, nozomi_logs_CL, mcafee_logs_CL, sra_logs_CL, linux_logs_CL \r\n| extend lastSeen = datetime_diff('minute',now(), TimeGenerated) \r\n| summarize arg_max(TimeGenerated,lastSeen) by TableName=Type \r\n| join \r\n    (\r\n    Usage \r\n    | parse ResourceUri with *'/workspaces/' workspaceName \r\n    | make-series Trend=count() default=0 on TimeGenerated from ago(monitoring_baseline) to now() step 1d by DataType , workspaceName\r\n    | extend series_decompose_anomalies(Trend, 2.5, -1, 'linefit') \r\n    ) on $left.TableName == $right.DataType \r\n| order by lastSeen desc \r\n| extend Baseline = series_decompose_anomalies_Trend_baseline \r\n| extend anomaly = todouble(series_decompose_anomalies_Trend_ad_flag[-1]) \r\n| project-away series_decompose_anomalies_Trend_ad_score, series_decompose_anomalies_Trend_ad_flag, series_decompose_anomalies_Trend_baseline \r\n//| where anomaly > 0",
+        "size": 0,
+        "title": "Selected: {Workspaces:label}, Results from: {$rowCount}",
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "crossComponentResources": [
+          "{Workspaces}"
+        ],
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "lastSeen",
+              "formatter": 0,
+              "numberFormat": {
+                "unit": 24,
+                "options": {
+                  "style": "decimal"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "name": "query - 0"
+    }
+  ],
+  "fallbackResourceIds": [
+    "/subscriptions/4defa7d0-bc3a-4935-a1e6-e58406cf75e2/resourcegroups/qc-prod-rg/providers/microsoft.operationalinsights/workspaces/qc-prod"
+  ],
+  "fromTemplateId": "sentinel-UserWorkbook",
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}
