@@ -61,11 +61,7 @@
             },
             "queryType": 1,
             "resourceType": "microsoft.resourcegraph/resources",
-            "value": [
-              "/subscriptions/4defa7d0-bc3a-4935-a1e6-e58406cf75e2",
-              "/subscriptions/8ffb8c5b-ee62-4e73-a0e8-0eda6f758eec",
-              "/subscriptions/0c175d69-5265-4d9c-b675-be1509d34024"
-            ]
+            "value": []
           },
           {
             "id": "ef68dc9e-94e2-47c9-bfc8-8206537418a8",
@@ -5732,6 +5728,10 @@
                   {
                     "columnId": "$table",
                     "label": "Table Name"
+                  },
+                  {
+                    "columnId": "TenantId1",
+                    "label": "TenantId"
                   }
                 ]
               }
