@@ -83,7 +83,6 @@
             "queryType": 1,
             "resourceType": "microsoft.resourcegraph/resources",
             "value": [
-              "/subscriptions/4defa7d0-bc3a-4935-a1e6-e58406cf75e2/resourceGroups/QC-PROD-RG/providers/Microsoft.OperationalInsights/workspaces/QC-Prod",
               "/subscriptions/0db680e0-6664-4cda-bdfd-58a5b44598b8/resourceGroups/soc-pfp-qcyber-rg/providers/Microsoft.OperationalInsights/workspaces/soc-pfp-qcyber-ws"
             ]
           },
@@ -1898,8 +1897,7 @@
                   },
                   "timeContextFromParameter": "TimeRange",
                   "queryType": 0,
-                  "resourceType": "microsoft.operationalinsights/workspaces",
-                  "value": "92.14.55.197"
+                  "resourceType": "microsoft.operationalinsights/workspaces"
                 }
               ],
               "style": "pills",
@@ -1923,17 +1921,17 @@
               ],
               "parameters": [
                 {
-                  "id": "a4e519de-57a9-424f-bbf1-f465f58157c4",
+                  "id": "c1401f55-bf30-4771-997e-bce3cee38f6e",
                   "version": "KqlParameterItem/1.0",
-                  "name": "IPAddress",
+                  "name": "lookupIP",
                   "type": 2,
-                  "query": "SigninLogs\r\n| summarize count() by IPAddress\r\n| order by count_ desc\r\n| extend newIPAddress_ = strcat(IPAddress,' (', count_, ')')\r\n| project value=IPAddress, display=newIPAddress_",
+                  "isRequired": true,
+                  "query": "let IPList = dynamic([\"{IPAddress}\"]);\r\n(union isfuzzy=true\r\n(CommonSecurityLog  //Final\r\n| where isnotempty(SourceIP) or isnotempty(DestinationIP)\r\n| distinct SourceIP, DestinationIP)\r\n,\r\n(VMConnection\r\n| where isnotempty(SourceIp) or isnotempty(DestinationIp) \r\n| distinct SourceIP, DestinationIP)\r\n,\r\n(WindowsFirewall //Final\r\n | distinct SourceIP, DestinationIP)\r\n,\r\n(W3CIISLog //Final\r\n| where isnotempty(cIP)\r\n| distinct SourceIP, DestinationIP)\r\n)\r\n//\r\n| distinct SourceIP, DestinationIP",
                   "crossComponentResources": [
                     "{Workspace}"
                   ],
                   "typeSettings": {
-                    "additionalResourceOptions": [],
-                    "showDefault": false
+                    "additionalResourceOptions": []
                   },
                   "timeContext": {
                     "durationMs": 0
@@ -1941,20 +1939,27 @@
                   "timeContextFromParameter": "TimeRange",
                   "queryType": 0,
                   "resourceType": "microsoft.operationalinsights/workspaces",
-                  "value": null
+                  "value": "10.9.225.100"
                 }
               ],
               "style": "pills",
               "queryType": 0,
               "resourceType": "microsoft.operationalinsights/workspaces"
             },
-            "customWidth": "50",
+            "customWidth": "25",
             "conditionalVisibility": {
               "parameterName": "InvestigationType",
               "comparison": "isEqualTo",
               "value": "IP"
             },
-            "name": "parameters - 17 - Copy"
+            "name": "parameters - 8 - Copy"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "{lookupIP}"
+            },
+            "name": "text - 10"
           },
           {
             "type": 11,
@@ -2760,7 +2765,8 @@
                     "{Workspace}"
                   ],
                   "queryType": 0,
-                  "resourceType": "microsoft.operationalinsights/workspaces"
+                  "resourceType": "microsoft.operationalinsights/workspaces",
+                  "value": ""
                 },
                 {
                   "id": "d6455f34-39bd-479a-937e-96f69e6c85b1",
@@ -2773,6 +2779,27 @@
                   ],
                   "queryType": 0,
                   "resourceType": "microsoft.operationalinsights/workspaces"
+                },
+                {
+                  "version": "KqlParameterItem/1.0",
+                  "name": "LookupUPN",
+                  "type": 2,
+                  "query": "_Im_Authentication\r\n| summarize count() by TargetUsername\r\n| order by count_ desc\r\n| extend TargetUsername = replace_string(TargetUsername,@'\\',@'\\\\')\r\n| project value=TargetUsername, Display = strcat(TargetUsername,' (', count_,')')\r\n",
+                  "crossComponentResources": [
+                    "{Workspace}"
+                  ],
+                  "typeSettings": {
+                    "additionalResourceOptions": [],
+                    "showDefault": false
+                  },
+                  "timeContext": {
+                    "durationMs": 0
+                  },
+                  "timeContextFromParameter": "TimeRange",
+                  "queryType": 0,
+                  "resourceType": "microsoft.operationalinsights/workspaces",
+                  "value": "GROUP.NET\\\\APP900088$",
+                  "id": "dc87cf4a-2f21-49c9-aa44-23f5958eb2b5"
                 }
               ],
               "style": "pills",
@@ -2780,6 +2807,13 @@
               "resourceType": "microsoft.operationalinsights/workspaces"
             },
             "name": "parameters - 2"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "{LookupUPN:value}"
+            },
+            "name": "text - 8"
           },
           {
             "type": 11,
@@ -2892,7 +2926,7 @@
                     "version": "KqlItem/1.0",
                     "query": "\r\n_Im_Authentication()\r\n| where TargetUsername in ('{UPN}')\r\n",
                     "size": 0,
-                    "title": "_Im_Authentication, count: {$rowCount}",
+                    "title": "_Im_Authentication, count: {$rowCount} {LookupUPN:value}",
                     "timeContextFromParameter": "TimeRange",
                     "exportFieldName": "IPAddress",
                     "exportParameterName": "IP",
@@ -3723,12 +3757,12 @@
               ],
               "parameters": [
                 {
-                  "id": "a4e519de-57a9-424f-bbf1-f465f58157c4",
+                  "id": "8a51052b-f531-43f6-902c-327813fa4e89",
                   "version": "KqlParameterItem/1.0",
-                  "name": "Host",
-                  "label": "Host list FQDN - SigninLogs",
+                  "name": "Host2",
+                  "label": "lookup FQDN - SecurityEvent",
                   "type": 2,
-                  "query": "SigninLogs\r\n| where AppDisplayName == \"Windows Sign In\"\r\n| extend deviceName_ = tostring(DeviceDetail.displayName)\r\n| summarize count() by deviceName_\r\n| order by count_ desc\r\n| extend newdeviceName_ = strcat(deviceName_,' (', count_, ')')\r\n| project value=deviceName_, display=newdeviceName_",
+                  "query": "SecurityEvent\r\n| where EventID==4688\r\n| summarize count() by Computer\r\n| order by count_ desc\r\n| extend newdeviceName_ = strcat(Computer,' (', count_, ')')\r\n| project value=Computer, display=newdeviceName_",
                   "crossComponentResources": [
                     "{Workspace}"
                   ],
@@ -3742,20 +3776,27 @@
                   "timeContextFromParameter": "TimeRange",
                   "queryType": 0,
                   "resourceType": "microsoft.operationalinsights/workspaces",
-                  "value": null
+                  "value": "PRN900100.group.net"
                 }
               ],
               "style": "pills",
               "queryType": 0,
               "resourceType": "microsoft.operationalinsights/workspaces"
             },
-            "customWidth": "50",
+            "customWidth": "25",
             "conditionalVisibility": {
               "parameterName": "InvestigationType",
               "comparison": "isEqualTo",
               "value": "Host"
             },
-            "name": "parameters - 17 - Copy"
+            "name": "parameters - 17 - Copy - Copy"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "{Host2}"
+            },
+            "name": "text - 9"
           },
           {
             "type": 11,
@@ -3871,9 +3912,9 @@
                   "type": 3,
                   "content": {
                     "version": "KqlItem/1.0",
-                    "query": "let starttime = ({TimeRange:seconds}s + 90d);\r\nlet endtime = {TimeRange:seconds}s;\r\nlet ProcessCreationEvents=() {\r\nlet processEvents=SecurityEvent\r\n| where EventID==4688\r\n| where Computer =~ \"{Host}\"\r\n| where TimeGenerated >= ago(starttime) \r\n| project TimeGenerated, ComputerName=Computer,AccountName=SubjectUserName, AccountDomain=SubjectDomainName, ProcessPath=NewProcessName, FileName=tostring(split(NewProcessName, '\\\\')[(-1)]), ProcessCommandLine = CommandLine, InitiatingProcessFileName=ParentProcessName,InitiatingProcessCommandLine='',InitiatingProcessParentFileName='';\r\nprocessEvents};\r\nlet allHostsProcessEvents = SecurityEvent\r\n| where EventID==4688\r\n| where TimeGenerated >= ago(starttime) \r\n| summarize AllHostsWhereProcessObserved=make_set(Computer), UniqueHosts=dcount(Computer) by FileName=tostring(split(NewProcessName, '\\\\')[(-1)]);\r\nProcessCreationEvents\r\n| where TimeGenerated >= ago(starttime) and TimeGenerated < ago(endtime)\r\n| summarize count(), arg_max(TimeGenerated, ProcessPath) by FileName\r\n| join kind=rightanti (\r\n    ProcessCreationEvents\r\n    | where TimeGenerated >= ago(endtime)\r\n    | summarize FirstOccurance = min(TimeGenerated), LastOccurance = arg_max(TimeGenerated, ProcessPath) by FileName\r\n) on FileName\r\n| project FileName, ProcessPath, FirstOccurance, LastOccurance\r\n| join kind=leftouter allHostsProcessEvents on FileName\r\n| project FileName, ProcessPath, FirstOccurance, LastOccurance, AllHostsWhereProcessObserved, UniqueHosts\r\n\r\n",
+                    "query": "let starttime = ({TimeRange:seconds}s + 90d);\r\nlet endtime = {TimeRange:seconds}s;\r\nlet ProcessCreationEvents=() {\r\nlet processEvents=SecurityEvent\r\n| where EventID==4688\r\n| where Computer =~ \"{Host}\" \r\n| where TimeGenerated >= ago(starttime) \r\n| project TimeGenerated, ComputerName=Computer,AccountName=SubjectUserName, AccountDomain=SubjectDomainName, ProcessPath=NewProcessName, FileName=tostring(split(NewProcessName, '\\\\')[(-1)]), ProcessCommandLine = CommandLine, InitiatingProcessFileName=ParentProcessName,InitiatingProcessCommandLine='',InitiatingProcessParentFileName='';\r\nprocessEvents};\r\nlet allHostsProcessEvents = SecurityEvent\r\n| where EventID==4688\r\n| where TimeGenerated >= ago(starttime) \r\n| summarize AllHostsWhereProcessObserved=make_set(Computer), UniqueHosts=dcount(Computer) by FileName=tostring(split(NewProcessName, '\\\\')[(-1)]);\r\nProcessCreationEvents\r\n| where TimeGenerated >= ago(starttime) and TimeGenerated < ago(endtime)\r\n| summarize count(), arg_max(TimeGenerated, ProcessPath) by FileName\r\n| join kind=rightanti (\r\n    ProcessCreationEvents\r\n    | where TimeGenerated >= ago(endtime)\r\n    | summarize FirstOccurance = min(TimeGenerated), LastOccurance = arg_max(TimeGenerated, ProcessPath) by FileName\r\n) on FileName\r\n| project FileName, ProcessPath, FirstOccurance, LastOccurance\r\n| join kind=leftouter allHostsProcessEvents on FileName\r\n| project FileName, ProcessPath, FirstOccurance, LastOccurance, AllHostsWhereProcessObserved, UniqueHosts\r\n\r\n",
                     "size": 0,
-                    "title": "New Processes on Host {Host} observed during {TimeRange:label}",
+                    "title": "New Processes on Host '{Host}' observed during {TimeRange:label}",
                     "exportFieldName": "FileName",
                     "exportParameterName": "process",
                     "showExportToExcel": true,
