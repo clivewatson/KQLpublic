@@ -2765,8 +2765,7 @@
                     "{Workspace}"
                   ],
                   "queryType": 0,
-                  "resourceType": "microsoft.operationalinsights/workspaces",
-                  "value": ""
+                  "resourceType": "microsoft.operationalinsights/workspaces"
                 },
                 {
                   "id": "d6455f34-39bd-479a-937e-96f69e6c85b1",
@@ -5473,6 +5472,22 @@
               "value": "IOC"
             },
             "name": "URLIOCGroup"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "_Im_WebSession",
+              "size": 0,
+              "title": "_Im_WebSession, count: {$rowCount}",
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{Workspace}"
+              ]
+            },
+            "name": "query - 4"
           },
           {
             "type": 12,
