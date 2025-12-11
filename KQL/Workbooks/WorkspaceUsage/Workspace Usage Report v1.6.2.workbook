@@ -6631,10 +6631,48 @@
                   "name": "TableRetentionQuery"
                 },
                 {
+                  "type": 9,
+                  "content": {
+                    "version": "KqlParameterItem/1.0",
+                    "parameters": [
+                      {
+                        "version": "KqlParameterItem/1.0",
+                        "name": "datalakeIngestionUSD",
+                        "type": 1,
+                        "value": "0.05",
+                        "label": "data lake Ingestion (GB)",
+                        "id": "5c147664-ee01-492c-a033-df02cb7a6869"
+                      },
+                      {
+                        "version": "KqlParameterItem/1.0",
+                        "name": "datalakeProcessingUSD",
+                        "type": 1,
+                        "value": "0.1",
+                        "label": "data lake processing (GB)",
+                        "id": "3c33d3c7-9e45-4839-a9f2-261b6a6f2705"
+                      },
+                      {
+                        "id": "9f3ce670-960a-4d26-9157-9eefcdf4385b",
+                        "version": "KqlParameterItem/1.0",
+                        "name": "datalakeStorageUSD",
+                        "label": "data lake storage (GB)",
+                        "type": 1,
+                        "description": "This value will be DIVIDED by 6 ",
+                        "value": "0.026"
+                      }
+                    ],
+                    "style": "above",
+                    "queryType": 0,
+                    "resourceType": "microsoft.resourcegraph/resources"
+                  },
+                  "customWidth": "50",
+                  "name": "parameters - 1"
+                },
+                {
                   "type": 3,
                   "content": {
                     "version": "KqlItem/1.0",
-                    "query": "Usage\r\n| where StartTime {TimeRange:value}\r\n| summarize ['Table Size'] =sum(Quantity)/1000 by ['Table Name'] =DataType,['IsBillable'] =IsBillable\r\n| order by ['Table Size']  desc\r\n ",
+                    "query": "Usage\r\n| where StartTime {TimeRange:value}\r\n| summarize ['Table Size'] =sum(Quantity)/1000 by ['Table Name'] =DataType,['IsBillable'] =IsBillable\r\n| order by ['Table Size']  desc\r\n| extend AnalyticsCharge = ['Table Size'] * {Price},\r\n         datalakeprocessingCharge  = round(['Table Size'] * {datalakeProcessingUSD}),\r\n         datalakeIngestion = round(['Table Size'] * {datalakeIngestionUSD}),\r\n         datalakeStorage   = round(['Table Size'] * {datalakeStorageUSD} / 6) // divide by 6 to add compression factor  \r\n//| extend estimatedCost = iif(['Table Name']=~'ConditionalAccessPolicies_CL',strcat(tostring( datalakeprocessingCharge + datalakeIngestion + datalakeStorage ), ' (USD)') ,tostring(estimatedCost)) ",
                     "size": 0,
                     "showAnalytics": true,
                     "title": "{Workspace:name} Status for {TimeRange:label}, Billable Tables have an  average use of: {GBperday} GB per day, Billable Tables have a Total size of {GBtotal} GB",
@@ -6734,7 +6772,7 @@
                   "type": 3,
                   "content": {
                     "version": "KqlItem/1.0",
-                    "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"ee0c7894-ecb7-4b92-81b2-4424f545c5f9\",\"mergeType\":\"innerunique\",\"leftTable\":\"TableRetentionQuery\",\"rightTable\":\"query - 2 -basic Table \",\"leftColumn\":\"TableName\",\"rightColumn\":\"Table Name\"}],\"projectRename\":[{\"originalName\":\"[TableRetentionQuery].TableName\",\"mergedName\":\"TableName\",\"fromId\":\"ee0c7894-ecb7-4b92-81b2-4424f545c5f9\"},{\"originalName\":\"[query - 2 -basic Table ].IsBillable\",\"mergedName\":\"IsBillable\",\"fromId\":\"ee0c7894-ecb7-4b92-81b2-4424f545c5f9\"},{\"originalName\":\"[query - 2 -basic Table ].Table Size\",\"mergedName\":\"Table Size\",\"fromId\":\"ee0c7894-ecb7-4b92-81b2-4424f545c5f9\"},{\"originalName\":\"[TableRetentionQuery].TableType\",\"mergedName\":\"TableType\",\"fromId\":\"ee0c7894-ecb7-4b92-81b2-4424f545c5f9\"},{\"originalName\":\"[TableRetentionQuery].TablePlan\",\"mergedName\":\"TablePlan\",\"fromId\":\"ee0c7894-ecb7-4b92-81b2-4424f545c5f9\"},{\"originalName\":\"[TableRetentionQuery].TableInteractivePeriod\",\"mergedName\":\"TableInteractivePeriod\",\"fromId\":\"ee0c7894-ecb7-4b92-81b2-4424f545c5f9\"},{\"originalName\":\"[TableRetentionQuery].TableArchivePeriod\",\"mergedName\":\"TableArchivePeriod\",\"fromId\":\"ee0c7894-ecb7-4b92-81b2-4424f545c5f9\"},{\"originalName\":\"[TableRetentionQuery].TotalRetentionPeriod\",\"mergedName\":\"TotalRetentionPeriod\",\"fromId\":\"ee0c7894-ecb7-4b92-81b2-4424f545c5f9\"},{\"originalName\":\"[TableRetentionQuery].lastPlanModifiedDate\",\"mergedName\":\"lastPlanModifiedDate\",\"fromId\":\"ee0c7894-ecb7-4b92-81b2-4424f545c5f9\"},{\"originalName\":\"[query - 2 -basic Table ].Table Name\"}]}",
+                    "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"ee0c7894-ecb7-4b92-81b2-4424f545c5f9\",\"mergeType\":\"innerunique\",\"leftTable\":\"TableRetentionQuery\",\"rightTable\":\"query - 2 -basic Table \",\"leftColumn\":\"TableName\",\"rightColumn\":\"Table Name\"}],\"projectRename\":[{\"originalName\":\"[TableRetentionQuery].TableName\",\"mergedName\":\"TableName\",\"fromId\":\"ee0c7894-ecb7-4b92-81b2-4424f545c5f9\"},{\"originalName\":\"[query - 2 -basic Table ].IsBillable\",\"mergedName\":\"IsBillable\",\"fromId\":\"ee0c7894-ecb7-4b92-81b2-4424f545c5f9\"},{\"originalName\":\"[query - 2 -basic Table ].Table Size\",\"mergedName\":\"Table Size\",\"fromId\":\"ee0c7894-ecb7-4b92-81b2-4424f545c5f9\"},{\"originalName\":\"[TableRetentionQuery].TableType\",\"mergedName\":\"TableType\",\"fromId\":\"ee0c7894-ecb7-4b92-81b2-4424f545c5f9\"},{\"originalName\":\"[TableRetentionQuery].TablePlan\",\"mergedName\":\"TablePlan\",\"fromId\":\"ee0c7894-ecb7-4b92-81b2-4424f545c5f9\"},{\"originalName\":\"[TableRetentionQuery].TableInteractivePeriod\",\"mergedName\":\"TableInteractivePeriod\",\"fromId\":\"ee0c7894-ecb7-4b92-81b2-4424f545c5f9\"},{\"originalName\":\"[TableRetentionQuery].TableArchivePeriod\",\"mergedName\":\"TableArchivePeriod\",\"fromId\":\"ee0c7894-ecb7-4b92-81b2-4424f545c5f9\"},{\"originalName\":\"[TableRetentionQuery].TotalRetentionPeriod\",\"mergedName\":\"TotalRetentionPeriod\",\"fromId\":\"ee0c7894-ecb7-4b92-81b2-4424f545c5f9\"},{\"originalName\":\"[query - 2 -basic Table ].AnalyticsCharge\",\"mergedName\":\"AnalyticsCharge\",\"fromId\":\"unknown\"},{\"originalName\":\"[query - 2 -basic Table ].AnalyticsUSD\",\"mergedName\":\"AnalyticsUSD\",\"fromId\":\"unknown\"},{\"originalName\":\"[query - 2 -basic Table ].datalakeprocessingCharge\",\"mergedName\":\"datalakeprocessingCharge\",\"fromId\":\"unknown\"},{\"originalName\":\"[query - 2 -basic Table ].datalakeIngestion\",\"mergedName\":\"datalakeIngestion\",\"fromId\":\"unknown\"},{\"originalName\":\"[query - 2 -basic Table ].datalakeStorage\",\"mergedName\":\"datalakeStorage\",\"fromId\":\"unknown\"},{\"originalName\":\"[TableRetentionQuery].lastPlanModifiedDate\",\"mergedName\":\"lastPlanModifiedDate\",\"fromId\":\"ee0c7894-ecb7-4b92-81b2-4424f545c5f9\"},{\"originalName\":\"[query - 2 -basic Table ].Table Name\"}]}",
                     "size": 0,
                     "showExportToExcel": true,
                     "queryType": 7,
@@ -6769,15 +6807,16 @@
                           }
                         },
                         {
-                          "columnMatch": "TablePlan",
+                          "columnMatch": "TableType",
                           "formatter": 18,
                           "formatOptions": {
                             "thresholdsOptions": "icons",
                             "thresholdsGrid": [
                               {
-                                "operator": "==",
-                                "thresholdValue": "Auxiliary",
-                                "text": "Auxiliary/data lake"
+                                "operator": "!=",
+                                "thresholdValue": "Microsoft",
+                                "representation": "dot-amethyst",
+                                "text": "{0}{1}"
                               },
                               {
                                 "operator": "Default",
@@ -6786,6 +6825,153 @@
                                 "text": "{0}{1}"
                               }
                             ]
+                          }
+                        },
+                        {
+                          "columnMatch": "TablePlan",
+                          "formatter": 18,
+                          "formatOptions": {
+                            "thresholdsOptions": "colors",
+                            "thresholdsGrid": [
+                              {
+                                "operator": "==",
+                                "thresholdValue": "Auxiliary",
+                                "representation": null,
+                                "text": "Auxiliary/data lake"
+                              },
+                              {
+                                "operator": "!=",
+                                "thresholdValue": "Auxiliary",
+                                "representation": "gray",
+                                "text": "{0}{1}"
+                              },
+                              {
+                                "operator": "Default",
+                                "thresholdValue": null,
+                                "representation": null,
+                                "text": "{0}{1}"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "columnMatch": "AnalyticsCharge",
+                          "formatter": 18,
+                          "formatOptions": {
+                            "thresholdsOptions": "icons",
+                            "thresholdsGrid": [
+                              {
+                                "sourceColumn": "TablePlan",
+                                "operator": "!=",
+                                "thresholdValue": "Analytics",
+                                "text": ""
+                              },
+                              {
+                                "operator": "Default",
+                                "thresholdValue": null,
+                                "representation": "Blank",
+                                "text": "{0}{1}"
+                              }
+                            ]
+                          },
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "maximumSignificantDigits": 3
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "datalakeprocessingCharge",
+                          "formatter": 18,
+                          "formatOptions": {
+                            "thresholdsOptions": "icons",
+                            "thresholdsGrid": [
+                              {
+                                "sourceColumn": "TablePlan",
+                                "operator": "==",
+                                "thresholdValue": "Analytics",
+                                "representation": "Blank",
+                                "text": ""
+                              },
+                              {
+                                "operator": "Default",
+                                "thresholdValue": null,
+                                "representation": "Blank",
+                                "text": "{0}{1}"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "columnMatch": "datalakeIngestion",
+                          "formatter": 18,
+                          "formatOptions": {
+                            "thresholdsOptions": "icons",
+                            "thresholdsGrid": [
+                              {
+                                "sourceColumn": "TablePlan",
+                                "operator": "==",
+                                "thresholdValue": "Analytics",
+                                "text": ""
+                              },
+                              {
+                                "operator": "Default",
+                                "thresholdValue": null,
+                                "representation": "Blank",
+                                "text": "{0}{1}"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "columnMatch": "datalakeStorage",
+                          "formatter": 18,
+                          "formatOptions": {
+                            "thresholdsOptions": "icons",
+                            "thresholdsGrid": [
+                              {
+                                "sourceColumn": "TablePlan",
+                                "operator": "==",
+                                "thresholdValue": "Analytics",
+                                "text": ""
+                              },
+                              {
+                                "operator": "Default",
+                                "thresholdValue": null,
+                                "representation": "Blank",
+                                "text": "{0}{1}"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "columnMatch": "AnalyticsUSD",
+                          "formatter": 18,
+                          "formatOptions": {
+                            "thresholdsOptions": "icons",
+                            "thresholdsGrid": [
+                              {
+                                "sourceColumn": "TablePlan",
+                                "operator": "!=",
+                                "thresholdValue": "Analytics",
+                                "text": ""
+                              },
+                              {
+                                "operator": "Default",
+                                "thresholdValue": null,
+                                "representation": "Blank",
+                                "text": "{0}{1}"
+                              }
+                            ]
+                          },
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "maximumSignificantDigits": 3
+                            }
                           }
                         }
                       ],
@@ -6817,7 +7003,7 @@
                   "type": 3,
                   "content": {
                     "version": "KqlItem/1.0",
-                    "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"ee0c7894-ecb7-4b92-81b2-4424f545c604\",\"mergeType\":\"table\",\"leftTable\":\"query - 19\"}],\"projectRename\":[{\"originalName\":\"[query - 19].TablePlan\",\"mergedName\":\"TablePlan\",\"fromId\":\"ee0c7894-ecb7-4b92-81b2-4424f545c604\"},{\"originalName\":\"[query - 19].Table Size\",\"mergedName\":\"Table Size\",\"fromId\":\"ee0c7894-ecb7-4b92-81b2-4424f545c604\"},{\"originalName\":\"[query - 19].TableName\"},{\"originalName\":\"[query - 19].IsBillable\"},{\"originalName\":\"[query - 19].TableType\"},{\"originalName\":\"[query - 19].TableInteractivePeriod\"},{\"originalName\":\"[query - 19].TotalRetentionPeriod\"},{\"originalName\":\"[query - 19].lastPlanModifiedDate\"},{\"originalName\":\"[query - 19].TableArchivePeriod\"}]}",
+                    "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"ee0c7894-ecb7-4b92-81b2-4424f545c604\",\"mergeType\":\"table\",\"leftTable\":\"query - 19\"}],\"projectRename\":[{\"originalName\":\"[query - 19].TablePlan\",\"mergedName\":\"TablePlan\",\"fromId\":\"ee0c7894-ecb7-4b92-81b2-4424f545c604\"},{\"originalName\":\"[query - 19].Table Size\",\"mergedName\":\"Table Size\",\"fromId\":\"ee0c7894-ecb7-4b92-81b2-4424f545c604\"},{\"originalName\":\"[query - 19].datalakeprocessingCharge\",\"mergedName\":\"datalakeprocessingCharge\",\"fromId\":\"unknown\"},{\"originalName\":\"[query - 19].datalakeIngestion\",\"mergedName\":\"datalakeIngestion\",\"fromId\":\"unknown\"},{\"originalName\":\"[query - 19].datalakeStorage\",\"mergedName\":\"datalakeStorage\",\"fromId\":\"unknown\"},{\"originalName\":\"[query - 19].AnalyticsUSD\",\"mergedName\":\"AnalyticsUSD\",\"fromId\":\"unknown\"},{\"originalName\":\"[query - 19].AnalyticsCharge\",\"mergedName\":\"AnalyticsCharge\",\"fromId\":\"unknown\"},{\"originalName\":\"[query - 19].TableName\"},{\"originalName\":\"[query - 19].IsBillable\"},{\"originalName\":\"[query - 19].TableType\"},{\"originalName\":\"[query - 19].TableInteractivePeriod\"},{\"originalName\":\"[query - 19].TotalRetentionPeriod\"},{\"originalName\":\"[query - 19].lastPlanModifiedDate\"},{\"originalName\":\"[query - 19].TableArchivePeriod\"}]}",
                     "size": 1,
                     "title": "{Workspace:name} split by Tier",
                     "queryType": 7,
