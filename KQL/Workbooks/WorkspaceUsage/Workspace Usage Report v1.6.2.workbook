@@ -39,7 +39,7 @@
             "queryType": 1,
             "resourceType": "microsoft.resourcegraph/resources",
             "label": "☁️ Subscription",
-            "value": null
+            "value": "/subscriptions/4defa7d0-bc3a-4935-a1e6-e58406cf75e2"
           },
           {
             "id": "e94aafa3-c5d9-4523-89f0-4e87aa754511",
@@ -757,7 +757,7 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "Usage\r\n| where StartTime {TimeRange:value}\r\n| summarize ['Table Size'] =sum(Quantity)/1000 by ['Table Name'] =DataType,['IsBillable'] =IsBillable\r\n| order by ['Table Size']  desc\r\n ",
+              "query": "//Usage\r\n//| where StartTime {TimeRange:value}\r\n//| summarize ['Table Size'] =sum(Quantity)/1000 by ['Table Name'] =DataType,['IsBillable'] =IsBillable\r\n//| order by ['Table Size']  desc\r\n \r\nlet list_ = \r\nexternaldata (\r\n    Table:string, solution_Name:string, solution_Folder:string, solution_publisher_id:string, solution_offer_id:string,\r\n    solution_first_publish_date:datetime, solution_last_publish_date:datetime, solution_version:string,\r\n    solution_support_name:string, solution_support_tier:string, solution_support_link:string,\r\n    solution_author_name:string, solution_categories:string, connector_id:string, connector_publisher:string,\r\n    connector_title:string, connector_description:string, connector_instruction_steps:string, connector_permissions:string, connector_files:string, is_unique:bool\r\n)\r\n[\r\n @\"https://raw.githubusercontent.com/Azure/Azure-Sentinel/refs/heads/master/Tools/Solutions%20Analyzer/solutions_connectors_tables_mapping.csv\"\r\n]\r\nwith (format=\"csv\", ignoreFirstRecord=true);\r\n// Pre-aggregate mapping per table\r\nlet mapping =\r\nlist_\r\n| summarize\r\n    solution_Names = array_sort_asc(make_set(solution_Name)),\r\n    connector_ids  = array_sort_asc(make_set(connector_id))\r\n  by Table;\r\n// Main query: table size + enrichment\r\nUsage\r\n| summarize ['Table Size'] = sum(Quantity) / 1000\r\n    by ['Table Name'] = DataType, ['IsBillable'] = IsBillable\r\n| join kind=leftouter mapping\r\n    on $left.['Table Name'] == $right.Table\r\n| project\r\n    ['Table Name'],\r\n    ['Table Size'],\r\n    ['IsBillable'],\r\n    solution_Names,\r\n    connector_ids\r\n| order by ['Table Size'] desc\r\n",
               "size": 0,
               "showAnalytics": true,
               "title": " Status for {TimeRange:label}, Billable Tables have an  average use of: {GBperday} GB per day, Billable Tables have a Total size of {GBtotal} GB",
@@ -822,20 +822,9 @@
                     }
                   }
                 ],
-                "filter": true,
-                "sortBy": [
-                  {
-                    "itemKey": "$gen_bar_Table Size_2",
-                    "sortOrder": 2
-                  }
-                ]
+                "filter": true
               },
-              "sortBy": [
-                {
-                  "itemKey": "$gen_bar_Table Size_2",
-                  "sortOrder": 2
-                }
-              ]
+              "sortBy": []
             },
             "customWidth": "50",
             "conditionalVisibility": {
@@ -844,6 +833,85 @@
               "value": "Basic"
             },
             "name": "query -Usage Query Basic"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"/subscriptions/{Subscription:id}/resourceGroups/{resourceGroup}/providers/Microsoft.OperationalInsights/workspaces/{Workspace:name}/tables?api-version=2025-07-01\",\"urlParams\":[],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$.value\",\"columns\":[{\"path\":\"$.name\",\"columnid\":\"TableName\"},{\"path\":\"$.properties.schema.tableType\",\"columnid\":\"TableType\"},{\"path\":\"$.properties.plan\",\"columnid\":\"TablePlan\"},{\"path\":\"$.properties.retentionInDays\",\"columnid\":\"TableInteractivePeriod\"},{\"path\":\"$.properties.archiveRetentionInDays\",\"columnid\":\"TableArchivePeriod\"},{\"path\":\"$.properties.totalRetentionInDays\",\"columnid\":\"TotalRetentionPeriod\"},{\"path\":\"$.properties.lastPlanModifiedDate\",\"columnid\":\"lastPlanModifiedDate\",\"columnType\":\"datetime\"}]}}]}",
+              "size": 0,
+              "title": "Retention and Plan details for All Tables",
+              "showRefreshButton": true,
+              "showExportToExcel": true,
+              "queryType": 12,
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "TablePlan",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Auxiliary",
+                          "text": "Auxiliary/data lake"
+                        },
+                        {
+                          "operator": "Default",
+                          "thresholdValue": null,
+                          "representation": "Blank",
+                          "text": "{0}{1}"
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "rowLimit": 1000,
+                "filter": true,
+                "sortBy": [
+                  {
+                    "itemKey": "TableInteractivePeriod",
+                    "sortOrder": 1
+                  }
+                ]
+              },
+              "sortBy": [
+                {
+                  "itemKey": "TableInteractivePeriod",
+                  "sortOrder": 1
+                }
+              ],
+              "tileSettings": {
+                "showBorder": false,
+                "titleContent": {
+                  "columnMatch": "TablePlan",
+                  "formatter": 1
+                },
+                "leftContent": {
+                  "columnMatch": "TableInteractivePeriod",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "auto"
+                  },
+                  "numberFormat": {
+                    "unit": 17,
+                    "options": {
+                      "maximumSignificantDigits": 3,
+                      "maximumFractionDigits": 2
+                    }
+                  }
+                }
+              }
+            },
+            "customWidth": "50",
+            "conditionalVisibility": {
+              "parameterName": "selectDepthLevel",
+              "comparison": "isEqualTo",
+              "value": "Basic"
+            },
+            "name": "TableRetentionQuery"
           },
           {
             "type": 3,
@@ -2405,7 +2473,7 @@
                   "type": 3,
                   "content": {
                     "version": "KqlItem/1.0",
-                    "query": "let list_ = \r\nexternaldata (\r\n    Table:string, solution_Name:string, solution_Folder:string, solution_publisher_id:string, solution_offer_id:string,\r\n    solution_first_publish_date:datetime, solution_last_publish_date:datetime, solution_version:string,\r\n    solution_support_name:string, solution_support_tier:string, solution_support_link:string,\r\n    solution_author_name:string, solution_categories:string, connector_id:string, connector_publisher:string,\r\n    connector_title:string, connector_description:string, connector_files:string, is_unique:bool\r\n)\r\n[\r\n @\"https://raw.githubusercontent.com/Azure/Azure-Sentinel/refs/heads/master/Tools/Solutions%20Analyzer/solutions_connectors_tables_mapping.csv\"\r\n]\r\nwith (format=\"csv\", ignoreFirstRecord=true);\r\n// Main query: show tables found OR not found\r\nlist_\r\n| where isnotempty(connector_id)\r\n| join kind=leftouter (\r\n    Usage\r\n    | distinct Table = DataType\r\n    | extend found_ = true\r\n) on Table\r\n| extend found_ = coalesce(found_, false)\r\n| order by connector_id asc, Table asc",
+                    "query": "let list_ = \r\nexternaldata (\r\n    Table:string, solution_Name:string, solution_Folder:string, solution_publisher_id:string, solution_offer_id:string,\r\n    solution_first_publish_date:datetime, solution_last_publish_date:datetime, solution_version:string,\r\n    solution_support_name:string, solution_support_tier:string, solution_support_link:string,\r\n    solution_author_name:string, solution_categories:string, connector_id:string, connector_publisher:string,\r\n    connector_title:string, connector_description:string, connector_instruction_steps:string, connector_permissions:string, connector_files:string, is_unique:bool\r\n)\r\n[\r\n @\"https://raw.githubusercontent.com/Azure/Azure-Sentinel/refs/heads/master/Tools/Solutions%20Analyzer/solutions_connectors_tables_mapping.csv\"\r\n]\r\nwith (format=\"csv\", ignoreFirstRecord=true);\r\n// Main query: show tables found OR not found\r\nlist_\r\n| where isnotempty(connector_id)\r\n| join kind=leftouter (\r\n    Usage\r\n    | distinct Table = DataType\r\n    | extend found_ = true\r\n) on Table\r\n| extend found_ = coalesce(found_, false)\r\n| order by connector_id asc, Table asc",
                     "size": 0,
                     "title": "ConnectorID to Table mapping, count: {$rowCount}",
                     "timeContextFromParameter": "TimeRange",
@@ -2457,7 +2525,7 @@
                   "type": 3,
                   "content": {
                     "version": "KqlItem/1.0",
-                    "query": "let list_ = \r\nexternaldata (\r\n    Table:string, solution_Name:string, solution_Folder:string, solution_publisher_id:string, solution_offer_id:string,\r\n    solution_first_publish_date:datetime, solution_last_publish_date:datetime, solution_version:string,\r\n    solution_support_name:string, solution_support_tier:string, solution_support_link:string,\r\n    solution_author_name:string, solution_categories:string, connector_id:string, connector_publisher:string,\r\n    connector_title:string, connector_description:string, connector_files:string, is_unique:bool\r\n)\r\n[\r\n @\"https://raw.githubusercontent.com/Azure/Azure-Sentinel/refs/heads/master/Tools/Solutions%20Analyzer/solutions_connectors_tables_mapping.csv\"\r\n]\r\nwith (format=\"csv\", ignoreFirstRecord=true);\r\n// Main query: show tables found OR not found\r\nlist_\r\n| where isnotempty(connector_id)\r\n| join kind=leftouter (\r\n    Usage\r\n    | distinct Table = DataType\r\n    | extend found_ = true\r\n) on Table\r\n| extend found_ = coalesce(found_, false)\r\n| order by connector_id asc, Table asc",
+                    "query": "let list_ = \r\nexternaldata (\r\n    Table:string, solution_Name:string, solution_Folder:string, solution_publisher_id:string, solution_offer_id:string,\r\n    solution_first_publish_date:datetime, solution_last_publish_date:datetime, solution_version:string,\r\n    solution_support_name:string, solution_support_tier:string, solution_support_link:string,\r\n    solution_author_name:string, solution_categories:string, connector_id:string, connector_publisher:string,\r\n    connector_title:string, connector_description:string, connector_instruction_steps:string, connector_permissions:string, connector_files:string, is_unique:bool\r\n)\r\n[\r\n @\"https://raw.githubusercontent.com/Azure/Azure-Sentinel/refs/heads/master/Tools/Solutions%20Analyzer/solutions_connectors_tables_mapping.csv\"\r\n]\r\nwith (format=\"csv\", ignoreFirstRecord=true);\r\n// Main query: show tables found OR not found\r\nlist_\r\n| where isnotempty(connector_id)\r\n| join kind=leftouter (\r\n    Usage\r\n    | distinct Table = DataType\r\n    | extend found_ = true\r\n) on Table\r\n| extend found_ = coalesce(found_, false)\r\n| order by connector_id asc, Table asc",
                     "size": 0,
                     "title": "Table  to Solution mapping, count: {$rowCount}",
                     "timeContextFromParameter": "TimeRange",
@@ -6491,9 +6559,18 @@
                     "size": 0,
                     "showAnalytics": true,
                     "title": "{Workspace:name} Status for {TimeRange:label}, Billable Tables have an  average use of: {GBperday} GB per day, Billable Tables have a Total size of {GBtotal} GB",
-                    "exportFieldName": "Table Name",
-                    "exportParameterName": "Table",
-                    "exportDefaultValue": "All Tables",
+                    "exportedParameters": [
+                      {
+                        "fieldName": "Table Name",
+                        "parameterName": "Table",
+                        "defaultValue": "All Tables"
+                      },
+                      {
+                        "fieldName": "Table Name",
+                        "parameterName": "Table1",
+                        "parameterType": 1
+                      }
+                    ],
                     "showExportToExcel": true,
                     "queryType": 0,
                     "resourceType": "microsoft.operationalinsights/workspaces",
@@ -6578,10 +6655,10 @@
                   "type": 3,
                   "content": {
                     "version": "KqlItem/1.0",
-                    "query": "union withsource=TableName1 *\r\n| where TimeGenerated > ago(30d)\r\n| summarize Entries = count(), Size = sumif(_BilledSize, _IsBillable==true), last_log = datetime_diff(\"second\",now(), max(TimeGenerated)), estimate  = sumif(_BilledSize, _IsBillable==true)  by TableName1, _IsBillable\r\n| project ['Table Name'] = TableName1, ['Table Size'] = Size , ['% of Total GB'] = (Size /(1024*1024*1024)) / {GBtotal}  * 100,['IsBillable'] = _IsBillable, ['Last Record Received'] =  last_log , ['Estimated Table Price'] =  (estimate/(1024*1024*1024)) * {Price}\r\n | order by ['Table Size']  desc\r\n\r\n ",
+                    "query": "\r\n// main logic \r\nunion withsource=TableName1 *\r\n| where TimeGenerated > ago(30d)\r\n| summarize Entries = count(), Size = sumif(_BilledSize, _IsBillable==true), last_log = datetime_diff(\"second\",now(), max(TimeGenerated)), estimate  = sumif(_BilledSize, _IsBillable==true)  by TableName1, _IsBillable\r\n| project ['Table Name'] = TableName1, ['Table Size'] = Size , ['% of Total GB'] = (Size /(1024*1024*1024)) / {GBtotal}  * 100,['IsBillable'] = _IsBillable, ['Last Record Received'] =  last_log , ['Estimated Table Price'] =  (estimate/(1024*1024*1024)) * {Price}\r\n\r\n\r\n\r\n ",
                     "size": 0,
                     "showAnalytics": true,
-                    "title": "{Workspace:name} Details for 30days, total: {GBtotal} GB",
+                    "title": "{Workspace:name} Details for 30days, total: {GBtotal} GB.  Click a row to see connector and solution info",
                     "timeContextFromParameter": "TimeRange",
                     "exportFieldName": "Table Name",
                     "exportParameterName": "Table",
@@ -6721,6 +6798,12 @@
                         }
                       ],
                       "filter": true,
+                      "sortBy": [
+                        {
+                          "itemKey": "$gen_bar_Table Size_1",
+                          "sortOrder": 2
+                        }
+                      ],
                       "labelSettings": [
                         {
                           "columnId": "Table Size",
@@ -6737,7 +6820,12 @@
                         }
                       ]
                     },
-                    "sortBy": []
+                    "sortBy": [
+                      {
+                        "itemKey": "$gen_bar_Table Size_1",
+                        "sortOrder": 2
+                      }
+                    ]
                   },
                   "customWidth": "75",
                   "conditionalVisibility": {
@@ -6746,6 +6834,26 @@
                     "value": "Advanced"
                   },
                   "name": "query - 2 - Copy"
+                },
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "//\"Table\",\"solution_name\",\"solution_folder\",\"solution_publisher_id\",\"solution_offer_id\",\"solution_first_publish_date\",\"solution_last_publish_date\",\"solution_version\",\"solution_support_name\",\"solution_support_tier\",\"solution_support_link\",\"solution_author_name\",\"solution_categories\",\"connector_id\",\"connector_publisher\",\"connector_title\",\"connector_description\",\"connector_instruction_steps\",\"connector_permissions\",\"connector_files\",\"is_unique\"\r\nlet list_ = \r\nexternaldata (\r\n    Table:string, solution_Name:string, solution_Folder:string, solution_publisher_id:string, solution_offer_id:string,\r\n    solution_first_publish_date:datetime, solution_last_publish_date:datetime, solution_version:string,\r\n    solution_support_name:string, solution_support_tier:string, solution_support_link:string,\r\n    solution_author_name:string, solution_categories:string, connector_id:string, connector_publisher:string,\r\n    connector_title:string, connector_description:string, connector_instruction_steps:string, connector_permissions:string, connector_files:string, is_unique:bool\r\n)\r\n[\r\n @\"https://raw.githubusercontent.com/Azure/Azure-Sentinel/refs/heads/master/Tools/Solutions%20Analyzer/solutions_connectors_tables_mapping.csv\"\r\n]\r\nwith (format=\"csv\", ignoreFirstRecord=true);\r\n// Main query: show tables found OR not found\r\nlist_\r\n| join kind=leftouter (\r\n    Usage\r\n    | distinct Table = DataType\r\n    | extend found_ = true\r\n) on Table\r\n| extend found_ = coalesce(found_, false)\r\n| where Table == '{Table}' \r\n| summarize solution_Name= array_sort_asc(make_set(solution_Name)), connector_id=array_sort_asc(make_set(connector_id)) by Table\r\n//| project Table, found_, connector_id, connector_title, solution_Name, solution_Folder\r\n| order by Table asc",
+                    "size": 0,
+                    "title": "Display Connector and Solution data for: {Table}",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "queryType": 0,
+                    "resourceType": "microsoft.operationalinsights/workspaces",
+                    "sortBy": []
+                  },
+                  "conditionalVisibility": {
+                    "parameterName": "Table1",
+                    "comparison": "isNotEqualTo"
+                  },
+                  "name": "query - 17"
                 },
                 {
                   "type": 3,
@@ -11364,7 +11472,7 @@
                         "type": 3,
                         "content": {
                           "version": "KqlItem/1.0",
-                          "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"/subscriptions/{Subscription:id}/resourceGroups/{resourceGroup}/providers/Microsoft.OperationalInsights/workspaces/{Workspace:name}/tables?api-version=2021-12-01-preview\",\"urlParams\":[],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$.value\",\"columns\":[{\"path\":\"$.name\",\"columnid\":\"TableName\"},{\"path\":\"$.properties.schema.tableType\",\"columnid\":\"TableType\"},{\"path\":\"$.properties.plan\",\"columnid\":\"TablePlan\"},{\"path\":\"$.properties.retentionInDays\",\"columnid\":\"TableInteractivePeriod\"},{\"path\":\"$.properties.archiveRetentionInDays\",\"columnid\":\"TableArchivePeriod\"},{\"path\":\"$.properties.totalRetentionInDays\",\"columnid\":\"TotalRetentionPeriod\"},{\"path\":\"$.properties.lastPlanModifiedDate\",\"columnid\":\"lastPlanModifiedDate\",\"columnType\":\"datetime\"}]}}]}",
+                          "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"/subscriptions/{Subscription:id}/resourceGroups/{resourceGroup}/providers/Microsoft.OperationalInsights/workspaces/{Workspace:name}/tables?api-version=2025-07-01\",\"urlParams\":[],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$.value\",\"columns\":[{\"path\":\"$.name\",\"columnid\":\"TableName\"},{\"path\":\"$.properties.schema.tableType\",\"columnid\":\"TableType\"},{\"path\":\"$.properties.plan\",\"columnid\":\"TablePlan\"},{\"path\":\"$.properties.retentionInDays\",\"columnid\":\"TableInteractivePeriod\"},{\"path\":\"$.properties.archiveRetentionInDays\",\"columnid\":\"TableArchivePeriod\"},{\"path\":\"$.properties.totalRetentionInDays\",\"columnid\":\"TotalRetentionPeriod\"},{\"path\":\"$.properties.lastPlanModifiedDate\",\"columnid\":\"lastPlanModifiedDate\",\"columnType\":\"datetime\"}]}}]}",
                           "size": 4,
                           "title": "Retention settings for All Tables",
                           "showRefreshButton": true,
@@ -11555,9 +11663,23 @@
                               },
                               {
                                 "columnMatch": "TablePlan",
-                                "formatter": 0,
+                                "formatter": 18,
                                 "formatOptions": {
-                                  "customColumnWidthSetting": "15ch"
+                                  "thresholdsOptions": "icons",
+                                  "thresholdsGrid": [
+                                    {
+                                      "operator": "==",
+                                      "thresholdValue": "Auxiliary",
+                                      "text": "Auxiliary/data lake"
+                                    },
+                                    {
+                                      "operator": "Default",
+                                      "thresholdValue": null,
+                                      "representation": "Blank",
+                                      "text": "{0}{1}"
+                                    }
+                                  ],
+                                  "customColumnWidthSetting": "20ch"
                                 }
                               },
                               {
@@ -11791,14 +11913,14 @@
                             "filter": true,
                             "sortBy": [
                               {
-                                "itemKey": "$gen_thresholds_Is Archived_8",
+                                "itemKey": "$gen_thresholds_TablePlan_2",
                                 "sortOrder": 2
                               }
                             ]
                           },
                           "sortBy": [
                             {
-                              "itemKey": "$gen_thresholds_Is Archived_8",
+                              "itemKey": "$gen_thresholds_TablePlan_2",
                               "sortOrder": 2
                             }
                           ]
