@@ -39,7 +39,7 @@
             "queryType": 1,
             "resourceType": "microsoft.resourcegraph/resources",
             "label": "☁️ Subscription",
-            "value": "/subscriptions/4defa7d0-bc3a-4935-a1e6-e58406cf75e2"
+            "value": "/subscriptions/2a1051a5-feab-477b-b033-ea6b4634a1b3"
           },
           {
             "id": "e94aafa3-c5d9-4523-89f0-4e87aa754511",
@@ -6555,6 +6555,85 @@
                   "type": 3,
                   "content": {
                     "version": "KqlItem/1.0",
+                    "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"/subscriptions/{Subscription:id}/resourceGroups/{resourceGroup}/providers/Microsoft.OperationalInsights/workspaces/{Workspace:name}/tables?api-version=2025-07-01\",\"urlParams\":[],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$.value\",\"columns\":[{\"path\":\"$.name\",\"columnid\":\"TableName\"},{\"path\":\"$.properties.schema.tableType\",\"columnid\":\"TableType\"},{\"path\":\"$.properties.plan\",\"columnid\":\"TablePlan\"},{\"path\":\"$.properties.retentionInDays\",\"columnid\":\"TableInteractivePeriod\"},{\"path\":\"$.properties.archiveRetentionInDays\",\"columnid\":\"TableArchivePeriod\"},{\"path\":\"$.properties.totalRetentionInDays\",\"columnid\":\"TotalRetentionPeriod\"},{\"path\":\"$.properties.lastPlanModifiedDate\",\"columnid\":\"lastPlanModifiedDate\",\"columnType\":\"datetime\"}]}}]}",
+                    "size": 0,
+                    "title": "Retention and Plan details for All Tables",
+                    "showRefreshButton": true,
+                    "showExportToExcel": true,
+                    "queryType": 12,
+                    "visualization": "table",
+                    "gridSettings": {
+                      "formatters": [
+                        {
+                          "columnMatch": "TablePlan",
+                          "formatter": 18,
+                          "formatOptions": {
+                            "thresholdsOptions": "icons",
+                            "thresholdsGrid": [
+                              {
+                                "operator": "==",
+                                "thresholdValue": "Auxiliary",
+                                "text": "Auxiliary/data lake"
+                              },
+                              {
+                                "operator": "Default",
+                                "thresholdValue": null,
+                                "representation": "Blank",
+                                "text": "{0}{1}"
+                              }
+                            ]
+                          }
+                        }
+                      ],
+                      "rowLimit": 1000,
+                      "filter": true,
+                      "sortBy": [
+                        {
+                          "itemKey": "TableInteractivePeriod",
+                          "sortOrder": 1
+                        }
+                      ]
+                    },
+                    "sortBy": [
+                      {
+                        "itemKey": "TableInteractivePeriod",
+                        "sortOrder": 1
+                      }
+                    ],
+                    "tileSettings": {
+                      "showBorder": false,
+                      "titleContent": {
+                        "columnMatch": "TablePlan",
+                        "formatter": 1
+                      },
+                      "leftContent": {
+                        "columnMatch": "TableInteractivePeriod",
+                        "formatter": 12,
+                        "formatOptions": {
+                          "palette": "auto"
+                        },
+                        "numberFormat": {
+                          "unit": 17,
+                          "options": {
+                            "maximumSignificantDigits": 3,
+                            "maximumFractionDigits": 2
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "customWidth": "50",
+                  "conditionalVisibility": {
+                    "parameterName": "Help",
+                    "comparison": "isEqualTo",
+                    "value": "Yes"
+                  },
+                  "name": "TableRetentionQuery"
+                },
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
                     "query": "Usage\r\n| where StartTime {TimeRange:value}\r\n| summarize ['Table Size'] =sum(Quantity)/1000 by ['Table Name'] =DataType,['IsBillable'] =IsBillable\r\n| order by ['Table Size']  desc\r\n ",
                     "size": 0,
                     "showAnalytics": true,
@@ -6645,11 +6724,178 @@
                   },
                   "customWidth": "70",
                   "conditionalVisibility": {
+                    "parameterName": "Help",
+                    "comparison": "isEqualTo",
+                    "value": "Yes"
+                  },
+                  "name": "query - 2 -basic Table "
+                },
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"ee0c7894-ecb7-4b92-81b2-4424f545c5f9\",\"mergeType\":\"innerunique\",\"leftTable\":\"TableRetentionQuery\",\"rightTable\":\"query - 2 -basic Table \",\"leftColumn\":\"TableName\",\"rightColumn\":\"Table Name\"}],\"projectRename\":[{\"originalName\":\"[TableRetentionQuery].TableName\",\"mergedName\":\"TableName\",\"fromId\":\"ee0c7894-ecb7-4b92-81b2-4424f545c5f9\"},{\"originalName\":\"[query - 2 -basic Table ].IsBillable\",\"mergedName\":\"IsBillable\",\"fromId\":\"ee0c7894-ecb7-4b92-81b2-4424f545c5f9\"},{\"originalName\":\"[query - 2 -basic Table ].Table Size\",\"mergedName\":\"Table Size\",\"fromId\":\"ee0c7894-ecb7-4b92-81b2-4424f545c5f9\"},{\"originalName\":\"[TableRetentionQuery].TableType\",\"mergedName\":\"TableType\",\"fromId\":\"ee0c7894-ecb7-4b92-81b2-4424f545c5f9\"},{\"originalName\":\"[TableRetentionQuery].TablePlan\",\"mergedName\":\"TablePlan\",\"fromId\":\"ee0c7894-ecb7-4b92-81b2-4424f545c5f9\"},{\"originalName\":\"[TableRetentionQuery].TableInteractivePeriod\",\"mergedName\":\"TableInteractivePeriod\",\"fromId\":\"ee0c7894-ecb7-4b92-81b2-4424f545c5f9\"},{\"originalName\":\"[TableRetentionQuery].TableArchivePeriod\",\"mergedName\":\"TableArchivePeriod\",\"fromId\":\"ee0c7894-ecb7-4b92-81b2-4424f545c5f9\"},{\"originalName\":\"[TableRetentionQuery].TotalRetentionPeriod\",\"mergedName\":\"TotalRetentionPeriod\",\"fromId\":\"ee0c7894-ecb7-4b92-81b2-4424f545c5f9\"},{\"originalName\":\"[TableRetentionQuery].lastPlanModifiedDate\",\"mergedName\":\"lastPlanModifiedDate\",\"fromId\":\"ee0c7894-ecb7-4b92-81b2-4424f545c5f9\"},{\"originalName\":\"[query - 2 -basic Table ].Table Name\"}]}",
+                    "size": 0,
+                    "showExportToExcel": true,
+                    "queryType": 7,
+                    "gridSettings": {
+                      "formatters": [
+                        {
+                          "columnMatch": "IsBillable",
+                          "formatter": 18,
+                          "formatOptions": {
+                            "thresholdsOptions": "colors",
+                            "thresholdsGrid": [
+                              {
+                                "operator": "==",
+                                "thresholdValue": "true",
+                                "representation": "green",
+                                "text": "True"
+                              },
+                              {
+                                "operator": "Default",
+                                "thresholdValue": null,
+                                "representation": "redBright",
+                                "text": "False"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "columnMatch": "Table Size",
+                          "formatter": 3,
+                          "formatOptions": {
+                            "palette": "greenRed"
+                          }
+                        },
+                        {
+                          "columnMatch": "TablePlan",
+                          "formatter": 18,
+                          "formatOptions": {
+                            "thresholdsOptions": "icons",
+                            "thresholdsGrid": [
+                              {
+                                "operator": "==",
+                                "thresholdValue": "Auxiliary",
+                                "text": "Auxiliary/data lake"
+                              },
+                              {
+                                "operator": "Default",
+                                "thresholdValue": null,
+                                "representation": "Blank",
+                                "text": "{0}{1}"
+                              }
+                            ]
+                          }
+                        }
+                      ],
+                      "rowLimit": 1000,
+                      "filter": true,
+                      "sortBy": [
+                        {
+                          "itemKey": "$gen_bar_Table Size_2",
+                          "sortOrder": 2
+                        }
+                      ]
+                    },
+                    "sortBy": [
+                      {
+                        "itemKey": "$gen_bar_Table Size_2",
+                        "sortOrder": 2
+                      }
+                    ]
+                  },
+                  "conditionalVisibility": {
                     "parameterName": "selectDepthLevel",
                     "comparison": "isEqualTo",
                     "value": "Basic"
                   },
-                  "name": "query - 2 - Copy - Copy"
+                  "showPin": false,
+                  "name": "query - 19"
+                },
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"ee0c7894-ecb7-4b92-81b2-4424f545c604\",\"mergeType\":\"table\",\"leftTable\":\"query - 19\"}],\"projectRename\":[{\"originalName\":\"[query - 19].TablePlan\",\"mergedName\":\"TablePlan\",\"fromId\":\"ee0c7894-ecb7-4b92-81b2-4424f545c604\"},{\"originalName\":\"[query - 19].Table Size\",\"mergedName\":\"Table Size\",\"fromId\":\"ee0c7894-ecb7-4b92-81b2-4424f545c604\"},{\"originalName\":\"[query - 19].TableName\"},{\"originalName\":\"[query - 19].IsBillable\"},{\"originalName\":\"[query - 19].TableType\"},{\"originalName\":\"[query - 19].TableInteractivePeriod\"},{\"originalName\":\"[query - 19].TotalRetentionPeriod\"},{\"originalName\":\"[query - 19].lastPlanModifiedDate\"},{\"originalName\":\"[query - 19].TableArchivePeriod\"}]}",
+                    "size": 1,
+                    "title": "{Workspace:name} split by Tier",
+                    "queryType": 7,
+                    "visualization": "piechart",
+                    "gridSettings": {
+                      "formatters": [
+                        {
+                          "columnMatch": "Table Size",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 39,
+                            "options": {
+                              "style": "decimal",
+                              "maximumSignificantDigits": 3
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "TablePlan",
+                          "formatter": 18,
+                          "formatOptions": {
+                            "thresholdsOptions": "icons",
+                            "thresholdsGrid": [
+                              {
+                                "operator": "==",
+                                "thresholdValue": "Auxiliary",
+                                "text": "Auxiliary/data lake"
+                              },
+                              {
+                                "operator": "Default",
+                                "thresholdValue": null,
+                                "representation": "Blank",
+                                "text": "{0}{1}"
+                              }
+                            ]
+                          }
+                        }
+                      ],
+                      "sortBy": [
+                        {
+                          "itemKey": "$gen_thresholds_TablePlan_1",
+                          "sortOrder": 2
+                        }
+                      ]
+                    },
+                    "sortBy": [
+                      {
+                        "itemKey": "$gen_thresholds_TablePlan_1",
+                        "sortOrder": 2
+                      }
+                    ],
+                    "chartSettings": {
+                      "yAxis": [
+                        "Table Size"
+                      ],
+                      "group": "TablePlan",
+                      "createOtherGroup": null,
+                      "seriesLabelSettings": [
+                        {
+                          "seriesName": "Auxiliary",
+                          "label": "Auxiliary/data lake"
+                        }
+                      ],
+                      "ySettings": {
+                        "numberFormatSettings": {
+                          "unit": 39,
+                          "options": {
+                            "style": "decimal",
+                            "useGrouping": true,
+                            "maximumSignificantDigits": 3
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "customWidth": "50",
+                  "showPin": false,
+                  "name": "query - Tier pie chart"
                 },
                 {
                   "type": 3,
