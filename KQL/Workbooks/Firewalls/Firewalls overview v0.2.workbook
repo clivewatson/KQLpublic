@@ -3099,6 +3099,9 @@
                   "name": "showSrcIpAddr",
                   "type": 2,
                   "query": "_Im_NetworkSession(starttime={TimeRange:start},endtime={TimeRange:end})\r\n| where isnotempty(SrcIpAddr)\r\n| summarize count() by SrcIpAddr\r\n| order by count_ desc\r\n| project value = SrcIpAddr, display = strcat(SrcIpAddr,' (', count_,')')",
+                  "crossComponentResources": [
+                    "{Workspace}"
+                  ],
                   "typeSettings": {
                     "additionalResourceOptions": [],
                     "showDefault": false
@@ -3117,12 +3120,15 @@
                   "name": "showDstIpAddr",
                   "type": 2,
                   "query": "_Im_NetworkSession(starttime={TimeRange:start},endtime={TimeRange:end})\r\n| where isnotempty(DstIpAddr)\r\n| summarize count() by DstIpAddr\r\n| order by count_ desc\r\n| project value = DstIpAddr, display = strcat(DstIpAddr,' (', count_,')')",
+                  "crossComponentResources": [
+                    "{Workspace}"
+                  ],
                   "typeSettings": {
                     "additionalResourceOptions": [],
                     "showDefault": false
                   },
                   "timeContext": {
-                    "durationMs": 43200000
+                    "durationMs": 0
                   },
                   "timeContextFromParameter": "TimeRange",
                   "queryType": 0,
@@ -3150,7 +3156,7 @@
                 }
               ],
               "style": "pills",
-              "queryType": 1,
+              "queryType": 0,
               "resourceType": "microsoft.operationalinsights/workspaces"
             },
             "name": "parameters - 12"
@@ -3433,6 +3439,9 @@
       },
       "name": "Group - IP Investigate"
     }
+  ],
+  "fallbackResourceIds": [
+    "/subscriptions/4defa7d0-bc3a-4935-a1e6-e58406cf75e2/resourcegroups/qc-prod-rg/providers/microsoft.operationalinsights/workspaces/qc-prod"
   ],
   "fromTemplateId": "sentinel-PaloAltoOverview",
   "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
