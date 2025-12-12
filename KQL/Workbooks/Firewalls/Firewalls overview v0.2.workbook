@@ -3143,7 +3143,7 @@
                   "type": 1,
                   "description": "Enter the IP to be investigated, or select a IP from either of the SHOW drop downs",
                   "isRequired": true,
-                  "query": "resources\r\n| extend showIp = iif(isempty('{showSrcIpAddr}'),'','{showSrcIpAddr}')\r\n| extend showIp = iif(isempty('{showDstIpAddr}'),'','{showDstIpAddr}')\r\n| distinct showIp",
+                  "query": "resources\r\n//| extend showIp = iif(isempty('{showSrcIpAddr}'),'','{showSrcIpAddr}')\r\n//| extend showIp2 = iif(isempty('{showDstIpAddr}'),'','{showDstIpAddr}')\r\n//| distinct showIp, showIp2\r\n| extend showIp = coalesce(\r\n        iif(isempty('{showSrcIpAddr}'),  '', '{showSrcIpAddr}'),\r\n        iif(isempty('{showDstIpAddr}'), '', '{showDstIpAddr}')\r\n    )\r\n| distinct showIp",
                   "crossComponentResources": [
                     "{Workspace}"
                   ],
@@ -3152,7 +3152,27 @@
                   },
                   "timeContextFromParameter": "TimeRange",
                   "queryType": 1,
-                  "resourceType": "microsoft.operationalinsights/workspaces"
+                  "resourceType": "microsoft.resourcegraph/resources"
+                },
+                {
+                  "id": "ed388334-a584-439a-bfcb-7351528ee0ff",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "showValid_TI_IPaddr",
+                  "type": 2,
+                  "query": "ThreatIntelIndicators \r\n| where isnotempty(ObservableValue)\r\n| summarize count() by ObservableValue\r\n| order by count_ desc\r\n| project value = ObservableValue, display = strcat(ObservableValue,' (', count_,')')",
+                  "crossComponentResources": [
+                    "{Workspace}"
+                  ],
+                  "typeSettings": {
+                    "additionalResourceOptions": []
+                  },
+                  "timeContext": {
+                    "durationMs": 0
+                  },
+                  "timeContextFromParameter": "TimeRange",
+                  "queryType": 0,
+                  "resourceType": "microsoft.operationalinsights/workspaces",
+                  "value": null
                 }
               ],
               "style": "pills",
