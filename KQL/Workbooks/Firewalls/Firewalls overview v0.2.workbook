@@ -73,8 +73,8 @@
             },
             "queryType": 1,
             "resourceType": "microsoft.resourcegraph/resources",
-            "value": null,
-            "label": "🗂️ Workspace"
+            "label": "🗂️ Workspace",
+            "value": null
           },
           {
             "id": "e4610f02-faca-4917-bbda-3fafa50776c4",
@@ -158,10 +158,49 @@
             "linkLabel": "IP Investigation",
             "subTarget": "ipinvest",
             "style": "link"
+          },
+          {
+            "id": "a568bc26-ff3d-4105-9aa3-b1f5d170d383",
+            "cellValue": "tabVisibility",
+            "linkTarget": "parameter",
+            "linkLabel": "Report Info",
+            "subTarget": "report",
+            "style": "link"
           }
         ]
       },
       "name": "links - 4"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "title": "Report Info",
+        "items": [
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "_Im_NetworkSession\r\n| project\r\n    NetworkProtocol  = iif(isempty(NetworkProtocol),  \"no data found\", NetworkProtocol),\r\n    NetworkDirection = iif(isempty(NetworkDirection), \"no data found, especially Inbound and Outbound\", NetworkDirection),\r\n    ThreatId         = iif(isempty(ThreatId),         \"no data found\", ThreatId),\r\n    ThreatName       = iif(isempty(ThreatName),       \"no data found\", ThreatName)\r\n| take 10",
+              "size": 0,
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{Workspace}"
+              ]
+            },
+            "name": "query - 0"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "tabVisibility",
+        "comparison": "isEqualTo",
+        "value": "report"
+      },
+      "name": "group - report"
     },
     {
       "type": 12,
@@ -670,7 +709,7 @@
                     "crossComponentResources": [
                       "{Workspace}"
                     ],
-                    "visualization": "table",
+                    "visualization": "piechart",
                     "gridSettings": {
                       "hierarchySettings": {
                         "treeType": 1,
@@ -742,7 +781,7 @@
                         "type": 3,
                         "content": {
                           "version": "KqlItem/1.0",
-                          "query": "let maxSummarizedTime = toscalar (\r\n    union isfuzzy=true \r\n        (\r\n            NetworkSummary_Result_CL\r\n                | where EventTime >= {TimeRange:start}\r\n                | summarize max_TimeGenerated=max(EventTime)\r\n                | extend max_TimeGenerated = datetime_add('minute',20,max_TimeGenerated)\r\n        ),\r\n        (\r\n            print({TimeRange:start})\r\n            | extend max_TimeGenerated = print_0\r\n            | project max_TimeGenerated\r\n        )\r\n        | summarize maxTimeGenerated = max(max_TimeGenerated) \r\n    );\r\nunion isfuzzy=true \r\n    (\r\n        _Im_NetworkSession(starttime=todatetime(maxSummarizedTime), endtime=now())\r\n\t  | where NetworkDirection == \"Inbound\" and isnotempty(EventSeverity)\r\n        | summarize Instances=toint(count()) by EventSeverity\r\n    ),\r\n    (\r\n        NetworkSummary_Result_CL\r\n        | where EventTime >= {TimeRange:start}\r\n\t  | where NetworkDirection == \"Inbound\" and isnotempty(EventSeverity)\r\n        | summarize Instances=toint(sum(count_)) by EventSeverity\r\n    )\r\n    | summarize Instances = sum(Instances) by EventSeverity",
+                          "query": "let maxSummarizedTime = toscalar (\r\n    union isfuzzy=true \r\n        (\r\n            NetworkSummary_Result_CL\r\n                | where EventTime >= {TimeRange:start}\r\n                | summarize max_TimeGenerated=max(EventTime)\r\n                | extend max_TimeGenerated = datetime_add('minute',20,max_TimeGenerated)\r\n        ),\r\n        (\r\n            print({TimeRange:start})\r\n            | extend max_TimeGenerated = print_0\r\n            | project max_TimeGenerated\r\n        )\r\n        | summarize maxTimeGenerated = max(max_TimeGenerated) \r\n    );\r\n//    print maxSummarizedTime\r\nunion isfuzzy=true \r\n    (\r\n        _Im_NetworkSession(starttime=todatetime(maxSummarizedTime), endtime=now())\r\n        | where isnotempty(EventSeverity) or\r\n\t            NetworkDirection =~ \"Inbound\" \r\n        | summarize Instances=toint(count()) by EventSeverity\r\n    ),\r\n    (\r\n        NetworkSummary_Result_CL\r\n        | where EventTime >= {TimeRange:start}\r\n\t  | where NetworkDirection == \"Inbound\" or isnotempty(EventSeverity)\r\n        | summarize Instances=toint(sum(count_)) by EventSeverity\r\n    )\r\n| summarize Instances = sum(Instances) by EventSeverity",
                           "size": 1,
                           "title": "Inbound Traffic by Severity",
                           "timeContextFromParameter": "TimeRange",
@@ -770,7 +809,7 @@
                         "type": 3,
                         "content": {
                           "version": "KqlItem/1.0",
-                          "query": "let maxSummarizedTime = toscalar (\r\n    union isfuzzy=true \r\n        (\r\n            NetworkSummary_Result_CL\r\n                | where EventTime >= {TimeRange:start}\r\n                | summarize max_TimeGenerated=max(EventTime)\r\n                | extend max_TimeGenerated = datetime_add('minute',10,max_TimeGenerated)\r\n        ),\r\n        (\r\n            print({TimeRange:start})\r\n            | extend max_TimeGenerated = print_0\r\n            | project max_TimeGenerated\r\n        )\r\n        | summarize maxTimeGenerated = max(max_TimeGenerated) \r\n    );\r\nunion isfuzzy=true \r\n    (\r\n        _Im_NetworkSession(starttime=todatetime(maxSummarizedTime), endtime=now())\r\n\t  | where NetworkDirection == \"Inbound\" and isnotempty(DvcAction)\r\n        | summarize Instances=toint(count()) by DvcAction\r\n    ),\r\n    (\r\n        NetworkSummary_Result_CL\r\n        | where EventTime >= {TimeRange:start}\r\n\t    | where NetworkDirection == \"Inbound\" and isnotempty(DvcAction)\r\n        | summarize Instances=toint(sum(count_)) by DvcAction\r\n    )\r\n    | summarize Instances = sum(Instances) by DvcAction",
+                          "query": "let maxSummarizedTime = toscalar (\r\n    union isfuzzy=true \r\n        (\r\n            NetworkSummary_Result_CL\r\n                | where EventTime >= {TimeRange:start}\r\n                | summarize max_TimeGenerated=max(EventTime)\r\n                | extend max_TimeGenerated = datetime_add('minute',10,max_TimeGenerated)\r\n        ),\r\n        (\r\n            print({TimeRange:start})\r\n            | extend max_TimeGenerated = print_0\r\n            | project max_TimeGenerated\r\n        )\r\n        | summarize maxTimeGenerated = max(max_TimeGenerated) \r\n    );\r\nunion isfuzzy=true \r\n    (\r\n        _Im_NetworkSession(starttime=todatetime(maxSummarizedTime), endtime=now())\r\n\t    | where NetworkDirection == \"Inbound\" or isnotempty(DvcAction)\r\n        | summarize Instances=toint(count()) by DvcAction\r\n    ),\r\n    (\r\n        NetworkSummary_Result_CL\r\n        | where EventTime >= {TimeRange:start}\r\n\t    | where NetworkDirection == \"Inbound\" or isnotempty(DvcAction)\r\n        | summarize Instances=toint(sum(count_)) by DvcAction\r\n    )\r\n    | summarize Instances = sum(Instances) by DvcAction",
                           "size": 1,
                           "title": "Inbound Traffic by Device Action",
                           "timeContextFromParameter": "TimeRange",
@@ -822,7 +861,7 @@
                         "type": 3,
                         "content": {
                           "version": "KqlItem/1.0",
-                          "query": "let maxSummarizedTime = toscalar (\r\n    union isfuzzy=true \r\n        (\r\n            NetworkSummary_Result_CL\r\n                | where EventTime >= {TimeRange:start}\r\n                | summarize max_TimeGenerated=max(EventTime)\r\n                | extend max_TimeGenerated = datetime_add('minute',20,max_TimeGenerated)\r\n        ),\r\n        (\r\n            print({TimeRange:start})\r\n            | extend max_TimeGenerated = print_0\r\n            | project max_TimeGenerated\r\n        )\r\n        | summarize maxTimeGenerated = max(max_TimeGenerated) \r\n    );\r\nunion isfuzzy=true \r\n    (\r\n        _Im_NetworkSession(starttime=todatetime(maxSummarizedTime), endtime=now())\r\n\t  | where NetworkDirection == \"Inbound\" and isnotempty(EventResult)\r\n        | summarize Instances=toint(count()) by EventResult\r\n    ),\r\n    (\r\n        NetworkSummary_Result_CL\r\n        | where EventTime >= {TimeRange:start}\r\n\t  | where NetworkDirection == \"Inbound\" and isnotempty(EventResult)\r\n        | summarize Instances=toint(sum(count_)) by EventResult\r\n    )\r\n    | summarize Instances = sum(Instances) by EventResult",
+                          "query": "let maxSummarizedTime = toscalar (\r\n    union isfuzzy=true \r\n        (\r\n            NetworkSummary_Result_CL\r\n                | where EventTime >= {TimeRange:start}\r\n                | summarize max_TimeGenerated=max(EventTime)\r\n                | extend max_TimeGenerated = datetime_add('minute',20,max_TimeGenerated)\r\n        ),\r\n        (\r\n            print({TimeRange:start})\r\n            | extend max_TimeGenerated = print_0\r\n            | project max_TimeGenerated\r\n        )\r\n        | summarize maxTimeGenerated = max(max_TimeGenerated) \r\n    );\r\nunion isfuzzy=true \r\n    (\r\n        _Im_NetworkSession(starttime=todatetime(maxSummarizedTime), endtime=now())\r\n\t    | where NetworkDirection == \"Inbound\" or isnotempty(EventResult)\r\n        | summarize Instances=toint(count()) by EventResult\r\n    ),\r\n    (\r\n        NetworkSummary_Result_CL\r\n        | where EventTime >= {TimeRange:start}\r\n\t    | where NetworkDirection == \"Inbound\" or isnotempty(EventResult)\r\n        | summarize Instances=toint(sum(count_)) by EventResult\r\n    )\r\n    | summarize Instances = sum(Instances) by EventResult",
                           "size": 1,
                           "title": "Inbound Traffic by Event Result",
                           "timeContextFromParameter": "TimeRange",
@@ -893,7 +932,7 @@
                         "type": 3,
                         "content": {
                           "version": "KqlItem/1.0",
-                          "query": "let maxSummarizedTime = toscalar (\r\n    union isfuzzy=true \r\n        (\r\n            NetworkSummary_Result_CL\r\n                | where EventTime >= {TimeRange:start}\r\n                | summarize max_TimeGenerated=max(EventTime)\r\n                | extend max_TimeGenerated = datetime_add('minute',10,max_TimeGenerated)\r\n        ),\r\n        (\r\n            print({TimeRange:start})\r\n            | extend max_TimeGenerated = print_0\r\n            | project max_TimeGenerated\r\n        )\r\n        | summarize maxTimeGenerated = max(max_TimeGenerated) \r\n    );\r\nunion isfuzzy=true \r\n    (\r\n        _Im_NetworkSession(starttime=todatetime(maxSummarizedTime), endtime=now())\r\n\t  | where NetworkDirection == \"Inbound\"\r\n        | summarize Instances=toint(count()) by bin(TimeGenerated,1h)\r\n    ),\r\n    (\r\n        NetworkSummary_Result_CL\r\n        | where EventTime >= {TimeRange:start}\r\n\t  | where NetworkDirection == \"Inbound\"\r\n        | summarize Instances=toint(sum(count_)) by TimeGenerated=bin(EventTime,1h)\r\n    )\r\n    | summarize Instances = sum(Instances) by bin(TimeGenerated,1h)",
+                          "query": "let maxSummarizedTime = toscalar (\r\n    union isfuzzy=true \r\n        (\r\n            NetworkSummary_Result_CL\r\n                | where EventTime >= {TimeRange:start}\r\n                | summarize max_TimeGenerated=max(EventTime)\r\n                | extend max_TimeGenerated = datetime_add('minute',10,max_TimeGenerated)\r\n        ),\r\n        (\r\n            print({TimeRange:start})\r\n            | extend max_TimeGenerated = print_0\r\n            | project max_TimeGenerated\r\n        )\r\n        | summarize maxTimeGenerated = max(max_TimeGenerated) \r\n    );\r\nunion isfuzzy=true \r\n    (\r\n        _Im_NetworkSession(starttime=todatetime(maxSummarizedTime), endtime=now())\r\n\t    | where NetworkDirection =~ \"Inbound\"\r\n        | summarize Instances=toint(count()) by bin(TimeGenerated,1h)\r\n    ),\r\n    (\r\n        NetworkSummary_Result_CL\r\n        | where EventTime >= {TimeRange:start}\r\n\t    | where NetworkDirection == \"Inbound\"\r\n        | summarize Instances=toint(sum(count_)) by TimeGenerated=bin(EventTime,1h)\r\n    )\r\n    | summarize Instances = sum(Instances) by bin(TimeGenerated,1h)",
                           "size": 1,
                           "title": "Inbound Traffic over time",
                           "timeContextFromParameter": "TimeRange",
@@ -902,7 +941,7 @@
                           "crossComponentResources": [
                             "{Workspace}"
                           ],
-                          "visualization": "timechart",
+                          "visualization": "linechart",
                           "gridSettings": {
                             "formatters": [
                               {
@@ -916,8 +955,20 @@
                                   }
                                 }
                               }
+                            ],
+                            "sortBy": [
+                              {
+                                "itemKey": "NetworkDirection",
+                                "sortOrder": 1
+                              }
                             ]
                           },
+                          "sortBy": [
+                            {
+                              "itemKey": "NetworkDirection",
+                              "sortOrder": 1
+                            }
+                          ],
                           "tileSettings": {
                             "titleContent": {
                               "columnMatch": "EventResult",
@@ -962,7 +1013,7 @@
                         "type": 3,
                         "content": {
                           "version": "KqlItem/1.0",
-                          "query": "let maxSummarizedTime = toscalar (\r\n    union isfuzzy=true \r\n        (\r\n            NetworkSummary_Country_CL\r\n                | where EventTime >= {TimeRange:start}\r\n                | summarize max_TimeGenerated=max(EventTime)\r\n                | extend max_TimeGenerated = datetime_add('minute',20,max_TimeGenerated)\r\n        ),\r\n        (\r\n            print({TimeRange:start})\r\n            | extend max_TimeGenerated = print_0\r\n            | project max_TimeGenerated\r\n        )\r\n        | summarize maxTimeGenerated = max(max_TimeGenerated) \r\n    );\r\nunion isfuzzy=true \r\n    (\r\n        _Im_NetworkSession(starttime=todatetime(maxSummarizedTime), endtime=now())\r\n\t  | where NetworkDirection == \"Inbound\" and isnotempty(SrcGeoCountry)\r\n        | summarize Instances=toint(count()) by SrcGeoCountry\r\n    ),\r\n    (\r\n        NetworkSummary_Country_CL\r\n        | where EventTime >= {TimeRange:start}\r\n\t  | where NetworkDirection == \"Inbound\" and isnotempty(SrcGeoCountry)\r\n        | summarize Instances=toint(sum(count_)) by SrcGeoCountry\r\n    )\r\n    | summarize Instances = sum(Instances) by SrcGeoCountry\r\n    | order by Instances\r\n    | take 5",
+                          "query": "let maxSummarizedTime = toscalar (\r\n    union isfuzzy=true \r\n        (\r\n            NetworkSummary_Country_CL\r\n                | where EventTime >= {TimeRange:start}\r\n                | summarize max_TimeGenerated=max(EventTime)\r\n                | extend max_TimeGenerated = datetime_add('minute',20,max_TimeGenerated)\r\n        ),\r\n        (\r\n            print({TimeRange:start})\r\n            | extend max_TimeGenerated = print_0\r\n            | project max_TimeGenerated\r\n        )\r\n        | summarize maxTimeGenerated = max(max_TimeGenerated) \r\n    );\r\nunion isfuzzy=true \r\n    (\r\n        _Im_NetworkSession(starttime=todatetime(maxSummarizedTime), endtime=now())\r\n\t  | where NetworkDirection == \"Inbound\" or isnotempty(SrcGeoCountry)\r\n        | summarize Instances=toint(count()) by SrcGeoCountry\r\n    ),\r\n    (\r\n        NetworkSummary_Country_CL\r\n        | where EventTime >= {TimeRange:start}\r\n\t  | where NetworkDirection == \"Inbound\" or isnotempty(SrcGeoCountry)\r\n        | summarize Instances=toint(sum(count_)) by SrcGeoCountry\r\n    )\r\n    | summarize Instances = sum(Instances) by SrcGeoCountry\r\n    | order by Instances\r\n    | take 5",
                           "size": 0,
                           "title": "Traffic by Source Country",
                           "exportFieldName": "SrcGeoCountry",
@@ -1001,7 +1052,7 @@
                         "type": 3,
                         "content": {
                           "version": "KqlItem/1.0",
-                          "query": "let maxSummarizedTime = toscalar (\r\n    union isfuzzy=true \r\n        (\r\n            NetworkSummary_Protocol_CL\r\n                | where EventTime >= {TimeRange:start}\r\n                | summarize max_TimeGenerated=max(EventTime)\r\n                | extend max_TimeGenerated = datetime_add('minute',10,max_TimeGenerated)\r\n        ),\r\n        (\r\n            print({TimeRange:start})\r\n            | extend max_TimeGenerated = print_0\r\n            | project max_TimeGenerated\r\n        )\r\n        | summarize maxTimeGenerated = max(max_TimeGenerated) \r\n    );\r\nunion isfuzzy=true \r\n    (\r\n        _Im_NetworkSession(starttime=todatetime(maxSummarizedTime), endtime=now())\r\n\t  | where NetworkDirection == \"Inbound\" and isnotempty(NetworkProtocol)\r\n        | summarize Instances=toint(count()) by NetworkProtocol, bin(TimeGenerated,1h)\r\n    ),\r\n    (\r\n        NetworkSummary_Protocol_CL\r\n        | where EventTime >= {TimeRange:start}\r\n\t  | where NetworkDirection == \"Inbound\" and isnotempty(NetworkProtocol)\r\n        | summarize Instances=toint(sum(count_)) by NetworkProtocol, TimeGenerated=bin(EventTime,1h)\r\n    )\r\n    | summarize Instances = sum(Instances) by NetworkProtocol, bin(TimeGenerated,1h)",
+                          "query": "let maxSummarizedTime = toscalar (\r\n    union isfuzzy=true \r\n        (\r\n            NetworkSummary_Protocol_CL\r\n                | where EventTime >= {TimeRange:start}\r\n                | summarize max_TimeGenerated=max(EventTime)\r\n                | extend max_TimeGenerated = datetime_add('minute',10,max_TimeGenerated)\r\n        ),\r\n        (\r\n            print({TimeRange:start})\r\n            | extend max_TimeGenerated = print_0\r\n            | project max_TimeGenerated\r\n        )\r\n        | summarize maxTimeGenerated = max(max_TimeGenerated) \r\n    );\r\nunion isfuzzy=true \r\n    (\r\n        _Im_NetworkSession(starttime=todatetime(maxSummarizedTime), endtime=now())\r\n\t    | where NetworkDirection == \"Inbound\" or isnotempty(NetworkProtocol)\r\n        | summarize Instances=toint(count()) by NetworkProtocol, bin(TimeGenerated,1h)\r\n    ),\r\n    (\r\n        NetworkSummary_Protocol_CL\r\n        | where EventTime >= {TimeRange:start}\r\n\t    | where NetworkDirection == \"Inbound\" or isnotempty(NetworkProtocol)\r\n        | summarize Instances=toint(sum(count_)) by NetworkProtocol, TimeGenerated=bin(EventTime,1h)\r\n    )\r\n    | summarize Instances = sum(Instances) by NetworkProtocol, bin(TimeGenerated,1h)",
                           "size": 0,
                           "title": "Traffic by Protocol",
                           "timeContextFromParameter": "TimeRange",
@@ -1051,7 +1102,7 @@
                         "type": 3,
                         "content": {
                           "version": "KqlItem/1.0",
-                          "query": "let maxSummarizedTime = toscalar (\r\n    union isfuzzy=true \r\n        (\r\n            NetworkSummary_Rule_CL\r\n                | where EventTime >= {TimeRange:start}\r\n                | summarize max_TimeGenerated=max(EventTime)\r\n                | extend max_TimeGenerated = datetime_add('minute',20,max_TimeGenerated)\r\n        ),\r\n        (\r\n            print({TimeRange:start})\r\n            | extend max_TimeGenerated = print_0\r\n            | project max_TimeGenerated\r\n        )\r\n        | summarize maxTimeGenerated = max(max_TimeGenerated) \r\n    );\r\nunion isfuzzy=true \r\n    (\r\n        _Im_NetworkSession(starttime=todatetime(maxSummarizedTime), endtime=now())\r\n\t  | where isnotempty(Rule) and NetworkDirection == \"Inbound\"\r\n        | summarize Instances=toint(count()) by Rule, bin(TimeGenerated,1h)\r\n    ),\r\n    (\r\n        NetworkSummary_Rule_CL\r\n        | where EventTime >= {TimeRange:start}\r\n\t  | where isnotempty(Rule) and NetworkDirection == \"Inbound\"\r\n        | summarize Instances=toint(sum(count_)) by Rule, TimeGenerated=bin(EventTime,1h)\r\n    )\r\n    | summarize Instances = sum(Instances) by Rule, bin(TimeGenerated, 1h)\r\n    | order by Instances\r\n    | take 5",
+                          "query": "let maxSummarizedTime = toscalar (\r\n    union isfuzzy=true \r\n        (\r\n            NetworkSummary_Rule_CL\r\n                | where EventTime >= {TimeRange:start}\r\n                | summarize max_TimeGenerated=max(EventTime)\r\n                | extend max_TimeGenerated = datetime_add('minute',20,max_TimeGenerated)\r\n        ),\r\n        (\r\n            print({TimeRange:start})\r\n            | extend max_TimeGenerated = print_0\r\n            | project max_TimeGenerated\r\n        )\r\n        | summarize maxTimeGenerated = max(max_TimeGenerated) \r\n    );\r\nunion isfuzzy=true \r\n    (\r\n        _Im_NetworkSession(starttime=todatetime(maxSummarizedTime), endtime=now())\r\n\t    | where isnotempty(Rule) or NetworkDirection == \"Inbound\"\r\n        | summarize Instances=toint(count()) by Rule, bin(TimeGenerated,1h)\r\n    ),\r\n    (\r\n        NetworkSummary_Rule_CL\r\n        | where EventTime >= {TimeRange:start}\r\n\t    | where isnotempty(Rule) or NetworkDirection == \"Inbound\"\r\n        | summarize Instances=toint(sum(count_)) by Rule, TimeGenerated=bin(EventTime,1h)\r\n    )\r\n    | summarize Instances = sum(Instances) by Rule, bin(TimeGenerated, 1h)\r\n    | order by Instances\r\n    | take 5",
                           "size": 0,
                           "title": "Traffic by Firewall Rule",
                           "timeContextFromParameter": "TimeRange",
@@ -1087,7 +1138,7 @@
                         "type": 3,
                         "content": {
                           "version": "KqlItem/1.0",
-                          "query": "let maxSummarizedTime = toscalar (\n    union isfuzzy=true \n        (\n            NetworkSummary_IP_CL\n                | where EventTime >= {TimeRange:start}\n                | summarize max_TimeGenerated=max(EventTime)\n                | extend max_TimeGenerated = datetime_add('hour',1,max_TimeGenerated)\n        ),\n        (\n            print({TimeRange:start})\n            | extend max_TimeGenerated = print_0\n            | project max_TimeGenerated\n        )\n        | summarize maxTimeGenerated = max(max_TimeGenerated) \n    );\nunion isfuzzy=true \n    (\n        _Im_NetworkSession(starttime=todatetime(maxSummarizedTime), endtime=now())\n\t  | where NetworkDirection == \"Inbound\"\n\t  | where isnotempty(SrcIpAddr) and isnotempty(DstIpAddr)\n\t  | summarize NumberOfConnections=toint(count()) by SrcIpAddr, DstIpAddr\n    ),\n    (\n        NetworkSummary_IP_CL\n        | where EventTime >= {TimeRange:start}\n\t  | where NetworkDirection == \"Inbound\"\n\t  | where isnotempty(SrcIpAddr) and isnotempty(DstIpAddr)\n\t  | summarize NumberOfConnections=toint(sum(count_)) by SrcIpAddr, DstIpAddr\n    )\n    | summarize NumberOfConnections = sum(NumberOfConnections) by SrcIpAddr, DstIpAddr\n    | order by NumberOfConnections\n    | take 10",
+                          "query": "let maxSummarizedTime = toscalar (\n    union isfuzzy=true \n        (\n            NetworkSummary_IP_CL\n                | where EventTime >= {TimeRange:start}\n                | summarize max_TimeGenerated=max(EventTime)\n                | extend max_TimeGenerated = datetime_add('hour',1,max_TimeGenerated)\n        ),\n        (\n            print({TimeRange:start})\n            | extend max_TimeGenerated = print_0\n            | project max_TimeGenerated\n        )\n        | summarize maxTimeGenerated = max(max_TimeGenerated) \n    );\nunion isfuzzy=true \n    (\n        _Im_NetworkSession(starttime=todatetime(maxSummarizedTime), endtime=now())\n\t  | where NetworkDirection == \"Inbound\" or\n\t          isnotempty(SrcIpAddr) or isnotempty(DstIpAddr)\n\t  | summarize NumberOfConnections=toint(count()) by SrcIpAddr, DstIpAddr\n    ),\n    (\n        NetworkSummary_IP_CL\n        | where EventTime >= {TimeRange:start}\n\t  | where NetworkDirection == \"Inbound\" or\n\t          isnotempty(SrcIpAddr) and isnotempty(DstIpAddr)\n\t  | summarize NumberOfConnections=toint(sum(count_)) by SrcIpAddr, DstIpAddr\n    )\n    | summarize NumberOfConnections = sum(NumberOfConnections) by SrcIpAddr, DstIpAddr\n    | order by NumberOfConnections\n    | take 10",
                           "size": 0,
                           "title": "Top 10 Connections",
                           "timeContextFromParameter": "TimeRange",
@@ -1139,7 +1190,7 @@
                         "type": 3,
                         "content": {
                           "version": "KqlItem/1.0",
-                          "query": "let maxSummarizedTime = toscalar (\r\n    union isfuzzy=true \r\n        (\r\n            NetworkSummary_IP_CL\r\n                | where EventTime >= {TimeRange:start}\r\n                | summarize max_TimeGenerated=max(EventTime)\r\n                | extend max_TimeGenerated = datetime_add('hour',1,max_TimeGenerated)\r\n        ),\r\n        (\r\n            print({TimeRange:start})\r\n            | extend max_TimeGenerated = print_0\r\n            | project max_TimeGenerated\r\n        )\r\n        | summarize maxTimeGenerated = max(max_TimeGenerated) \r\n    );\r\nunion isfuzzy=true \r\n    (\r\n        _Im_NetworkSession(starttime=todatetime(maxSummarizedTime), endtime=now())\r\n\t  | where NetworkDirection == \"Inbound\"\r\n\t  | where isnotempty(SrcIpAddr)\r\n\t  | summarize Instances=toint(count()) by SrcIpAddr\r\n    ),\r\n    (\r\n        NetworkSummary_IP_CL\r\n        | where EventTime >= {TimeRange:start}\r\n\t  | where NetworkDirection == \"Inbound\"\r\n\t  | where isnotempty(SrcIpAddr)\r\n\t  | summarize Instances=toint(sum(count_)) by SrcIpAddr\r\n    )\r\n    | summarize Instances = sum(Instances) by SrcIpAddr\r\n    | order by Instances\r\n    | take 10",
+                          "query": "let maxSummarizedTime = toscalar (\r\n    union isfuzzy=true \r\n        (\r\n            NetworkSummary_IP_CL\r\n                | where EventTime >= {TimeRange:start}\r\n                | summarize max_TimeGenerated=max(EventTime)\r\n                | extend max_TimeGenerated = datetime_add('hour',1,max_TimeGenerated)\r\n        ),\r\n        (\r\n            print({TimeRange:start})\r\n            | extend max_TimeGenerated = print_0\r\n            | project max_TimeGenerated\r\n        )\r\n        | summarize maxTimeGenerated = max(max_TimeGenerated) \r\n    );\r\nunion isfuzzy=true \r\n    (\r\n        _Im_NetworkSession(starttime=todatetime(maxSummarizedTime), endtime=now())\r\n\t  | where NetworkDirection == \"Inbound\"\r\n\t  or  isnotempty(SrcIpAddr)\r\n\t  | summarize Instances=toint(count()) by SrcIpAddr\r\n    ),\r\n    (\r\n        NetworkSummary_IP_CL\r\n        | where EventTime >= {TimeRange:start}\r\n\t  | where NetworkDirection == \"Inbound\"\r\n\t  or  isnotempty(SrcIpAddr)\r\n\t  | summarize Instances=toint(sum(count_)) by SrcIpAddr\r\n    )\r\n    | summarize Instances = sum(Instances) by SrcIpAddr\r\n    | order by Instances\r\n    | take 10",
                           "size": 0,
                           "title": "Top 10 Source IP",
                           "timeContextFromParameter": "TimeRange",
@@ -1198,7 +1249,7 @@
                         "type": 3,
                         "content": {
                           "version": "KqlItem/1.0",
-                          "query": "let maxSummarizedTime = toscalar (\r\n    union isfuzzy=true \r\n        (\r\n            NetworkSummary_Source_Port_CL\r\n                | where EventTime >= {TimeRange:start}\r\n                | summarize max_TimeGenerated=max(EventTime)\r\n                | extend max_TimeGenerated = datetime_add('hour',1,max_TimeGenerated)\r\n        ),\r\n        (\r\n            print({TimeRange:start})\r\n            | extend max_TimeGenerated = print_0\r\n            | project max_TimeGenerated\r\n        )\r\n        | summarize maxTimeGenerated = max(max_TimeGenerated) \r\n    );\r\nunion isfuzzy=true \r\n    (\r\n        _Im_NetworkSession(starttime=todatetime(maxSummarizedTime), endtime=now())\r\n\t  | where isnotempty(SrcPortNumber) and NetworkDirection == \"Inbound\"\r\n\t  | summarize Instances=toint(count()) by toint(SrcPortNumber)\r\n    ),\r\n    (\r\n        NetworkSummary_Source_Port_CL\r\n        | where EventTime >= {TimeRange:start}\r\n\t  | where isnotempty(SrcPortNumber) and NetworkDirection == \"Inbound\"\r\n\t  | summarize Instances=toint(sum(count_)) by SrcPortNumber=toint(SrcPortNumber)\r\n    )\r\n    | summarize Instances = sum(Instances) by SrcPortNumber\r\n    | order by Instances\r\n    | take 10",
+                          "query": "let maxSummarizedTime = toscalar (\r\n    union isfuzzy=true \r\n        (\r\n            NetworkSummary_Source_Port_CL\r\n                | where EventTime >= {TimeRange:start}\r\n                | summarize max_TimeGenerated=max(EventTime)\r\n                | extend max_TimeGenerated = datetime_add('hour',1,max_TimeGenerated)\r\n        ),\r\n        (\r\n            print({TimeRange:start})\r\n            | extend max_TimeGenerated = print_0\r\n            | project max_TimeGenerated\r\n        )\r\n        | summarize maxTimeGenerated = max(max_TimeGenerated) \r\n    );\r\nunion isfuzzy=true \r\n    (\r\n        _Im_NetworkSession(starttime=todatetime(maxSummarizedTime), endtime=now())\r\n\t  | where isnotempty(SrcPortNumber) or  NetworkDirection == \"Inbound\"\r\n\t  | summarize Instances=toint(count()) by toint(SrcPortNumber)\r\n    ),\r\n    (\r\n        NetworkSummary_Source_Port_CL\r\n        | where EventTime >= {TimeRange:start}\r\n\t  | where isnotempty(SrcPortNumber) or  NetworkDirection == \"Inbound\"\r\n\t  | summarize Instances=toint(sum(count_)) by SrcPortNumber=toint(SrcPortNumber)\r\n    )\r\n    | summarize Instances = sum(Instances) by SrcPortNumber\r\n    | order by Instances\r\n    | take 10",
                           "size": 0,
                           "title": "Top 10 Source Ports",
                           "exportFieldName": "SrcPortNumber",
@@ -1273,7 +1324,7 @@
                         "type": 3,
                         "content": {
                           "version": "KqlItem/1.0",
-                          "query": "let maxSummarizedTime = toscalar (\r\n    union isfuzzy=true \r\n        (\r\n            NetworkSummary_IP_CL\r\n                | where EventTime >= {TimeRange:start}\r\n                | summarize max_TimeGenerated=max(EventTime)\r\n                | extend max_TimeGenerated = datetime_add('hour',1,max_TimeGenerated)\r\n        ),\r\n        (\r\n            print({TimeRange:start})\r\n            | extend max_TimeGenerated = print_0\r\n            | project max_TimeGenerated\r\n        )\r\n        | summarize maxTimeGenerated = max(max_TimeGenerated) \r\n    );\r\nunion isfuzzy=true \r\n    (\r\n        _Im_NetworkSession(starttime=todatetime(maxSummarizedTime), endtime=now())\r\n\t  | where NetworkDirection == \"Inbound\"\r\n\t  | where isnotempty(DstIpAddr)\r\n\t  | summarize Instances=toint(count()) by DstIpAddr\r\n    ),\r\n    (\r\n        NetworkSummary_IP_CL\r\n        | where EventTime >= {TimeRange:start}\r\n\t    | where NetworkDirection == \"Inbound\"\r\n\t    | where isnotempty(DstIpAddr)\r\n\t    | summarize Instances=toint(sum(count_)) by DstIpAddr\r\n    )\r\n    | summarize Instances = sum(Instances) by DstIpAddr\r\n    | order by Instances\r\n    | take 10",
+                          "query": "let maxSummarizedTime = toscalar (\r\n    union isfuzzy=true \r\n        (\r\n            NetworkSummary_IP_CL\r\n                | where EventTime >= {TimeRange:start}\r\n                | summarize max_TimeGenerated=max(EventTime)\r\n                | extend max_TimeGenerated = datetime_add('hour',1,max_TimeGenerated)\r\n        ),\r\n        (\r\n            print({TimeRange:start})\r\n            | extend max_TimeGenerated = print_0\r\n            | project max_TimeGenerated\r\n        )\r\n        | summarize maxTimeGenerated = max(max_TimeGenerated) \r\n    );\r\nunion isfuzzy=true \r\n    (\r\n        _Im_NetworkSession(starttime=todatetime(maxSummarizedTime), endtime=now())\r\n\t  | where NetworkDirection == \"Inbound\"\r\n\t  or  isnotempty(DstIpAddr)\r\n\t  | summarize Instances=toint(count()) by DstIpAddr\r\n    ),\r\n    (\r\n        NetworkSummary_IP_CL\r\n        | where EventTime >= {TimeRange:start}\r\n\t    | where NetworkDirection == \"Inbound\"\r\n\t    or isnotempty(DstIpAddr)\r\n\t    | summarize Instances=toint(sum(count_)) by DstIpAddr\r\n    )\r\n    | summarize Instances = sum(Instances) by DstIpAddr\r\n    | order by Instances\r\n    | take 10",
                           "size": 0,
                           "title": "Top 10 Destination IP",
                           "timeContextFromParameter": "TimeRange",
@@ -1332,7 +1383,7 @@
                         "type": 3,
                         "content": {
                           "version": "KqlItem/1.0",
-                          "query": "let maxSummarizedTime = toscalar (\r\n    union isfuzzy=true \r\n        (\r\n            NetworkSummary_Protocol_CL\r\n                | where EventTime >= {TimeRange:start}\r\n                | summarize max_TimeGenerated=max(EventTime)\r\n                | extend max_TimeGenerated = datetime_add('minute',20,max_TimeGenerated)\r\n        ),\r\n        (\r\n            print({TimeRange:start})\r\n            | extend max_TimeGenerated = print_0\r\n            | project max_TimeGenerated\r\n        )\r\n        | summarize maxTimeGenerated = max(max_TimeGenerated) \r\n    );\r\nunion isfuzzy=true \r\n    (\r\n        _Im_NetworkSession(starttime=todatetime(maxSummarizedTime), endtime=now())\r\n\t  | where isnotempty(DstPortNumber) and NetworkDirection == \"Inbound\"\r\n\t  | summarize Instances=toint(count()) by toint(DstPortNumber)\r\n    ),\r\n    (\r\n        NetworkSummary_Protocol_CL\r\n        | where EventTime >= {TimeRange:start}\r\n\t  | where isnotempty(DstPortNumber) and NetworkDirection == \"Inbound\"\r\n\t  | summarize Instances=toint(sum(count_)) by DstPortNumber=toint(DstPortNumber)\r\n    )\r\n    | summarize Instances = sum(Instances) by DstPortNumber\r\n    | order by Instances\r\n    | take 10",
+                          "query": "let maxSummarizedTime = toscalar (\r\n    union isfuzzy=true \r\n        (\r\n            NetworkSummary_Protocol_CL\r\n                | where EventTime >= {TimeRange:start}\r\n                | summarize max_TimeGenerated=max(EventTime)\r\n                | extend max_TimeGenerated = datetime_add('minute',20,max_TimeGenerated)\r\n        ),\r\n        (\r\n            print({TimeRange:start})\r\n            | extend max_TimeGenerated = print_0\r\n            | project max_TimeGenerated\r\n        )\r\n        | summarize maxTimeGenerated = max(max_TimeGenerated) \r\n    );\r\nunion isfuzzy=true \r\n    (\r\n        _Im_NetworkSession(starttime=todatetime(maxSummarizedTime), endtime=now())\r\n\t  | where isnotempty(DstPortNumber) or NetworkDirection == \"Inbound\"\r\n\t  | summarize Instances=toint(count()) by toint(DstPortNumber)\r\n    ),\r\n    (\r\n        NetworkSummary_Protocol_CL\r\n        | where EventTime >= {TimeRange:start}\r\n\t  | where isnotempty(DstPortNumber) or NetworkDirection == \"Inbound\"\r\n\t  | summarize Instances=toint(sum(count_)) by DstPortNumber=toint(DstPortNumber)\r\n    )\r\n    | summarize Instances = sum(Instances) by DstPortNumber\r\n    | order by Instances\r\n    | take 10",
                           "size": 0,
                           "title": "Top 10 Destination Ports",
                           "exportFieldName": "DstPortNumber",
@@ -1423,7 +1474,7 @@
                         "type": 3,
                         "content": {
                           "version": "KqlItem/1.0",
-                          "query": "let maxSummarizedTime = toscalar (\r\n    union isfuzzy=true \r\n        (\r\n            NetworkSummary_Result_CL\r\n                | where EventTime >= {TimeRange:start}\r\n                | summarize max_TimeGenerated=max(EventTime)\r\n                | extend max_TimeGenerated = datetime_add('minute',10,max_TimeGenerated)\r\n        ),\r\n        (\r\n            print({TimeRange:start})\r\n            | extend max_TimeGenerated = print_0\r\n            | project max_TimeGenerated\r\n        )\r\n        | summarize maxTimeGenerated = max(max_TimeGenerated) \r\n    );\r\nunion isfuzzy=true \r\n    (\r\n        _Im_NetworkSession(starttime=todatetime(maxSummarizedTime), endtime=now())\r\n\t  | where NetworkDirection == \"Outbound\" and isnotempty(EventSeverity)\r\n        | summarize Instances=toint(count()) by EventSeverity\r\n    ),\r\n    (\r\n        NetworkSummary_Result_CL\r\n        | where EventTime >= {TimeRange:start}\r\n\t  | where NetworkDirection == \"Outbound\" and isnotempty(EventSeverity)\r\n        | summarize Instances=toint(sum(count_)) by EventSeverity\r\n    )\r\n    | summarize Instances = sum(Instances) by EventSeverity",
+                          "query": "let maxSummarizedTime = toscalar (\r\n    union isfuzzy=true \r\n        (\r\n            NetworkSummary_Result_CL\r\n                | where EventTime >= {TimeRange:start}\r\n                | summarize max_TimeGenerated=max(EventTime)\r\n                | extend max_TimeGenerated = datetime_add('minute',10,max_TimeGenerated)\r\n        ),\r\n        (\r\n            print({TimeRange:start})\r\n            | extend max_TimeGenerated = print_0\r\n            | project max_TimeGenerated\r\n        )\r\n        | summarize maxTimeGenerated = max(max_TimeGenerated) \r\n    );\r\nunion isfuzzy=true \r\n    (\r\n        _Im_NetworkSession(starttime=todatetime(maxSummarizedTime), endtime=now())\r\n\t  | where NetworkDirection == \"Outbound\" or isnotempty(EventSeverity)\r\n        | summarize Instances=toint(count()) by EventSeverity\r\n    ),\r\n    (\r\n        NetworkSummary_Result_CL\r\n        | where EventTime >= {TimeRange:start}\r\n\t  | where NetworkDirection == \"Outbound\" or isnotempty(EventSeverity)\r\n        | summarize Instances=toint(sum(count_)) by EventSeverity\r\n    )\r\n    | summarize Instances = sum(Instances) by EventSeverity",
                           "size": 1,
                           "title": "Outbound Traffic by Severity",
                           "timeContextFromParameter": "TimeRange",
@@ -1431,6 +1482,9 @@
                           "exportParameterName": "DstGeoCountry",
                           "queryType": 0,
                           "resourceType": "microsoft.operationalinsights/workspaces",
+                          "crossComponentResources": [
+                            "{Workspace}"
+                          ],
                           "visualization": "piechart"
                         },
                         "customWidth": "33",
@@ -1445,7 +1499,7 @@
                         "type": 3,
                         "content": {
                           "version": "KqlItem/1.0",
-                          "query": "let maxSummarizedTime = toscalar (\r\n    union isfuzzy=true \r\n        (\r\n            NetworkSummary_Result_CL\r\n                | where EventTime >= {TimeRange:start}\r\n                | summarize max_TimeGenerated=max(EventTime)\r\n                | extend max_TimeGenerated = datetime_add('minute',10,max_TimeGenerated)\r\n        ),\r\n        (\r\n            print({TimeRange:start})\r\n            | extend max_TimeGenerated = print_0\r\n            | project max_TimeGenerated\r\n        )\r\n        | summarize maxTimeGenerated = max(max_TimeGenerated) \r\n    );\r\nunion isfuzzy=true \r\n    (\r\n        _Im_NetworkSession(starttime=todatetime(maxSummarizedTime), endtime=now())\r\n\t  | where NetworkDirection == \"Outbound\" and isnotempty(DvcAction)\r\n        | summarize Instances=toint(count()) by DvcAction\r\n    ),\r\n    (\r\n        NetworkSummary_Result_CL\r\n        | where EventTime >= {TimeRange:start}\r\n\t  | where NetworkDirection == \"Outbound\" and isnotempty(DvcAction)\r\n        | summarize Instances=toint(sum(count_)) by DvcAction\r\n    )\r\n    | summarize Instances = sum(Instances) by DvcAction",
+                          "query": "let maxSummarizedTime = toscalar (\r\n    union isfuzzy=true \r\n        (\r\n            NetworkSummary_Result_CL\r\n                | where EventTime >= {TimeRange:start}\r\n                | summarize max_TimeGenerated=max(EventTime)\r\n                | extend max_TimeGenerated = datetime_add('minute',10,max_TimeGenerated)\r\n        ),\r\n        (\r\n            print({TimeRange:start})\r\n            | extend max_TimeGenerated = print_0\r\n            | project max_TimeGenerated\r\n        )\r\n        | summarize maxTimeGenerated = max(max_TimeGenerated) \r\n    );\r\nunion isfuzzy=true \r\n    (\r\n        _Im_NetworkSession(starttime=todatetime(maxSummarizedTime), endtime=now())\r\n\t  | where NetworkDirection == \"Outbound\" or isnotempty(DvcAction)\r\n        | summarize Instances=toint(count()) by DvcAction\r\n    ),\r\n    (\r\n        NetworkSummary_Result_CL\r\n        | where EventTime >= {TimeRange:start}\r\n\t  | where NetworkDirection == \"Outbound\" or isnotempty(DvcAction)\r\n        | summarize Instances=toint(sum(count_)) by DvcAction\r\n    )\r\n    | summarize Instances = sum(Instances) by DvcAction",
                           "size": 1,
                           "title": "Outbound Traffic by Device Action",
                           "timeContextFromParameter": "TimeRange",
@@ -1453,6 +1507,9 @@
                           "exportParameterName": "DstGeoCountry",
                           "queryType": 0,
                           "resourceType": "microsoft.operationalinsights/workspaces",
+                          "crossComponentResources": [
+                            "{Workspace}"
+                          ],
                           "visualization": "barchart"
                         },
                         "customWidth": "33",
@@ -1467,7 +1524,7 @@
                         "type": 3,
                         "content": {
                           "version": "KqlItem/1.0",
-                          "query": "let maxSummarizedTime = toscalar (\r\n    union isfuzzy=true \r\n        (\r\n            NetworkSummary_Result_CL\r\n                | where EventTime >= {TimeRange:start}\r\n                | summarize max_TimeGenerated=max(EventTime)\r\n                | extend max_TimeGenerated = datetime_add('minute',20,max_TimeGenerated)\r\n        ),\r\n        (\r\n            print({TimeRange:start})\r\n            | extend max_TimeGenerated = print_0\r\n            | project max_TimeGenerated\r\n        )\r\n        | summarize maxTimeGenerated = max(max_TimeGenerated) \r\n    );\r\nunion isfuzzy=true \r\n    (\r\n        _Im_NetworkSession(starttime=todatetime(maxSummarizedTime), endtime=now())\r\n\t  | where NetworkDirection == \"Outbound\" and isnotempty(EventResult)\r\n        | summarize Instances=toint(count()) by EventResult\r\n    ),\r\n    (\r\n        NetworkSummary_Result_CL\r\n        | where EventTime >= {TimeRange:start}\r\n\t  | where NetworkDirection == \"Outbound\" and isnotempty(EventResult)\r\n        | summarize Instances=toint(sum(count_)) by EventResult\r\n    )\r\n    | summarize Instances = sum(Instances) by EventResult",
+                          "query": "let maxSummarizedTime = toscalar (\r\n    union isfuzzy=true \r\n        (\r\n            NetworkSummary_Result_CL\r\n                | where EventTime >= {TimeRange:start}\r\n                | summarize max_TimeGenerated=max(EventTime)\r\n                | extend max_TimeGenerated = datetime_add('minute',20,max_TimeGenerated)\r\n        ),\r\n        (\r\n            print({TimeRange:start})\r\n            | extend max_TimeGenerated = print_0\r\n            | project max_TimeGenerated\r\n        )\r\n        | summarize maxTimeGenerated = max(max_TimeGenerated) \r\n    );\r\nunion isfuzzy=true \r\n    (\r\n        _Im_NetworkSession(starttime=todatetime(maxSummarizedTime), endtime=now())\r\n\t  | where NetworkDirection == \"Outbound\" or isnotempty(EventResult)\r\n        | summarize Instances=toint(count()) by EventResult\r\n    ),\r\n    (\r\n        NetworkSummary_Result_CL\r\n        | where EventTime >= {TimeRange:start}\r\n\t  | where NetworkDirection == \"Outbound\" or isnotempty(EventResult)\r\n        | summarize Instances=toint(sum(count_)) by EventResult\r\n    )\r\n    | summarize Instances = sum(Instances) by EventResult",
                           "size": 1,
                           "title": "Outbound Traffic by Event Result",
                           "timeContextFromParameter": "TimeRange",
@@ -1475,6 +1532,9 @@
                           "exportParameterName": "DstGeoCountry",
                           "queryType": 0,
                           "resourceType": "microsoft.operationalinsights/workspaces",
+                          "crossComponentResources": [
+                            "{Workspace}"
+                          ],
                           "visualization": "areachart",
                           "tileSettings": {
                             "showBorder": false,
@@ -1521,6 +1581,9 @@
                           "exportParameterName": "DstGeoCountry",
                           "queryType": 0,
                           "resourceType": "microsoft.operationalinsights/workspaces",
+                          "crossComponentResources": [
+                            "{Workspace}"
+                          ],
                           "visualization": "timechart",
                           "tileSettings": {
                             "showBorder": false,
@@ -1558,7 +1621,7 @@
                         "type": 3,
                         "content": {
                           "version": "KqlItem/1.0",
-                          "query": "let maxSummarizedTime = toscalar (\r\n    union isfuzzy=true \r\n        (\r\n            NetworkSummary_Country_CL\r\n                | where EventTime >= {TimeRange:start}\r\n                | summarize max_TimeGenerated=max(EventTime)\r\n                | extend max_TimeGenerated = datetime_add('minute',20,max_TimeGenerated)\r\n        ),\r\n        (\r\n            print({TimeRange:start})\r\n            | extend max_TimeGenerated = print_0\r\n            | project max_TimeGenerated\r\n        )\r\n        | summarize maxTimeGenerated = max(max_TimeGenerated) \r\n    );\r\nunion isfuzzy=true \r\n    (\r\n        _Im_NetworkSession(starttime=todatetime(maxSummarizedTime), endtime=now())\r\n\t  | where NetworkDirection == \"Outbound\" and isnotempty(DstGeoCountry)\r\n        | summarize Instances=toint(count()) by DstGeoCountry\r\n    ),\r\n    (\r\n        NetworkSummary_Country_CL\r\n        | where EventTime >= {TimeRange:start}\r\n\t  | where NetworkDirection == \"Outbound\" and isnotempty(DstGeoCountry)\r\n        | summarize Instances=toint(sum(count_)) by DstGeoCountry\r\n    )\r\n    | summarize Instances = sum(Instances) by DstGeoCountry\r\n    | order by Instances\r\n    | take 5",
+                          "query": "let maxSummarizedTime = toscalar (\r\n    union isfuzzy=true \r\n        (\r\n            NetworkSummary_Country_CL\r\n                | where EventTime >= {TimeRange:start}\r\n                | summarize max_TimeGenerated=max(EventTime)\r\n                | extend max_TimeGenerated = datetime_add('minute',20,max_TimeGenerated)\r\n        ),\r\n        (\r\n            print({TimeRange:start})\r\n            | extend max_TimeGenerated = print_0\r\n            | project max_TimeGenerated\r\n        )\r\n        | summarize maxTimeGenerated = max(max_TimeGenerated) \r\n    );\r\nunion isfuzzy=true \r\n    (\r\n        _Im_NetworkSession(starttime=todatetime(maxSummarizedTime), endtime=now())\r\n\t  | where NetworkDirection == \"Outbound\" or isnotempty(DstGeoCountry)\r\n        | summarize Instances=toint(count()) by DstGeoCountry\r\n    ),\r\n    (\r\n        NetworkSummary_Country_CL\r\n        | where EventTime >= {TimeRange:start}\r\n\t  | where NetworkDirection == \"Outbound\" or isnotempty(DstGeoCountry)\r\n        | summarize Instances=toint(sum(count_)) by DstGeoCountry\r\n    )\r\n    | summarize Instances = sum(Instances) by DstGeoCountry\r\n    | order by Instances\r\n    | take 5",
                           "size": 0,
                           "title": "Traffic by Destination Country",
                           "timeContextFromParameter": "TimeRange",
@@ -1566,6 +1629,9 @@
                           "exportParameterName": "DstGeoCountry",
                           "queryType": 0,
                           "resourceType": "microsoft.operationalinsights/workspaces",
+                          "crossComponentResources": [
+                            "{Workspace}"
+                          ],
                           "visualization": "map",
                           "mapSettings": {
                             "locInfo": "CountryRegion",
@@ -1595,12 +1661,15 @@
                         "type": 3,
                         "content": {
                           "version": "KqlItem/1.0",
-                          "query": "let maxSummarizedTime = toscalar (\r\n    union isfuzzy=true \r\n        (\r\n            NetworkSummary_Protocol_CL\r\n                | where EventTime >= {TimeRange:start}\r\n                | summarize max_TimeGenerated=max(EventTime)\r\n                | extend max_TimeGenerated = datetime_add('minute',20,max_TimeGenerated)\r\n        ),\r\n        (\r\n            print({TimeRange:start})\r\n            | extend max_TimeGenerated = print_0\r\n            | project max_TimeGenerated\r\n        )\r\n        | summarize maxTimeGenerated = max(max_TimeGenerated) \r\n    );\r\nunion isfuzzy=true \r\n    (\r\n        _Im_NetworkSession(starttime=todatetime(maxSummarizedTime), endtime=now())\r\n\t  | where NetworkDirection == \"Outbound\" and isnotempty(NetworkProtocol)\r\n        | summarize Instances=toint(count()) by NetworkProtocol, bin(TimeGenerated,1h)\r\n    ),\r\n    (\r\n        NetworkSummary_Protocol_CL\r\n        | where EventTime >= {TimeRange:start}\r\n\t  | where NetworkDirection == \"Outbound\" and isnotempty(NetworkProtocol)\r\n        | summarize Instances=toint(sum(count_)) by NetworkProtocol, TimeGenerated=bin(EventTime,1h)\r\n    )\r\n    | summarize Instances = sum(Instances) by NetworkProtocol, bin(TimeGenerated,1h)",
+                          "query": "let maxSummarizedTime = toscalar (\r\n    union isfuzzy=true \r\n        (\r\n            NetworkSummary_Protocol_CL\r\n                | where EventTime >= {TimeRange:start}\r\n                | summarize max_TimeGenerated=max(EventTime)\r\n                | extend max_TimeGenerated = datetime_add('minute',20,max_TimeGenerated)\r\n        ),\r\n        (\r\n            print({TimeRange:start})\r\n            | extend max_TimeGenerated = print_0\r\n            | project max_TimeGenerated\r\n        )\r\n        | summarize maxTimeGenerated = max(max_TimeGenerated) \r\n    );\r\nunion isfuzzy=true \r\n    (\r\n        _Im_NetworkSession(starttime=todatetime(maxSummarizedTime), endtime=now())\r\n\t  | where NetworkDirection == \"Outbound\" or isnotempty(NetworkProtocol)\r\n        | summarize Instances=toint(count()) by NetworkProtocol, bin(TimeGenerated,1h)\r\n    ),\r\n    (\r\n        NetworkSummary_Protocol_CL\r\n        | where EventTime >= {TimeRange:start}\r\n\t  | where NetworkDirection == \"Outbound\" or isnotempty(NetworkProtocol)\r\n        | summarize Instances=toint(sum(count_)) by NetworkProtocol, TimeGenerated=bin(EventTime,1h)\r\n    )\r\n    | summarize Instances = sum(Instances) by NetworkProtocol, bin(TimeGenerated,1h)",
                           "size": 0,
                           "title": "Traffic by Protocol",
                           "timeContextFromParameter": "TimeRange",
                           "queryType": 0,
                           "resourceType": "microsoft.operationalinsights/workspaces",
+                          "crossComponentResources": [
+                            "{Workspace}"
+                          ],
                           "visualization": "timechart",
                           "tileSettings": {
                             "showBorder": false,
@@ -1642,12 +1711,15 @@
                         "type": 3,
                         "content": {
                           "version": "KqlItem/1.0",
-                          "query": "let maxSummarizedTime = toscalar (\r\n    union isfuzzy=true \r\n        (\r\n            NetworkSummary_Rule_CL\r\n                | where EventTime >= {TimeRange:start}\r\n                | summarize max_TimeGenerated=max(EventTime)\r\n                | extend max_TimeGenerated = datetime_add('minute',10,max_TimeGenerated)\r\n        ),\r\n        (\r\n            print({TimeRange:start})\r\n            | extend max_TimeGenerated = print_0\r\n            | project max_TimeGenerated\r\n        )\r\n        | summarize maxTimeGenerated = max(max_TimeGenerated) \r\n    );\r\nunion isfuzzy=true \r\n    (\r\n        _Im_NetworkSession(starttime=todatetime(maxSummarizedTime), endtime=now())\r\n\t  | where isnotempty(Rule) and NetworkDirection == \"Outbound\"\r\n        | summarize Instances=toint(count()) by Rule, bin(TimeGenerated,1h)\r\n    ),\r\n    (\r\n        NetworkSummary_Rule_CL\r\n        | where EventTime >= {TimeRange:start}\r\n\t  | where isnotempty(Rule) and NetworkDirection == \"Outbound\"\r\n        | summarize Instances=toint(sum(count_)) by Rule, TimeGenerated=bin(EventTime,1h)\r\n    )\r\n    | summarize Instances = sum(Instances) by Rule, bin(TimeGenerated, 1h)\r\n    | order by Instances\r\n    | take 5",
+                          "query": "let maxSummarizedTime = toscalar (\r\n    union isfuzzy=true \r\n        (\r\n            NetworkSummary_Rule_CL\r\n                | where EventTime >= {TimeRange:start}\r\n                | summarize max_TimeGenerated=max(EventTime)\r\n                | extend max_TimeGenerated = datetime_add('minute',10,max_TimeGenerated)\r\n        ),\r\n        (\r\n            print({TimeRange:start})\r\n            | extend max_TimeGenerated = print_0\r\n            | project max_TimeGenerated\r\n        )\r\n        | summarize maxTimeGenerated = max(max_TimeGenerated) \r\n    );\r\nunion isfuzzy=true \r\n    (\r\n        _Im_NetworkSession(starttime=todatetime(maxSummarizedTime), endtime=now())\r\n\t  | where isnotempty(Rule) or NetworkDirection == \"Outbound\"\r\n        | summarize Instances=toint(count()) by Rule, bin(TimeGenerated,1h)\r\n    ),\r\n    (\r\n        NetworkSummary_Rule_CL\r\n        | where EventTime >= {TimeRange:start}\r\n\t  | where isnotempty(Rule) or NetworkDirection == \"Outbound\"\r\n        | summarize Instances=toint(sum(count_)) by Rule, TimeGenerated=bin(EventTime,1h)\r\n    )\r\n    | summarize Instances = sum(Instances) by Rule, bin(TimeGenerated, 1h)\r\n    | order by Instances\r\n    | take 5",
                           "size": 0,
                           "title": "Traffic by Firewall Rule",
                           "timeContextFromParameter": "TimeRange",
                           "queryType": 0,
                           "resourceType": "microsoft.operationalinsights/workspaces",
+                          "crossComponentResources": [
+                            "{Workspace}"
+                          ],
                           "visualization": "timechart",
                           "gridSettings": {
                             "formatters": [
@@ -1675,7 +1747,7 @@
                         "type": 3,
                         "content": {
                           "version": "KqlItem/1.0",
-                          "query": "let maxSummarizedTime = toscalar (\n    union isfuzzy=true \n        (\n            NetworkSummary_IP_CL\n                | where EventTime >= {TimeRange:start}\n                | summarize max_TimeGenerated=max(EventTime)\n                | extend max_TimeGenerated = datetime_add('hour',1,max_TimeGenerated)\n        ),\n        (\n            print({TimeRange:start})\n            | extend max_TimeGenerated = print_0\n            | project max_TimeGenerated\n        )\n        | summarize maxTimeGenerated = max(max_TimeGenerated) \n    );\nunion isfuzzy=true \n    (\n        _Im_NetworkSession(starttime=todatetime(maxSummarizedTime), endtime=now())\n\t  | where NetworkDirection == \"Outbound\"\n\t  | where isnotempty(SrcIpAddr) and isnotempty(DstIpAddr)\n\t  | summarize NumberOfConnections=toint(count()) by SrcIpAddr, DstIpAddr\n    ),\n    (\n        NetworkSummary_IP_CL\n        | where EventTime >= {TimeRange:start}\n\t  | where NetworkDirection == \"Outbound\"\n\t  | where isnotempty(SrcIpAddr) and isnotempty(DstIpAddr)\n\t  | summarize NumberOfConnections=toint(sum(count_)) by SrcIpAddr, DstIpAddr\n    )\n    | summarize NumberOfConnections = sum(NumberOfConnections) by SrcIpAddr, DstIpAddr\n    | order by NumberOfConnections\n    | take 10",
+                          "query": "let maxSummarizedTime = toscalar (\n    union isfuzzy=true \n        (\n            NetworkSummary_IP_CL\n                | where EventTime >= {TimeRange:start}\n                | summarize max_TimeGenerated=max(EventTime)\n                | extend max_TimeGenerated = datetime_add('hour',1,max_TimeGenerated)\n        ),\n        (\n            print({TimeRange:start})\n            | extend max_TimeGenerated = print_0\n            | project max_TimeGenerated\n        )\n        | summarize maxTimeGenerated = max(max_TimeGenerated) \n    );\nunion isfuzzy=true \n    (\n        _Im_NetworkSession(starttime=todatetime(maxSummarizedTime), endtime=now())\n\t  | where NetworkDirection == \"Outbound\"\n\t  | where isnotempty(SrcIpAddr) or isnotempty(DstIpAddr)\n\t  | summarize NumberOfConnections=toint(count()) by SrcIpAddr, DstIpAddr\n    ),\n    (\n        NetworkSummary_IP_CL\n        | where EventTime >= {TimeRange:start}\n\t  | where NetworkDirection == \"Outbound\"\n\t  | where isnotempty(SrcIpAddr) or isnotempty(DstIpAddr)\n\t  | summarize NumberOfConnections=toint(sum(count_)) by SrcIpAddr, DstIpAddr\n    )\n    | summarize NumberOfConnections = sum(NumberOfConnections) by SrcIpAddr, DstIpAddr\n    | order by NumberOfConnections\n    | take 10",
                           "size": 0,
                           "title": "Top 10 Connections",
                           "timeContextFromParameter": "TimeRange",
@@ -1693,6 +1765,9 @@
                           ],
                           "queryType": 0,
                           "resourceType": "microsoft.operationalinsights/workspaces",
+                          "crossComponentResources": [
+                            "{Workspace}"
+                          ],
                           "gridSettings": {
                             "formatters": [
                               {
@@ -1724,7 +1799,7 @@
                         "type": 3,
                         "content": {
                           "version": "KqlItem/1.0",
-                          "query": "let maxSummarizedTime = toscalar (\r\n    union isfuzzy=true \r\n        (\r\n            NetworkSummary_IP_CL\r\n                | where EventTime >= {TimeRange:start}\r\n                | summarize max_TimeGenerated=max(EventTime)\r\n                | extend max_TimeGenerated = datetime_add('hour',1,max_TimeGenerated)\r\n        ),\r\n        (\r\n            print({TimeRange:start})\r\n            | extend max_TimeGenerated = print_0\r\n            | project max_TimeGenerated\r\n        )\r\n        | summarize maxTimeGenerated = max(max_TimeGenerated) \r\n    );\r\nunion isfuzzy=true \r\n    (\r\n        _Im_NetworkSession(starttime=todatetime(maxSummarizedTime), endtime=now())\r\n\t  | where NetworkDirection == \"Outbound\"\r\n\t  | where isnotempty(SrcIpAddr)\r\n\t  | summarize Instances=toint(count()) by SrcIpAddr\r\n    ),\r\n    (\r\n        NetworkSummary_IP_CL\r\n        | where EventTime >= {TimeRange:start}\r\n\t  | where NetworkDirection == \"Outbound\"\r\n\t  | where isnotempty(SrcIpAddr)\r\n\t  | summarize Instances=toint(sum(count_)) by SrcIpAddr\r\n    )\r\n    | summarize Instances = sum(Instances) by SrcIpAddr\r\n    | order by Instances\r\n    | take 10",
+                          "query": "let maxSummarizedTime = toscalar (\r\n    union isfuzzy=true \r\n        (\r\n            NetworkSummary_IP_CL\r\n                | where EventTime >= {TimeRange:start}\r\n                | summarize max_TimeGenerated=max(EventTime)\r\n                | extend max_TimeGenerated = datetime_add('hour',1,max_TimeGenerated)\r\n        ),\r\n        (\r\n            print({TimeRange:start})\r\n            | extend max_TimeGenerated = print_0\r\n            | project max_TimeGenerated\r\n        )\r\n        | summarize maxTimeGenerated = max(max_TimeGenerated) \r\n    );\r\nunion isfuzzy=true \r\n    (\r\n        _Im_NetworkSession(starttime=todatetime(maxSummarizedTime), endtime=now())\r\n\t  | where NetworkDirection == \"Outbound\"\r\n\t  or  isnotempty(SrcIpAddr)\r\n\t  | summarize Instances=toint(count()) by SrcIpAddr\r\n    ),\r\n    (\r\n        NetworkSummary_IP_CL\r\n        | where EventTime >= {TimeRange:start}\r\n\t  | where NetworkDirection == \"Outbound\"\r\n\t  or  isnotempty(SrcIpAddr)\r\n\t  | summarize Instances=toint(sum(count_)) by SrcIpAddr\r\n    )\r\n    | summarize Instances = sum(Instances) by SrcIpAddr\r\n    | order by Instances\r\n    | take 10",
                           "size": 0,
                           "title": "Top 10 Source IP",
                           "timeContextFromParameter": "TimeRange",
@@ -1732,6 +1807,9 @@
                           "exportParameterName": "SrcIpAddr",
                           "queryType": 0,
                           "resourceType": "microsoft.operationalinsights/workspaces",
+                          "crossComponentResources": [
+                            "{Workspace}"
+                          ],
                           "visualization": "table",
                           "gridSettings": {
                             "formatters": [
@@ -1783,7 +1861,7 @@
                         "type": 3,
                         "content": {
                           "version": "KqlItem/1.0",
-                          "query": "let maxSummarizedTime = toscalar (\r\n    union isfuzzy=true \r\n        (\r\n            NetworkSummary_Source_Port_CL\r\n                | where EventTime >= {TimeRange:start}\r\n                | summarize max_TimeGenerated=max(EventTime)\r\n                | extend max_TimeGenerated = datetime_add('hour',1,max_TimeGenerated)\r\n        ),\r\n        (\r\n            print({TimeRange:start})\r\n            | extend max_TimeGenerated = print_0\r\n            | project max_TimeGenerated\r\n        )\r\n        | summarize maxTimeGenerated = max(max_TimeGenerated) \r\n    );\r\nunion isfuzzy=true \r\n    (\r\n        _Im_NetworkSession(starttime=todatetime(maxSummarizedTime), endtime=now())\r\n\t  | where isnotempty(SrcPortNumber) and NetworkDirection == \"Outbound\"\r\n\t  | summarize Instances=toint(count()) by toint(SrcPortNumber)\r\n    ),\r\n    (\r\n        NetworkSummary_Source_Port_CL\r\n        | where EventTime >= {TimeRange:start}\r\n\t  | where isnotnull(SrcPortNumber) and NetworkDirection == \"Outbound\"\r\n\t  | summarize Instances=toint(sum(count_)) by SrcPortNumber=toint(SrcPortNumber)\r\n    )\r\n    | summarize Instances = sum(Instances) by SrcPortNumber\r\n    | order by Instances\r\n    | take 10",
+                          "query": "let maxSummarizedTime = toscalar (\r\n    union isfuzzy=true \r\n        (\r\n            NetworkSummary_Source_Port_CL\r\n                | where EventTime >= {TimeRange:start}\r\n                | summarize max_TimeGenerated=max(EventTime)\r\n                | extend max_TimeGenerated = datetime_add('hour',1,max_TimeGenerated)\r\n        ),\r\n        (\r\n            print({TimeRange:start})\r\n            | extend max_TimeGenerated = print_0\r\n            | project max_TimeGenerated\r\n        )\r\n        | summarize maxTimeGenerated = max(max_TimeGenerated) \r\n    );\r\nunion isfuzzy=true \r\n    (\r\n        _Im_NetworkSession(starttime=todatetime(maxSummarizedTime), endtime=now())\r\n\t  | where isnotempty(SrcPortNumber) or NetworkDirection == \"Outbound\"\r\n\t  | summarize Instances=toint(count()) by toint(SrcPortNumber)\r\n    ),\r\n    (\r\n        NetworkSummary_Source_Port_CL\r\n        | where EventTime >= {TimeRange:start}\r\n\t  | where isnotnull(SrcPortNumber) or NetworkDirection == \"Outbound\"\r\n\t  | summarize Instances=toint(sum(count_)) by SrcPortNumber=toint(SrcPortNumber)\r\n    )\r\n    | summarize Instances = sum(Instances) by SrcPortNumber\r\n    | order by Instances\r\n    | take 10",
                           "size": 0,
                           "title": "Top 10 Source Ports",
                           "timeContextFromParameter": "TimeRange",
@@ -1791,6 +1869,9 @@
                           "exportParameterName": "SrcPortNumber",
                           "queryType": 0,
                           "resourceType": "microsoft.operationalinsights/workspaces",
+                          "crossComponentResources": [
+                            "{Workspace}"
+                          ],
                           "visualization": "table",
                           "gridSettings": {
                             "formatters": [
@@ -1856,7 +1937,7 @@
                         "type": 3,
                         "content": {
                           "version": "KqlItem/1.0",
-                          "query": "let maxSummarizedTime = toscalar (\r\n    union isfuzzy=true \r\n        (\r\n            NetworkSummary_IP_CL\r\n                | where EventTime >= {TimeRange:start}\r\n                | summarize max_TimeGenerated=max(EventTime)\r\n                | extend max_TimeGenerated = datetime_add('hour',1,max_TimeGenerated)\r\n        ),\r\n        (\r\n            print({TimeRange:start})\r\n            | extend max_TimeGenerated = print_0\r\n            | project max_TimeGenerated\r\n        )\r\n        | summarize maxTimeGenerated = max(max_TimeGenerated) \r\n    );\r\nunion isfuzzy=true \r\n    (\r\n        _Im_NetworkSession(starttime=todatetime(maxSummarizedTime), endtime=now())\r\n\t  | where NetworkDirection == \"Outbound\"\r\n\t  | where isnotempty(DstIpAddr)\r\n\t  | summarize Instances=toint(count()) by DstIpAddr\r\n    ),\r\n    (\r\n        NetworkSummary_IP_CL\r\n        | where EventTime >= {TimeRange:start}\r\n\t    | where NetworkDirection == \"Outbound\"\r\n\t    | where isnotempty(DstIpAddr)\r\n\t    | summarize Instances=toint(sum(count_)) by DstIpAddr\r\n    )\r\n    | summarize Instances = sum(Instances) by DstIpAddr\r\n    | order by Instances\r\n    | take 10",
+                          "query": "let maxSummarizedTime = toscalar (\r\n    union isfuzzy=true \r\n        (\r\n            NetworkSummary_IP_CL\r\n                | where EventTime >= {TimeRange:start}\r\n                | summarize max_TimeGenerated=max(EventTime)\r\n                | extend max_TimeGenerated = datetime_add('hour',1,max_TimeGenerated)\r\n        ),\r\n        (\r\n            print({TimeRange:start})\r\n            | extend max_TimeGenerated = print_0\r\n            | project max_TimeGenerated\r\n        )\r\n        | summarize maxTimeGenerated = max(max_TimeGenerated) \r\n    );\r\nunion isfuzzy=true \r\n    (\r\n        _Im_NetworkSession(starttime=todatetime(maxSummarizedTime), endtime=now())\r\n\t  | where NetworkDirection == \"Outbound\"\r\n\t  or  isnotempty(DstIpAddr)\r\n\t  | summarize Instances=toint(count()) by DstIpAddr\r\n    ),\r\n    (\r\n        NetworkSummary_IP_CL\r\n        | where EventTime >= {TimeRange:start}\r\n\t    | where NetworkDirection == \"Outbound\"\r\n\t    or  isnotempty(DstIpAddr)\r\n\t    | summarize Instances=toint(sum(count_)) by DstIpAddr\r\n    )\r\n    | summarize Instances = sum(Instances) by DstIpAddr\r\n    | order by Instances\r\n    | take 10",
                           "size": 0,
                           "title": "Top 10 Destination IP",
                           "timeContextFromParameter": "TimeRange",
@@ -1864,6 +1945,9 @@
                           "exportParameterName": "DstIpAddr",
                           "queryType": 0,
                           "resourceType": "microsoft.operationalinsights/workspaces",
+                          "crossComponentResources": [
+                            "{Workspace}"
+                          ],
                           "visualization": "table",
                           "gridSettings": {
                             "formatters": [
@@ -1912,7 +1996,7 @@
                         "type": 3,
                         "content": {
                           "version": "KqlItem/1.0",
-                          "query": "let maxSummarizedTime = toscalar (\r\n    union isfuzzy=true \r\n        (\r\n            NetworkSummary_Protocol_CL\r\n                | where EventTime >= {TimeRange:start}\r\n                | summarize max_TimeGenerated=max(EventTime)\r\n                | extend max_TimeGenerated = datetime_add('minute',10,max_TimeGenerated)\r\n        ),\r\n        (\r\n            print({TimeRange:start})\r\n            | extend max_TimeGenerated = print_0\r\n            | project max_TimeGenerated\r\n        )\r\n        | summarize maxTimeGenerated = max(max_TimeGenerated) \r\n    );\r\nunion isfuzzy=true \r\n    (\r\n        _Im_NetworkSession(starttime=todatetime(maxSummarizedTime), endtime=now())\r\n\t  | where isnotempty(DstPortNumber) and NetworkDirection == \"Outbound\"\r\n\t  | summarize Instances=toint(count()) by toint(DstPortNumber)\r\n    ),\r\n    (\r\n        NetworkSummary_Protocol_CL\r\n        | where EventTime >= {TimeRange:start}\r\n\t  | where isnotnull(DstPortNumber) and NetworkDirection == \"Outbound\"\r\n\t  | summarize Instances=toint(sum(count_)) by DstPortNumber=toint(DstPortNumber)\r\n    )\r\n    | summarize Instances = sum(Instances) by DstPortNumber\r\n    | order by Instances\r\n    | take 10",
+                          "query": "let maxSummarizedTime = toscalar (\r\n    union isfuzzy=true \r\n        (\r\n            NetworkSummary_Protocol_CL\r\n                | where EventTime >= {TimeRange:start}\r\n                | summarize max_TimeGenerated=max(EventTime)\r\n                | extend max_TimeGenerated = datetime_add('minute',10,max_TimeGenerated)\r\n        ),\r\n        (\r\n            print({TimeRange:start})\r\n            | extend max_TimeGenerated = print_0\r\n            | project max_TimeGenerated\r\n        )\r\n        | summarize maxTimeGenerated = max(max_TimeGenerated) \r\n    );\r\nunion isfuzzy=true \r\n    (\r\n        _Im_NetworkSession(starttime=todatetime(maxSummarizedTime), endtime=now())\r\n\t  | where isnotempty(DstPortNumber) or NetworkDirection == \"Outbound\"\r\n\t  | summarize Instances=toint(count()) by toint(DstPortNumber)\r\n    ),\r\n    (\r\n        NetworkSummary_Protocol_CL\r\n        | where EventTime >= {TimeRange:start}\r\n\t  | where isnotnull(DstPortNumber) or  NetworkDirection == \"Outbound\"\r\n\t  | summarize Instances=toint(sum(count_)) by DstPortNumber=toint(DstPortNumber)\r\n    )\r\n    | summarize Instances = sum(Instances) by DstPortNumber\r\n    | order by Instances\r\n    | take 10",
                           "size": 0,
                           "title": "Top 10 Destination Ports",
                           "timeContextFromParameter": "TimeRange",
@@ -1920,6 +2004,9 @@
                           "exportParameterName": "DstPortNumber",
                           "queryType": 0,
                           "resourceType": "microsoft.operationalinsights/workspaces",
+                          "crossComponentResources": [
+                            "{Workspace}"
+                          ],
                           "visualization": "table",
                           "gridSettings": {
                             "formatters": [
@@ -2775,7 +2862,7 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "let maxSummarizedTime = toscalar (\r\n    union isfuzzy=true \r\n        (\r\n            NetworkSummary_Threat_CL\r\n                | where EventTime >= {TimeRange:start}\r\n                | summarize max_TimeGenerated=max(EventTime)\r\n                | extend max_TimeGenerated = datetime_add('minute',20,max_TimeGenerated)\r\n        ),\r\n        (\r\n            print({TimeRange:start})\r\n            | extend max_TimeGenerated = print_0\r\n            | project max_TimeGenerated\r\n        )\r\n        | summarize maxTimeGenerated = max(max_TimeGenerated) \r\n    );\r\nlet distinctThreatCategory = \r\nunion isfuzzy=true \r\n    (\r\n        _Im_NetworkSession(starttime=todatetime(maxSummarizedTime),endtime=now())\r\n\t\t| where isnotempty(ThreatCategory)\r\n    ),\r\n    (  \r\n        NetworkSummary_Threat_CL\r\n\t\t| where isnotempty(ThreatCategory)\r\n\t\t| extend ThreatCategory = ThreatCategory\r\n    )\r\n    | summarize Count=dcount(ThreatCategory)\r\n    | extend Product = \"Distinct Threat Categories\", orderNum = 1\r\n;\r\nlet distinctThreats = \r\nunion isfuzzy=true \r\n    (\r\n        _Im_NetworkSession(starttime=todatetime(maxSummarizedTime),endtime=now())\r\n        | extend Threat = coalesce(ThreatId,ThreatName)\r\n\t\t| where isnotempty(Threat)\r\n    ),\r\n    (  \r\n        NetworkSummary_Threat_CL\r\n\t\t| where isnotempty(Threat)\r\n    )\r\n    | summarize Count=dcount(Threat)\r\n    | extend Product = \"Distinct Threats\", orderNum = 2\r\n;\r\nunion distinctThreatCategory, distinctThreats\r\n| order by orderNum asc",
+              "query": "let maxSummarizedTime = toscalar (\r\n    union isfuzzy=true \r\n        (\r\n            NetworkSummary_Threat_CL\r\n                | where EventTime >= {TimeRange:start}\r\n                | summarize max_TimeGenerated=max(EventTime)\r\n                | extend max_TimeGenerated = datetime_add('minute',20,max_TimeGenerated)\r\n        ),\r\n        (\r\n            print({TimeRange:start})\r\n            | extend max_TimeGenerated = print_0\r\n            | project max_TimeGenerated\r\n        )\r\n        | summarize maxTimeGenerated = max(max_TimeGenerated) \r\n    );\r\nlet distinctThreatCategory = \r\nunion isfuzzy=true \r\n    (\r\n        _Im_NetworkSession(starttime=todatetime(maxSummarizedTime),endtime=now())\r\n\t\t| where isnotempty(ThreatCategory)\r\n    ),\r\n    (  \r\n        NetworkSummary_Threat_CL\r\n\t\t| where isnotempty(ThreatCategory)\r\n\t\t| extend ThreatCategory = ThreatCategory\r\n    )\r\n    | summarize Count=dcount(ThreatCategory)\r\n    | extend Product = \"Distinct Threat Categories\", orderNum = 1\r\n;\r\nlet distinctThreats = \r\nunion isfuzzy=true \r\n    (\r\n        _Im_NetworkSession(starttime=todatetime(maxSummarizedTime),endtime=now())\r\n        | extend Threat = coalesce(ThreatId,ThreatName)\r\n\t\t| where isnotempty(Threat)\r\n    ),\r\n    (  \r\n        NetworkSummary_Threat_CL\r\n\t\t| where isnotempty(Threat)\r\n    )\r\n    | summarize Count=dcount(Threat)\r\n    | extend Product = \"Distinct Threats\", orderNum = 2\r\n;\r\nunion distinctThreatCategory, distinctThreats\r\n| extend Warning = iif (Count == 0, \"This product does NOT support, these reports\", \"\")\r\n| order by orderNum asc",
               "size": 4,
               "timeContextFromParameter": "TimeRange",
               "queryType": 0,
@@ -2840,6 +2927,9 @@
                     },
                     "emptyValCustomText": "0"
                   }
+                },
+                "secondaryContent": {
+                  "columnMatch": "Warning"
                 },
                 "showBorder": true,
                 "sortCriteriaField": "Count",
@@ -3136,25 +3226,6 @@
                   "value": null
                 },
                 {
-                  "id": "01449bd8-a147-48c7-9c10-72c3b2014817",
-                  "version": "KqlParameterItem/1.0",
-                  "name": "SearchIP",
-                  "label": "Search IP",
-                  "type": 1,
-                  "description": "Enter the IP to be investigated, or select a IP from either of the SHOW drop downs",
-                  "isRequired": true,
-                  "query": "resources\r\n//| extend showIp = iif(isempty('{showSrcIpAddr}'),'','{showSrcIpAddr}')\r\n//| extend showIp2 = iif(isempty('{showDstIpAddr}'),'','{showDstIpAddr}')\r\n//| distinct showIp, showIp2\r\n| extend showIp = coalesce(\r\n        iif(isempty('{showSrcIpAddr}'),  '', '{showSrcIpAddr}'),\r\n        iif(isempty('{showDstIpAddr}'), '', '{showDstIpAddr}')\r\n    )\r\n| distinct showIp",
-                  "crossComponentResources": [
-                    "{Workspace}"
-                  ],
-                  "timeContext": {
-                    "durationMs": 0
-                  },
-                  "timeContextFromParameter": "TimeRange",
-                  "queryType": 1,
-                  "resourceType": "microsoft.resourcegraph/resources"
-                },
-                {
                   "id": "ed388334-a584-439a-bfcb-7351528ee0ff",
                   "version": "KqlParameterItem/1.0",
                   "name": "showValid_TI_IPaddr",
@@ -3173,10 +3244,29 @@
                   "queryType": 0,
                   "resourceType": "microsoft.operationalinsights/workspaces",
                   "value": null
+                },
+                {
+                  "id": "01449bd8-a147-48c7-9c10-72c3b2014817",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "SearchIP",
+                  "label": "Search IP",
+                  "type": 1,
+                  "description": "Enter the IP to be investigated, or select a IP from either of the SHOW drop downs",
+                  "isRequired": true,
+                  "query": "resources\r\n| extend showIp = coalesce(\r\n        iif(isempty('{showSrcIpAddr}'),  '', '{showSrcIpAddr}'),\r\n        iif(isempty('{showDstIpAddr}'), '', '{showDstIpAddr}'),\r\n        iif(isempty('{showValid_TI_IPaddr}'), '', '{showValid_TI_IPaddr}')\r\n    )\r\n| distinct showIp",
+                  "crossComponentResources": [
+                    "{Workspace}"
+                  ],
+                  "timeContext": {
+                    "durationMs": 0
+                  },
+                  "timeContextFromParameter": "TimeRange",
+                  "queryType": 1,
+                  "resourceType": "microsoft.operationalinsights/workspaces"
                 }
               ],
               "style": "pills",
-              "queryType": 0,
+              "queryType": 1,
               "resourceType": "microsoft.operationalinsights/workspaces"
             },
             "name": "parameters - 12"
@@ -3459,9 +3549,6 @@
       },
       "name": "Group - IP Investigate"
     }
-  ],
-  "fallbackResourceIds": [
-    "/subscriptions/4defa7d0-bc3a-4935-a1e6-e58406cf75e2/resourcegroups/qc-prod-rg/providers/microsoft.operationalinsights/workspaces/qc-prod"
   ],
   "fromTemplateId": "sentinel-PaloAltoOverview",
   "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
