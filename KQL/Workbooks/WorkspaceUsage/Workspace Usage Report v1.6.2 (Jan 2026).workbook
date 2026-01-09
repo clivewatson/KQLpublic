@@ -5,9 +5,6 @@
       "type": 9,
       "content": {
         "version": "KqlParameterItem/1.0",
-        "crossComponentResources": [
-          "{Workspace}"
-        ],
         "parameters": [
           {
             "id": "ccd5adcd-8d59-4cfe-99ec-98075de2e253",
@@ -38,7 +35,8 @@
             },
             "queryType": 1,
             "resourceType": "microsoft.resourcegraph/resources",
-            "label": "☁️ Subscription"
+            "label": "☁️ Subscription",
+            "value": null
           },
           {
             "id": "e94aafa3-c5d9-4523-89f0-4e87aa754511",
@@ -51,7 +49,7 @@
             "crossComponentResources": [
               "{Subscription}"
             ],
-            "value": null,
+            "value": "",
             "typeSettings": {
               "resourceTypeFilter": {
                 "microsoft.operationalinsights/workspaces": true
@@ -958,7 +956,7 @@
               "size": 0,
               "title": " Status for {TimeRange:label}, Billable Tables have an  average use of: {GBperday} GB per day, Billable Tables have a Total size of {GBtotal} GB.  Click row for more details",
               "exportFieldName": "TableName",
-              "exportParameterName": "exportTable",
+              "exportParameterName": "Table",
               "showExportToExcel": true,
               "queryType": 7,
               "gridSettings": {
@@ -1036,15 +1034,15 @@
                 "filter": true,
                 "sortBy": [
                   {
-                    "itemKey": "solution_Names",
-                    "sortOrder": 1
+                    "itemKey": "$gen_bar_Table Size_1",
+                    "sortOrder": 2
                   }
                 ]
               },
               "sortBy": [
                 {
-                  "itemKey": "solution_Names",
-                  "sortOrder": 1
+                  "itemKey": "$gen_bar_Table Size_1",
+                  "sortOrder": 2
                 }
               ]
             },
@@ -1055,9 +1053,9 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "let getdata_=\r\nexternaldata (\r\n    Table:string, solution_Name:string, solution_Folder:string, solution_publisher_id:string, solution_offer_id:string,\r\n    solution_first_publish_date:datetime, solution_last_publish_date:datetime, solution_version:string,\r\n    solution_support_name:string, solution_support_tier:string, solution_support_link:string,\r\n    solution_author_name:string, solution_categories:string, connector_id:string, connector_publisher:string,\r\n    connector_title:string, connector_description:string, connector_instruction_steps:string, connector_permissions:string, connector_files:string, is_unique:bool\r\n)\r\n[\r\n @\"https://raw.githubusercontent.com/Azure/Azure-Sentinel/refs/heads/master/Tools/Solutions%20Analyzer/solutions_connectors_tables_mapping.csv\"\r\n]\r\nwith (format=\"csv\", ignoreFirstRecord=true);\r\ngetdata_\r\n| where Table == '{exportTable}'\r\n| project-reorder Table, connector_title\r\n",
+              "query": "let getdata_=\r\nexternaldata (\r\n    Table:string, solution_Name:string, solution_Folder:string, solution_publisher_id:string, solution_offer_id:string,\r\n    solution_first_publish_date:datetime, solution_last_publish_date:datetime, solution_version:string,\r\n    solution_support_name:string, solution_support_tier:string, solution_support_link:string,\r\n    solution_author_name:string, solution_categories:string, connector_id:string, connector_publisher:string,\r\n    connector_title:string, connector_description:string, connector_instruction_steps:string, connector_permissions:string, connector_files:string, is_unique:bool\r\n)\r\n[\r\n @\"https://raw.githubusercontent.com/Azure/Azure-Sentinel/refs/heads/master/Tools/Solutions%20Analyzer/solutions_connectors_tables_mapping.csv\"\r\n]\r\nwith (format=\"csv\", ignoreFirstRecord=true);\r\ngetdata_\r\n| where Table == '{Table}'\r\n| project-reorder Table, connector_title\r\n",
               "size": 0,
-              "title": "{exportTable}",
+              "title": "{Table}",
               "timeContextFromParameter": "TimeRange",
               "queryType": 0,
               "resourceType": "microsoft.operationalinsights/workspaces",
@@ -1116,7 +1114,7 @@
               ]
             },
             "conditionalVisibility": {
-              "parameterName": "exportTable",
+              "parameterName": "Table",
               "comparison": "isNotEqualTo"
             },
             "name": "query - 13"
@@ -13857,12 +13855,11 @@
                   "version": "KqlParameterItem/1.0",
                   "name": "countDCR",
                   "type": 1,
-                  "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"/subscriptions/{Subscription:Id}/providers/Microsoft.Insights/dataCollectionRules?api-version=2021-04-01\",\"urlParams\":[],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$..value\",\"columns\":[{\"path\":\"kind\",\"columnid\":\"kind\"}]}}]}",
+                  "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"/subscriptions/{Subscription:Id}/providers/Microsoft.Insights/dataCollectionRules?api-version=2024-03-11\",\"urlParams\":[],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$..value\",\"columns\":[{\"path\":\"kind\",\"columnid\":\"kind\"}]}}]}",
                   "timeContext": {
                     "durationMs": 86400000
                   },
-                  "queryType": 12,
-                  "value": null
+                  "queryType": 12
                 }
               ],
               "style": "pills",
@@ -13985,7 +13982,7 @@
                   "version": "KqlParameterItem/1.0",
                   "name": "countFunctions",
                   "type": 1,
-                  "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"{Workspace}/SavedSearches\",\"urlParams\":[{\"key\":\"api-version\",\"value\":\"2021-12-01-preview\"}],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$.value[?(@.properties.functionAlias)]\",\"columns\":[{\"path\":\"properties.category\",\"columnid\":\"category\"}]}}]}",
+                  "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"{Workspace}/SavedSearches\",\"urlParams\":[{\"key\":\"api-version\",\"value\":\"2025-07-01\"}],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$.value[?(@.properties.functionAlias)]\",\"columns\":[{\"path\":\"properties.category\",\"columnid\":\"category\"}]}}]}",
                   "timeContext": {
                     "durationMs": 86400000
                   },
