@@ -49,7 +49,7 @@
             "crossComponentResources": [
               "{Subscription}"
             ],
-            "value": "/subscriptions/4defa7d0-bc3a-4935-a1e6-e58406cf75e2/resourceGroups/QC-PROD-RG/providers/Microsoft.OperationalInsights/workspaces/QC-Prod",
+            "value": "",
             "typeSettings": {
               "resourceTypeFilter": {
                 "microsoft.operationalinsights/workspaces": true
@@ -3610,17 +3610,36 @@
                 {
                   "type": 1,
                   "content": {
-                    "json": "# 🛡️ Microsoft Defender Hunting & Security Posture\r\n\r\nThis page provides **MDE and MDI hunting queries** to highlight suspicious activity, identity weaknesses, legacy authentication, reconnaissance and security-control changes.\r\n\r\n## 📊 Required Data Tables\r\n\r\nQueries use one or more of the following tables. Availability depends on the Defender products, sensors and data connectors deployed in the workspace.\r\n\r\n| Table | Source | Used For |\r\n|---|---|---|\r\n| `DeviceProcessEvents` | MDE | Malware, offensive tooling and suspicious process activity |\r\n| `DeviceRegistryEvents` | MDE | Defender exclusions and registry security changes |\r\n| `DeviceEvents` | MDE | Endpoint security and behavioural telemetry |\r\n| `IdentityLogonEvents` | MDI | Authentication, NTLM, Kerberos, spray and lateral movement |\r\n| `IdentityQueryEvents` | MDI | LDAP reconnaissance and directory enumeration |\r\n| `IdentityAccountInfo` | MDI | Identity and account posture |\r\n| `SecurityEvent` | Sentinel / Windows Security | AD changes, Kerberos 4769 and Windows security auditing |\r\n| `WindowsEvent` | Sentinel / Windows Events | Alternative Windows event collection where configured |\r\n\r\n> ℹ️ **Not all tables are required for every query.** An empty result may mean no matching activity was found, or that the required telemetry is not available in the workspace.\r\n\r\n## 🚦 Risk & Status\r\n\r\n🔴 **High / Investigate** — Prioritise for investigation  \r\n🟠 **Medium / Review** — Validate and investigate where appropriate  \r\n🟢 **Low / Monitor** — Lower priority or expected activity\r\n\r\n> ⚠️ **Hunting results are investigative signals, not confirmation of malicious activity.** Always validate findings against the environment, known administrative activity and wider Defender telemetry."
+                    "json": "# 🛡️ Microsoft Defender Hunting & Security Posture\r\n\r\nThis page provides **MDE and MDI hunting queries** to highlight suspicious activity, identity weaknesses, legacy authentication, reconnaissance and security-control changes.\r\n\r\n"
                   },
                   "name": "text - 29"
+                },
+                {
+                  "type": 12,
+                  "content": {
+                    "version": "NotebookGroup/1.0",
+                    "groupType": "editable",
+                    "title": "more info",
+                    "expandable": true,
+                    "items": [
+                      {
+                        "type": 1,
+                        "content": {
+                          "json": "## 📊 Required Data Tables\r\n\r\nQueries use one or more of the following tables. Availability depends on the Defender products, sensors and data connectors deployed in the workspace.\r\n\r\n| Table | Source | Used For |\r\n|---|---|---|\r\n| `DeviceProcessEvents` | MDE | Malware, offensive tooling and suspicious process activity |\r\n| `DeviceRegistryEvents` | MDE | Defender exclusions and registry security changes |\r\n| `DeviceEvents` | MDE | Endpoint security and behavioural telemetry |\r\n| `IdentityLogonEvents` | MDI | Authentication, NTLM, Kerberos, spray and lateral movement |\r\n| `IdentityQueryEvents` | MDI | LDAP reconnaissance and directory enumeration |\r\n| `IdentityAccountInfo` | MDI | Identity and account posture |\r\n| `SecurityEvent` | Sentinel / Windows Security | AD changes, Kerberos 4769 and Windows security auditing |\r\n| `WindowsEvent` | Sentinel / Windows Events | Alternative Windows event collection where configured |\r\n\r\n> ℹ️ **Not all tables are required for every query.** An empty result may mean no matching activity was found, or that the required telemetry is not available in the workspace.\r\n\r\n## 🚦 Risk & Status\r\n\r\n🔴 **High / Investigate** — Prioritise for investigation  \r\n🟠 **Medium / Review** — Validate and investigate where appropriate  \r\n🟢 **Low / Monitor** — Lower priority or expected activity\r\n\r\n> ⚠️ **Hunting results are investigative signals, not confirmation of malicious activity.** Always validate findings against the environment, known administrative activity and wider Defender telemetry."
+                        },
+                        "name": "text - 0"
+                      }
+                    ]
+                  },
+                  "name": "group - summary"
                 },
                 {
                   "type": 3,
                   "content": {
                     "version": "KqlItem/1.0",
-                    "query": "// ============================================================\r\n// MDE - KNOWN MALWARE / OFFENSIVE TOOL NAME HUNT\r\n// ============================================================\r\n// Lightweight indicator-based hunt across process telemetry.\r\n// NOTE: Name-based matching is an investigative signal only.\r\n// Malware/offensive tooling can be renamed and legitimate files may match.\r\nlet Lookback = 30d;\r\nlet SuspiciousTerms = dynamic([\r\n    // Ransomware\r\n    \"wannacry\", \"notpetya\", \"petya\", \"ryuk\", \"lockbit\", \"clop\", \"akira\", \"revil\", \"maze\", \"conti\", \"blackbasta\", \"hive\", \"royal\", \"ragnarlocker\", \"darkside\", \"gandcrab\",\r\n    // Loaders / banking malware\r\n    \"emotet\", \"trickbot\", \"dridex\", \"qakbot\", \"qbot\", \"zeus\", \"icedid\", \"iceid\", \"ursnif\", \"gozi\", \"tinba\", \"kronos\", \"valak\", \"socgholish\", \"pikabot\", \"bumblebee\", \"smokeloader\", \"systembc\", \"bazarloader\",\r\n    // Stealers / RATs\r\n    \"agenttesla\", \"lokibot\", \"azorult\", \"redline\", \"raccoon\", \"formbook\", \"hawkeye\", \"netwire\", \"remcos\", \"njrat\", \"darkcomet\", \"nanocore\", \"quasar\", \"lumma\", \"purelogsstealer\", \"ghostpulse\", \"ducktail\",\r\n    // Offensive / post-exploitation tooling\r\n    \"mimikatz\", \"cobaltstrike\", \"metasploit\", \"sliver\", \"covenant\",\r\n    // Malware / botnets / destructive tooling\r\n    \"mirai\", \"gafgyt\", \"hajime\", \"bashlite\", \"echobot\", \"stuxnet\", \"duqu\", \"flame\", \"shamoon\", \"whispergate\", \"conficker\", \"mydoom\", \"sasser\", \"blaster\", \"stormworm\", \"nimda\", \"sqlslammer\",\r\n    // Other recognised malware families\r\n    \"darkhotel\", \"zacinlo\", \"fireball\", \"triada\", \"olympicvision\", \"pony\", \"godzillaloader\"\r\n]);\r\nDeviceProcessEvents\r\n| where Timestamp >= ago(Lookback)\r\n| where FileName has_any (SuspiciousTerms) or ProcessCommandLine has_any (SuspiciousTerms) or FolderPath has_any (SuspiciousTerms)\r\n| extend HuntName = \"Known Malware / Offensive Tool Name Hunt\", Risk = \"🔴 High\", Status = \"🟠 Review\"\r\n| summarize FirstSeen=min(Timestamp), LastSeen=max(Timestamp), Events=count(), Users=dcount(InitiatingProcessAccountUpn), ExampleUser=any(InitiatingProcessAccountUpn), ExampleCommandLine=any(ProcessCommandLine), ExampleFolderPath=any(FolderPath), ExampleSHA1=any(SHA1), ExampleInitiatingProcess=any(InitiatingProcessFileName), ExampleInitiatingCommandLine=any(InitiatingProcessCommandLine) by HuntName, Risk, Status, DeviceName, FileName\r\n| project HuntName, Risk, Status, DeviceName, FileName, FirstSeen, LastSeen, Events, Users, ExampleUser, ExampleCommandLine, ExampleFolderPath, ExampleSHA1, ExampleInitiatingProcess, ExampleInitiatingCommandLine\r\n| order by LastSeen desc",
+                    "query": "// ============================================================\r\n// MDE - KNOWN MALWARE / OFFENSIVE TOOL HUNT\r\n// ============================================================\r\n// Hunts process telemetry for known malware and offensive tool names.\r\n// Risk considers both indicator confidence and where the term matched.\r\n// NOTE: Name-based matching is an investigative signal only.\r\n// Malware can be renamed and legitimate activity may contain matching terms.\r\nlet Lookback=30d;\r\nlet Ransomware=dynamic([\"wannacry\",\"notpetya\",\"petya\",\"ryuk\",\"lockbit\",\"clop\",\"akira\",\"revil\",\"maze\",\"conti\",\"blackbasta\",\"hive\",\"royal\",\"ragnarlocker\",\"darkside\",\"gandcrab\"]);\r\nlet Loaders=dynamic([\"emotet\",\"trickbot\",\"dridex\",\"qakbot\",\"qbot\",\"zeus\",\"icedid\",\"iceid\",\"ursnif\",\"gozi\",\"tinba\",\"kronos\",\"valak\",\"socgholish\",\"pikabot\",\"bumblebee\",\"smokeloader\",\"systembc\",\"bazarloader\"]);\r\nlet StealersRATs=dynamic([\"agenttesla\",\"lokibot\",\"azorult\",\"redline\",\"raccoon\",\"formbook\",\"hawkeye\",\"netwire\",\"remcos\",\"njrat\",\"darkcomet\",\"nanocore\",\"quasar\",\"lumma\",\"purelogsstealer\",\"ghostpulse\",\"ducktail\"]);\r\nlet OffensiveTools=dynamic([\"mimikatz\",\"cobaltstrike\",\"metasploit\",\"sliver\",\"covenant\"]);\r\nlet BotnetDestructive=dynamic([\"mirai\",\"gafgyt\",\"hajime\",\"bashlite\",\"echobot\",\"stuxnet\",\"duqu\",\"flame\",\"shamoon\",\"whispergate\",\"conficker\",\"mydoom\",\"sasser\",\"blaster\",\"stormworm\",\"nimda\",\"sqlslammer\"]);\r\nlet OtherMalware=dynamic([\"darkhotel\",\"zacinlo\",\"fireball\",\"triada\",\"olympicvision\",\"pony\",\"godzillaloader\"]);\r\nlet LowerConfidenceTerms=dynamic([\"maze\",\"hive\",\"royal\",\"pony\",\"flame\",\"sliver\",\"covenant\",\"quasar\",\"redline\",\"raccoon\",\"fireball\"]);\r\nlet SuspiciousTerms=array_concat(Ransomware,Loaders,StealersRATs,OffensiveTools,BotnetDestructive,OtherMalware);\r\nDeviceProcessEvents\r\n| where Timestamp >= ago(Lookback)\r\n| where FileName has_any(SuspiciousTerms) or ProcessCommandLine has_any(SuspiciousTerms) or FolderPath has_any(SuspiciousTerms)\r\n| extend SearchText=strcat(FileName,\" \",ProcessCommandLine,\" \",FolderPath)\r\n| extend Type=case(SearchText has_any(Ransomware),\"Ransomware\",SearchText has_any(Loaders),\"Loader / Banking Malware\",SearchText has_any(StealersRATs),\"Stealer / RAT\",SearchText has_any(OffensiveTools),\"Offensive / Post-Exploitation\",SearchText has_any(BotnetDestructive),\"Botnet / Destructive Malware\",SearchText has_any(OtherMalware),\"Other Malware\",\"Unknown\")\r\n| extend MatchLocation=case(FileName has_any(SuspiciousTerms),\"File Name\",ProcessCommandLine has_any(SuspiciousTerms),\"Command Line\",FolderPath has_any(SuspiciousTerms),\"Folder Path\",\"Unknown\")\r\n| extend LowerConfidence=SearchText has_any(LowerConfidenceTerms)\r\n| extend Risk=case(MatchLocation==\"File Name\" and LowerConfidence==false,\"🔴 High\",MatchLocation==\"File Name\" and LowerConfidence==true,\"🟠 Medium\",MatchLocation==\"Command Line\" and LowerConfidence==false,\"🔴 High\",MatchLocation==\"Command Line\" and LowerConfidence==true,\"🟠 Medium\",MatchLocation==\"Folder Path\" and LowerConfidence==false,\"🟠 Medium\",MatchLocation==\"Folder Path\" and LowerConfidence==true,\"🟢 Low\",\"🟢 Low\")\r\n| extend Status=case(Risk==\"🔴 High\",\"🔴 Investigate\",Risk==\"🟠 Medium\",\"🟠 Review\",\"🟢 Monitor\")\r\n| summarize FirstSeen=min(Timestamp),LastSeen=max(Timestamp),Events=count(),Users=dcount(InitiatingProcessAccountUpn),ExampleUser=any(InitiatingProcessAccountUpn),ExampleCommandLine=any(ProcessCommandLine),ExampleFolderPath=any(FolderPath),ExampleSHA1=any(SHA1),ExampleInitiatingProcess=any(InitiatingProcessFileName),ExampleInitiatingCommandLine=any(InitiatingProcessCommandLine) by Risk,Status,Type,MatchLocation,DeviceName,FileName\r\n| project Risk,Status,Type,MatchLocation,DeviceName,FileName,FirstSeen,LastSeen,Events,Users,ExampleUser,ExampleCommandLine,ExampleFolderPath,ExampleSHA1,ExampleInitiatingProcess,ExampleInitiatingCommandLine\r\n| order by case(Risk==\"🔴 High\",1,Risk==\"🟠 Medium\",2,3) asc,LastSeen desc",
                     "size": 0,
-                    "title": "Weak Authentication Protocol Usaget, count: {$rowCount}.  Fixed to 30days",
+                    "title": "Known Malware & Offensive Tool Hunt, count: {$rowCount}.  Fixed to 30days",
                     "showExportToExcel": true,
                     "queryType": 0,
                     "resourceType": "microsoft.operationalinsights/workspaces",
@@ -3628,7 +3647,34 @@
                       "{Workspace}"
                     ],
                     "gridSettings": {
-                      "filter": true
+                      "formatters": [
+                        {
+                          "columnMatch": "$gen_group",
+                          "formatter": 0,
+                          "formatOptions": {
+                            "customColumnWidthSetting": "36ch"
+                          }
+                        },
+                        {
+                          "columnMatch": "$gen_group",
+                          "formatter": 0,
+                          "formatOptions": {
+                            "customColumnWidthSetting": "36ch"
+                          }
+                        }
+                      ],
+                      "rowLimit": 1000,
+                      "filter": true,
+                      "hierarchySettings": {
+                        "treeType": 1,
+                        "groupBy": [
+                          "Risk",
+                          "Status",
+                          "Type"
+                        ],
+                        "expandTopLevel": true,
+                        "finalBy": "Type"
+                      }
                     }
                   },
                   "name": "query - 0 - Copy"
@@ -3646,7 +3692,7 @@
                     "version": "KqlItem/1.0",
                     "query": "// ============================================================\r\n// MDI - WEAK AUTHENTICATION PROTOCOL USAGE\r\n// ============================================================\r\n// Reviews Active Directory authentication protocols.\r\n// NTLM usage is highlighted for review; Kerberos is retained\r\n// as the preferred/baseline authentication protocol.\r\nlet Lookback = 30d;\r\nIdentityLogonEvents\r\n| where Timestamp >= ago(Lookback)\r\n| where Application == \"Active Directory\"\r\n| where Protocol in (\"Ntlm\", \"Kerberos\")\r\n| extend Risk = case(Protocol == \"Ntlm\", \"🟠 Medium\", Protocol == \"Kerberos\", \"🟢 Low\", \"⚪ Unknown\"), Status = case(Protocol == \"Ntlm\", \"🟠 Review\", Protocol == \"Kerberos\", \"🟢 Expected\", \"⚪ Unknown\")\r\n| summarize Events=count(), Users=dcount(AccountUpn), Devices=dcount(DeviceName), FirstSeen=min(Timestamp), LastSeen=max(Timestamp) by Protocol, Risk, Status\r\n| project Risk, Status, Protocol, Events, Users, Devices, FirstSeen, LastSeen\r\n| order by Events desc",
                     "size": 0,
-                    "title": "Known Malware & Offensive Tool Name Hunt, count: {$rowCount}.  Fixed to 30days",
+                    "title": "Weak Authentication Protocol, count: {$rowCount}.  Fixed to 30days",
                     "showExportToExcel": true,
                     "queryType": 0,
                     "resourceType": "microsoft.operationalinsights/workspaces",
@@ -7145,7 +7191,7 @@
                 {
                   "type": 1,
                   "content": {
-                    "json": "> 📖 [Microsoft Sentinel free data sources](https://learn.microsoft.com/en-us/azure/sentinel/billing?tabs=simplified%2Ccommitment-tiers#free-data-sources)"
+                    "json": "> 📖 [Microsoft Sentinel free data sources](https://learn.microsoft.com/azure/sentinel/billing?tabs=simplified%2Ccommitment-tiers#free-data-sources)"
                   },
                   "name": "text - 11"
                 },
@@ -7453,7 +7499,7 @@
                 {
                   "type": 1,
                   "content": {
-                    "json": "## Reference & Documentation\n\n| Topic | Link |\n|---|---|\n| Free data sources in Sentinel | [Microsoft Learn](https://learn.microsoft.com/en-us/azure/sentinel/billing?tabs=simplified%2Ccommitment-tiers#free-data-sources) |\n| E5 Security benefit for Sentinel | [Microsoft Learn](https://learn.microsoft.com/en-us/azure/sentinel/billing?tabs=simplified%2Ccommitment-tiers#microsoft-365-e5-a5-f5-and-g5-customers) |\n| E5 eligible tables list | [Microsoft Learn](https://learn.microsoft.com/en-us/azure/sentinel/microsoft-365-defender-sentinel-integration#tables-eligible-for-the-microsoft-365-e5-benefit) |\n| Defender for Servers P2 benefit (500 MB/VM/day) | [Microsoft Learn](https://learn.microsoft.com/en-us/azure/defender-for-cloud/faq-defender-for-servers#is-the-500-mb-of-free-data-ingestion-allowance-applied-to-an-entire-workspace-or-strictly-per-machine-) |\n| Sentinel pricing | [Azure Pricing](https://azure.microsoft.com/en-us/pricing/details/microsoft-sentinel/) |\n| Plan costs and billing | [Microsoft Learn](https://learn.microsoft.com/en-us/azure/sentinel/billing?tabs=simplified%2Ccommitment-tiers) |\n| Auxiliary Logs plan (data lake) | [Microsoft Learn](https://learn.microsoft.com/en-us/azure/sentinel/basic-logs-configure) |\n| Connect Defender XDR to Sentinel | [Microsoft Learn](https://learn.microsoft.com/en-us/azure/sentinel/connect-microsoft-365-defender) |\n| Ingestion-time transformations | [Microsoft Learn](https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/data-collection-transformations) |"
+                    "json": "## Reference & Documentation\n\n| Topic | Link |\n|---|---|\n| Free data sources in Sentinel | [Microsoft Learn](https://learn.microsoft.com/azure/sentinel/billing?tabs=simplified%2Ccommitment-tiers#free-data-sources) |\n| E5 Security benefit for Sentinel | [Microsoft Learn](https://learn.microsoft.com/en-us/azure/sentinel/billing?tabs=simplified%2Ccommitment-tiers#microsoft-365-e5-a5-f5-and-g5-customers) |\n| E5 eligible tables list | [Microsoft Learn](https://learn.microsoft.com/en-us/azure/sentinel/microsoft-365-defender-sentinel-integration#tables-eligible-for-the-microsoft-365-e5-benefit) |\n| Defender for Servers P2 benefit (500 MB/VM/day) | [Microsoft Learn](https://learn.microsoft.com/en-us/azure/defender-for-cloud/faq-defender-for-servers#is-the-500-mb-of-free-data-ingestion-allowance-applied-to-an-entire-workspace-or-strictly-per-machine-) |\n| Sentinel pricing | [Azure Pricing](https://azure.microsoft.com/en-us/pricing/details/microsoft-sentinel/) |\n| Plan costs and billing | [Microsoft Learn](https://learn.microsoft.com/en-us/azure/sentinel/billing?tabs=simplified%2Ccommitment-tiers) |\n| Auxiliary Logs plan (data lake) | [Microsoft Learn](https://learn.microsoft.com/en-us/azure/sentinel/basic-logs-configure) |\n| Connect Defender XDR to Sentinel | [Microsoft Learn](https://learn.microsoft.com/en-us/azure/sentinel/connect-microsoft-365-defender) |\n| Ingestion-time transformations | [Microsoft Learn](https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/data-collection-transformations) |"
                   },
                   "customWidth": "50",
                   "name": "reference-docs"
@@ -24421,9 +24467,6 @@
       },
       "name": "group - function"
     }
-  ],
-  "fallbackResourceIds": [
-    "/subscriptions/4defa7d0-bc3a-4935-a1e6-e58406cf75e2/resourcegroups/qc-prod-rg/providers/microsoft.operationalinsights/workspaces/qc-prod"
   ],
   "fromTemplateId": "sentinel-WorkspaceUsageWorkbook",
   "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
