@@ -1,0 +1,547 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 9,
+            "content": {
+              "version": "KqlParameterItem/1.0",
+              "crossComponentResources": [
+                "value::all"
+              ],
+              "parameters": [
+                {
+                  "id": "ccd5adcd-8d59-4cfe-99ec-98075de2e253",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "DefaultSubscription_Internal",
+                  "type": 1,
+                  "isRequired": true,
+                  "query": "resources\r\n| where type =~ \"microsoft.operationalinsights/workspaces\"\r\n| take 1\r\n| project subscriptionId",
+                  "crossComponentResources": [
+                    "value::all"
+                  ],
+                  "isHiddenWhenLocked": true,
+                  "queryType": 1,
+                  "resourceType": "microsoft.resourcegraph/resources",
+                  "value": "b298f2a5-df16-4d7e-a31d-82ba3eeb30ff"
+                },
+                {
+                  "id": "1ca69445-60fc-4806-b43d-ac7e6aad630a",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "Subscription",
+                  "label": "☁️ Customer",
+                  "type": 6,
+                  "description": "Select a subscription grouped by Azure Lighthouse customer directory",
+                  "query": "// ======================================================================\r\n// Customer Info - Customer / Subscription Selector\r\n// ======================================================================\r\n\r\nresources\r\n| where type =~ \"microsoft.operationalinsights/workspaces\"\r\n| summarize by subscriptionId\r\n\r\n| join kind=leftouter\r\n(\r\n    ManagedServicesResources\r\n    | where type =~ \"microsoft.managedservices/registrationassignments\"\r\n    | extend Directory = coalesce(\r\n        tostring(properties.registrationDefinition.properties.manageeTenantName),\r\n        tostring(properties.manageeTenantName)\r\n    )\r\n    | extend Directory = trim(@\"[^\\w\\s\\.-]+\", Directory)\r\n    | where isnotempty(Directory)\r\n    | summarize Directory = any(Directory) by subscriptionId\r\n)\r\non subscriptionId\r\n\r\n| extend SubscriptionResourceId = strcat(\"/subscriptions/\", subscriptionId)\r\n| extend selected = subscriptionId =~ \"{DefaultSubscription_Internal}\"\r\n| extend group = iff(isnotempty(Directory), Directory, \"Local / Other\")\r\n| project SubscriptionResourceId, selected, group\r\n| distinct SubscriptionResourceId, selected, group\r\n| order by group asc, SubscriptionResourceId asc",
+                  "crossComponentResources": [
+                    "value::all"
+                  ],
+                  "typeSettings": {
+                    "additionalResourceOptions": [],
+                    "showDefault": false
+                  },
+                  "queryType": 1,
+                  "resourceType": "microsoft.resourcegraph/resources",
+                  "value": null
+                },
+                {
+                  "id": "e94aafa3-c5d9-4523-89f0-4e87aa754511",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "ws",
+                  "label": "🗂️ Workspace",
+                  "type": 5,
+                  "isRequired": true,
+                  "query": "resources\r\n| where type =~ \"microsoft.operationalinsights/workspaces\"\r\n| project\r\n    value = id,\r\n    label = name\r\n| order by label asc",
+                  "crossComponentResources": [
+                    "{Subscription}"
+                  ],
+                  "typeSettings": {
+                    "resourceTypeFilter": {
+                      "microsoft.operationalinsights/workspaces": true
+                    },
+                    "additionalResourceOptions": [],
+                    "showDefault": false
+                  },
+                  "queryType": 1,
+                  "resourceType": "microsoft.resourcegraph/resources",
+                  "value": ""
+                },
+                {
+                  "id": "c4b69c01-2263-4ada-8d9c-43433b739ff3",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "TimeRange",
+                  "type": 4,
+                  "value": {
+                    "durationMs": 1209600000
+                  },
+                  "typeSettings": {
+                    "selectableValues": [
+                      {
+                        "durationMs": 300000
+                      },
+                      {
+                        "durationMs": 900000
+                      },
+                      {
+                        "durationMs": 1800000
+                      },
+                      {
+                        "durationMs": 3600000
+                      },
+                      {
+                        "durationMs": 14400000
+                      },
+                      {
+                        "durationMs": 43200000
+                      },
+                      {
+                        "durationMs": 86400000
+                      },
+                      {
+                        "durationMs": 172800000
+                      },
+                      {
+                        "durationMs": 259200000
+                      },
+                      {
+                        "durationMs": 604800000
+                      },
+                      {
+                        "durationMs": 1209600000
+                      },
+                      {
+                        "durationMs": 2419200000
+                      },
+                      {
+                        "durationMs": 2592000000
+                      },
+                      {
+                        "durationMs": 5184000000
+                      },
+                      {
+                        "durationMs": 7776000000
+                      }
+                    ],
+                    "allowCustom": true
+                  },
+                  "label": "⏱️ Time Range"
+                },
+                {
+                  "id": "c71f3009-a3f4-4aa5-aaf0-d0f667100e56",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "Help",
+                  "label": "📖 Help",
+                  "type": 10,
+                  "description": "Show workbook help or change log information",
+                  "isRequired": true,
+                  "typeSettings": {
+                    "additionalResourceOptions": [],
+                    "showDefault": false
+                  },
+                  "jsonData": "[\r\n  { \"value\": \"Yes\", \"label\": \"Yes\" },\r\n  { \"value\": \"No\", \"label\": \"No\", \"selected\": true },\r\n  { \"value\": \"Change Log\", \"label\": \"Change Log\" }\r\n]"
+                }
+              ],
+              "style": "above",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources"
+            },
+            "customWidth": "75",
+            "name": "parameters - 1"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "# Change Log\r\n\r\n| Version | Changes |\r\n|---|---|\r\n| **v1.0** | Initial public preview of the **AI Governance** workbook. |\r\n| | Added configurable **Sanctioned AI Services** policy selection. |\r\n| | Added 🟢 **Sanctioned**, 🔴 **Unsanctioned**, and 🟠 **Mixed** governance classification. |\r\n| | Added consolidated **AI Compliance & Governance Review** covering browser, API/developer, non-browser network and desktop-client activity. |\r\n| | Added compact **Sanctioned and Unsanctioned AI Product** summaries based on distinct observed users. |\r\n| | Added **New AI Users** using a fixed 30-day observation window to identify users first observed during the most recent 7 days. |\r\n| | Added **Multi-AI Product Usage** across web and desktop-client activity. |\r\n| | Added **AI Agent / Tool Detection** using a public AI agent watchlist, including governance mapping and separate risk classification. |\r\n| | Added support for the workbook **Time Range** across applicable activity reports. |\r\n| | Designed as a lightweight, publicly shareable AI governance workbook using Microsoft Defender telemetry. |"
+            },
+            "customWidth": "50",
+            "conditionalVisibility": {
+              "parameterName": "Help",
+              "comparison": "isEqualTo",
+              "value": "Change Log"
+            },
+            "name": "text - 7"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "# 🤖 AI Governance\r\n\r\nThis workbook provides a high-level view of **AI usage observed through Microsoft Defender telemetry**, helping organisations understand which AI services and tools are being used and whether that activity aligns with approved AI policy.\r\n\r\n## 🟢 Sanctioned AI Services\r\n\r\nUse the **Sanctioned** selector to choose the AI products approved for use within your organisation.\r\n\r\nObserved activity is classified as:\r\n\r\n- 🟢 **Sanctioned** — activity associated with a selected approved AI service.\r\n- 🔴 **Unsanctioned** — activity associated with another recognised AI service.\r\n- 🟠 **Mixed** — a user has activity involving both sanctioned and unsanctioned AI products.\r\n- ⚪ **Not mapped to policy** — a detected AI agent or tool could not be reliably mapped to the product catalogue.\r\n\r\nIf no services are selected, all recognised AI activity is treated as **unsanctioned**.\r\n\r\n## 📊 Reports\r\n\r\n**AI Compliance & Governance Review** provides the main view of sanctioned and unsanctioned AI activity, including browser, API/developer, non-browser network and desktop-client evidence.\r\n\r\n**AI Product Summary** highlights sanctioned and unsanctioned AI products observed in the environment and the number of distinct users associated with each product.\r\n\r\n**New AI Users** identifies users first observed using AI within the last **7 days**, using a fixed **30-day observation window** to provide meaningful historical context.\r\n\r\n**Multi-AI Product Usage** identifies users accessing multiple AI products or providers and highlights whether their observed usage is sanctioned, unsanctioned or mixed.\r\n\r\n**AI Agent / Tool Detection** identifies known AI agents and agentic tools observed executing on endpoints. Governance status is shown where the tool can be mapped to the AI product catalogue; **Risk** is a separate watchlist assessment.\r\n\r\n## 🛡️ Microsoft Defender Data Requirements\r\n\r\nThe workbook primarily uses:\r\n\r\n- `DeviceNetworkEvents` — observed connections to recognised AI services.\r\n- `DeviceProcessEvents` — execution of recognised AI clients, agents and related processes.\r\n\r\nResults depend on Microsoft Defender licensing, endpoint onboarding, available telemetry and retention. Network activity indicates communication with an AI service but does **not** establish what information was submitted to that service.\r\n\r\n> **Tip:** Where the required Defender telemetry is not available through Microsoft Sentinel, try the workbook from **Microsoft Defender → Microsoft Sentinel → Workbooks**."
+            },
+            "customWidth": "50",
+            "conditionalVisibility": {
+              "parameterName": "Help",
+              "comparison": "isEqualTo",
+              "value": "Yes"
+            },
+            "name": "text - 7 - Copy"
+          }
+        ],
+        "exportParameters": true
+      },
+      "name": "group - parameter and help"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 1,
+            "content": {
+              "json": "> ### ⚙️ Configure Sanctioned AI Services\r\n>\r\n> **Before reviewing the governance results, select the AI products approved for use within your organisation from the dropdown below.**\r\n>\r\n> 🟢 **Sanctioned** — activity associated with services you have selected as approved.\r\n>\r\n> 🔴 **Unsanctioned** — activity associated with other recognised AI services.\r\n>\r\n> 🟠 **Mixed** — a user has been observed using both sanctioned and unsanctioned AI products.\r\n>\r\n> ⚠️ **If no services are selected, all recognised AI activity will be classified as unsanctioned.**\r\n\r\nThe workbook primarily uses:\r\n**DeviceNetworkEvents** — observed connections to recognised AI services.\r\n**DeviceProcessEvents** — execution of recognised AI clients, agents and related processes."
+            },
+            "name": "text - 4"
+          },
+          {
+            "type": 9,
+            "content": {
+              "version": "KqlParameterItem/1.0",
+              "crossComponentResources": [
+                "value::all"
+              ],
+              "parameters": [
+                {
+                  "id": "c85479ea-0dba-47b1-b8a9-1cdfca44e527",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "Sanctioned",
+                  "type": 2,
+                  "description": "Is this product Sanctioned True/False?",
+                  "multiSelect": true,
+                  "quote": "'",
+                  "delimiter": ",",
+                  "query": "let AIDomainData = externaldata(\r\n    Provider:string,\r\n    Product:string,\r\n    Domain:string,\r\n    Category:string,\r\n    Sanctioned:bool,\r\n    RiskType:string,\r\n    SourceURL:string,\r\n    ProcessName:string,\r\n    ProcessProductName:string,\r\n    ProcessPublisher:string\r\n)\r\n[\r\n    @\"https://raw.githubusercontent.com/quorumcyber-workbooks/workbooks/main/Files/QCDataTypes/ai_domains_expanded.csv\"\r\n]\r\nwith (\r\n    format=\"csv\",\r\n    ignoreFirstRecord=true\r\n);\r\nAIDomainData\r\n| where isnotempty(Domain)\r\n| extend Label=strcat(Provider, \" - \", Product, \" (\", Domain, \")\")\r\n| distinct Value=Domain, Label\r\n| order by Label asc",
+                  "crossComponentResources": [
+                    "{ws}"
+                  ],
+                  "typeSettings": {
+                    "additionalResourceOptions": []
+                  },
+                  "timeContext": {
+                    "durationMs": 0
+                  },
+                  "timeContextFromParameter": "TimeRange",
+                  "queryType": 0,
+                  "resourceType": "microsoft.operationalinsights/workspaces",
+                  "value": [
+                    "copilot.microsoft.com"
+                  ]
+                },
+                {
+                  "id": "9a001a37-7139-4634-a72e-212b99ce5704",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "SanctionedCount",
+                  "type": 1,
+                  "query": "resources\r\n| take 1\r\n| project SanctionedCount =\r\n    iff(\r\n        isempty(\"{Sanctioned}\"),\r\n        0,\r\n        array_length(split(\"{Sanctioned}\", \",\"))\r\n    )",
+                  "crossComponentResources": [
+                    "value::all"
+                  ],
+                  "isHiddenWhenLocked": true,
+                  "queryType": 1,
+                  "resourceType": "microsoft.resourcegraph/resources"
+                }
+              ],
+              "style": "above",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources"
+            },
+            "name": "parameters - 11"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "// ============================================================\r\n// AI GOVERNANCE AT A GLANCE\r\n//\r\n// High-level public governance summary.\r\n//\r\n// Uses:\r\n//   - Workbook TimeRange\r\n//   - Customer-selected {Sanctioned} services\r\n//   - Network activity\r\n//   - Desktop client activity\r\n//\r\n// Output:\r\n//   One row per headline metric for tile visualisation.\r\n// ============================================================\r\n\r\n\r\n// ============================================================\r\n// AI SERVICE CATALOGUE\r\n// ============================================================\r\n\r\nlet AIData = externaldata(\r\n    Provider:string,\r\n    Product:string,\r\n    Domain:string,\r\n    Category:string,\r\n    Sanctioned:bool,\r\n    RiskType:string,\r\n    SourceURL:string,\r\n    ProcessName:string,\r\n    ProcessProductName:string,\r\n    ProcessPublisher:string\r\n)\r\n[\r\n    @\"https://raw.githubusercontent.com/quorumcyber-workbooks/workbooks/main/Files/QCDataTypes/ai_domains_expanded.csv\"\r\n]\r\nwith (\r\n    format=\"csv\",\r\n    ignoreFirstRecord=true\r\n);\r\n\r\n\r\n// ============================================================\r\n// KNOWN AI DOMAINS\r\n// ============================================================\r\n\r\nlet AIDomains = toscalar(\r\n    AIData\r\n    | where isnotempty(Domain)\r\n    | summarize make_set(Domain)\r\n);\r\n\r\n\r\n// ============================================================\r\n// CUSTOMER-SELECTED SANCTIONED SERVICES\r\n// ============================================================\r\n\r\nlet SanctionedDomains =\r\n    dynamic([{Sanctioned}]);\r\n\r\n\r\n// ============================================================\r\n// NETWORK ACTIVITY\r\n// ============================================================\r\n\r\nlet NetworkActivity =\r\n    DeviceNetworkEvents\r\n\r\n    | where Timestamp between ({TimeRange:start} .. {TimeRange:end})\r\n\r\n    | where isnotempty(InitiatingProcessAccountUpn)\r\n\r\n    | where isnotempty(RemoteUrl)\r\n\r\n    | where RemoteUrl has_any (AIDomains)\r\n\r\n    | project\r\n        User = InitiatingProcessAccountUpn,\r\n        RemoteUrl\r\n\r\n    | extend JoinKey = 1\r\n\r\n    | join kind=inner (\r\n        AIData\r\n        | where isnotempty(Domain)\r\n        | distinct\r\n            Provider,\r\n            Product,\r\n            Domain\r\n        | extend JoinKey = 1\r\n    ) on JoinKey\r\n\r\n    | where RemoteUrl has Domain\r\n\r\n    | extend IsSanctioned =\r\n        array_length(SanctionedDomains) > 0\r\n        and SanctionedDomains has Domain\r\n\r\n    | project\r\n        User,\r\n        Provider,\r\n        Product,\r\n        Domain,\r\n        IsSanctioned;\r\n\r\n\r\n// ============================================================\r\n// DESKTOP CLIENT CATALOGUE\r\n// ============================================================\r\n\r\nlet AIProcesses =\r\n    AIData\r\n\r\n    | where isnotempty(ProcessName)\r\n        or isnotempty(ProcessProductName)\r\n        or isnotempty(ProcessPublisher)\r\n\r\n    | project\r\n        Provider,\r\n        Product,\r\n        Domain,\r\n        CatalogueProcessName = ProcessName,\r\n        CatalogueProductName = ProcessProductName,\r\n        CataloguePublisher = ProcessPublisher;\r\n\r\n\r\n// ============================================================\r\n// DESKTOP CLIENT ACTIVITY\r\n// ============================================================\r\n\r\nlet DesktopActivity =\r\n    DeviceProcessEvents\r\n\r\n    | where Timestamp between ({TimeRange:start} .. {TimeRange:end})\r\n\r\n    | where isnotempty(AccountUpn)\r\n\r\n    | extend\r\n        ProcessNameLower =\r\n            tolower(FileName),\r\n\r\n        ProductNameLower =\r\n            tolower(ProcessVersionInfoProductName),\r\n\r\n        PublisherLower =\r\n            tolower(ProcessVersionInfoCompanyName)\r\n\r\n    | join kind=inner (\r\n        AIProcesses\r\n\r\n        | extend\r\n            ProcessNameLower =\r\n                tolower(CatalogueProcessName),\r\n\r\n            CatalogueProductNameLower =\r\n                tolower(CatalogueProductName),\r\n\r\n            CataloguePublisherLower =\r\n                tolower(CataloguePublisher)\r\n\r\n    ) on ProcessNameLower\r\n\r\n    | where\r\n        isempty(CatalogueProductName)\r\n        or ProductNameLower == CatalogueProductNameLower\r\n        or isempty(ProcessVersionInfoProductName)\r\n\r\n    | where\r\n        isempty(CataloguePublisher)\r\n        or PublisherLower has CataloguePublisherLower\r\n        or isempty(ProcessVersionInfoCompanyName)\r\n\r\n    | extend IsSanctioned =\r\n        array_length(SanctionedDomains) > 0\r\n        and SanctionedDomains has Domain\r\n\r\n    | project\r\n        User = AccountUpn,\r\n        Provider,\r\n        Product,\r\n        Domain,\r\n        IsSanctioned;\r\n\r\n\r\n// ============================================================\r\n// COMBINE AND DEDUPLICATE\r\n//\r\n// One row per user/product/policy state.\r\n// This prevents network event volume from affecting the\r\n// governance headline metrics.\r\n// ============================================================\r\n\r\nlet AIUsage =\r\n    union\r\n        NetworkActivity,\r\n        DesktopActivity\r\n\r\n    | where isnotempty(User)\r\n\r\n    | summarize\r\n        IsSanctioned = max(IsSanctioned)\r\n      by\r\n        User,\r\n        Provider,\r\n        Product,\r\n        Domain;\r\n\r\n\r\n// ============================================================\r\n// USER GOVERNANCE\r\n// ============================================================\r\n\r\nlet UserGovernance =\r\n    AIUsage\r\n\r\n    | summarize\r\n\r\n        SanctionedProducts =\r\n            dcountif(\r\n                Product,\r\n                IsSanctioned\r\n            ),\r\n\r\n        UnsanctionedProducts =\r\n            dcountif(\r\n                Product,\r\n                not(IsSanctioned)\r\n            )\r\n\r\n      by User\r\n\r\n    | extend Governance =\r\n        case(\r\n            SanctionedProducts > 0\r\n                and UnsanctionedProducts > 0,\r\n                \"Mixed\",\r\n\r\n            UnsanctionedProducts > 0,\r\n                \"Unsanctioned only\",\r\n\r\n            SanctionedProducts > 0,\r\n                \"Sanctioned only\",\r\n\r\n            \"Review\"\r\n        );\r\n\r\n\r\n// ============================================================\r\n// HEADLINE VALUES\r\n// ============================================================\r\n\r\nlet TotalUsers =\r\n    toscalar(\r\n        UserGovernance\r\n        | summarize count()\r\n    );\r\n\r\nlet TotalProducts =\r\n    toscalar(\r\n        AIUsage\r\n        | summarize dcount(Product)\r\n    );\r\n\r\nlet UnsanctionedUsers =\r\n    toscalar(\r\n        UserGovernance\r\n        | where Governance == \"Unsanctioned only\"\r\n        | summarize count()\r\n    );\r\n\r\nlet MixedUsers =\r\n    toscalar(\r\n        UserGovernance\r\n        | where Governance == \"Mixed\"\r\n        | summarize count()\r\n    );\r\n\r\nlet SanctionedUsers =\r\n    toscalar(\r\n        UserGovernance\r\n        | where Governance == \"Sanctioned only\"\r\n        | summarize count()\r\n    );\r\n\r\n\r\n// ============================================================\r\n// TILE OUTPUT\r\n// ============================================================\r\n\r\nunion\r\n    (\r\n        print\r\n            SortOrder = 1,\r\n            Metric = \"👥 AI Users Observed\",\r\n            Value = tolong(TotalUsers)\r\n    ),\r\n    (\r\n        print\r\n            SortOrder = 2,\r\n            Metric = \"🤖 AI Products Observed\",\r\n            Value = tolong(TotalProducts)\r\n    ),\r\n    (\r\n        print\r\n            SortOrder = 3,\r\n            Metric = \"🔴 Unsanctioned-only Users\",\r\n            Value = tolong(UnsanctionedUsers)\r\n    ),\r\n    (\r\n        print\r\n            SortOrder = 4,\r\n            Metric = \"🟠 Mixed Users\",\r\n            Value = tolong(MixedUsers)\r\n    ),\r\n    (\r\n        print\r\n            SortOrder = 5,\r\n            Metric = \"🟢 Sanctioned-only Users\",\r\n            Value = tolong(SanctionedUsers)\r\n    )\r\n\r\n| order by SortOrder asc\r\n\r\n| project\r\n    Metric,\r\n    Value",
+              "size": 4,
+              "title": "📊 AI Governance at a Glance",
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{ws}"
+              ],
+              "visualization": "tiles",
+              "tileSettings": {
+                "showBorder": false,
+                "titleContent": {
+                  "columnMatch": "Metric",
+                  "formatter": 1
+                },
+                "leftContent": {
+                  "columnMatch": "Value",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "auto"
+                  },
+                  "numberFormat": {
+                    "unit": 17,
+                    "options": {
+                      "maximumSignificantDigits": 3,
+                      "maximumFractionDigits": 2
+                    }
+                  }
+                }
+              }
+            },
+            "name": "query - 12"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "This report provides a consolidated view of **AI usage observed across users and devices**, classifying activity as either 🟢 **Sanctioned** or 🔴 **Unsanctioned** based on the AI services selected as approved above. Activity is further separated by how the service was accessed: **Web / Browser** for browser-based use, **API / Developer** for developer or API services, **Non-browser Network** for AI network connections originating from other processes, and **Desktop Client** for known AI applications observed executing on endpoints. Use the grouped results and column filters to identify unsanctioned AI adoption, understand how approved services are being consumed, and investigate the supporting users, devices, processes, URLs, and execution evidence. Results reflect activity within the selected **Time Range**."
+            },
+            "name": "text - 22"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "// ============================================================\r\n// Unsanctioned AI Products Observed - Tile Summary\r\n// ============================================================\r\n\r\nlet AIDomainData = externaldata(\r\n    Provider:string,\r\n    Product:string,\r\n    Domain:string,\r\n    Category:string,\r\n    Sanctioned:bool,\r\n    RiskType:string,\r\n    SourceURL:string,\r\n    ProcessName:string,\r\n    ProcessProductName:string,\r\n    ProcessPublisher:string\r\n)\r\n[\r\n    @\"https://raw.githubusercontent.com/quorumcyber-workbooks/workbooks/main/Files/QCDataTypes/ai_domains_expanded.csv\"\r\n]\r\nwith (\r\n    format=\"csv\",\r\n    ignoreFirstRecord=true\r\n);\r\n\r\nlet AIDomains = toscalar(\r\n    AIDomainData\r\n    | where isnotempty(Domain)\r\n    | summarize make_set(Domain)\r\n);\r\n\r\nlet SanctionedDomains = dynamic([{Sanctioned}]);\r\n\r\nlet Browsers = dynamic([\r\n    \"msedge.exe\",\r\n    \"chrome.exe\",\r\n    \"firefox.exe\",\r\n    \"brave.exe\",\r\n    \"opera.exe\",\r\n    \"iexplore.exe\"\r\n]);\r\n\r\nlet NetworkActivity =\r\n    DeviceNetworkEvents\r\n    | where Timestamp between ({TimeRange:start} .. {TimeRange:end})\r\n    | where isnotempty(InitiatingProcessAccountUpn)\r\n    | where isnotempty(RemoteUrl)\r\n    | where RemoteUrl has_any (AIDomains)\r\n    | project\r\n        Timestamp,\r\n        User = InitiatingProcessAccountUpn,\r\n        DeviceId,\r\n        DeviceName,\r\n        RemoteUrl,\r\n        Process = InitiatingProcessFileName\r\n    | extend JoinKey = 1\r\n    | join kind=inner (\r\n        AIDomainData\r\n        | where isnotempty(Domain)\r\n        | distinct Provider, Product, Domain, Category, RiskType\r\n        | extend JoinKey = 1\r\n    ) on JoinKey\r\n    | where RemoteUrl has Domain\r\n    | extend IsSanctioned =\r\n        array_length(SanctionedDomains) > 0\r\n        and SanctionedDomains has Domain\r\n    | extend IsBrowser = Process in~ (Browsers)\r\n    | extend IsAPI =\r\n        RiskType =~ \"API\"\r\n        or Category =~ \"API\"\r\n        or Product has \"API\"\r\n    | extend IsDeveloper =\r\n        RiskType =~ \"Developer\"\r\n        or Category =~ \"Developer\"\r\n    | extend AccessType =\r\n        case(\r\n            IsBrowser, \"Web / Browser\",\r\n            IsAPI or IsDeveloper, \"API / Developer\",\r\n            \"Non-browser Network\"\r\n        )\r\n    | where not(IsSanctioned)\r\n    | project\r\n        Timestamp,\r\n        Provider,\r\n        Product,\r\n        Domain,\r\n        User,\r\n        DeviceId,\r\n        DeviceName,\r\n        AccessType;\r\n\r\nlet AIProcesses =\r\n    AIDomainData\r\n    | where isnotempty(ProcessName)\r\n        or isnotempty(ProcessProductName)\r\n        or isnotempty(ProcessPublisher)\r\n    | project\r\n        Provider,\r\n        Product,\r\n        Domain,\r\n        CatalogueProcessName = ProcessName,\r\n        CatalogueProductName = ProcessProductName,\r\n        CataloguePublisher = ProcessPublisher;\r\n\r\nlet DesktopActivity =\r\n    DeviceProcessEvents\r\n    | where Timestamp between ({TimeRange:start} .. {TimeRange:end})\r\n    | where isnotempty(AccountUpn)\r\n    | extend\r\n        ProcessNameLower = tolower(FileName),\r\n        ProductNameLower = tolower(ProcessVersionInfoProductName),\r\n        PublisherLower = tolower(ProcessVersionInfoCompanyName)\r\n    | join kind=inner (\r\n        AIProcesses\r\n        | extend\r\n            ProcessNameLower = tolower(CatalogueProcessName),\r\n            CatalogueProductNameLower = tolower(CatalogueProductName),\r\n            CataloguePublisherLower = tolower(CataloguePublisher)\r\n    ) on ProcessNameLower\r\n    | where\r\n        isempty(CatalogueProductName)\r\n        or ProductNameLower == CatalogueProductNameLower\r\n        or isempty(ProcessVersionInfoProductName)\r\n    | where\r\n        isempty(CataloguePublisher)\r\n        or PublisherLower has CataloguePublisherLower\r\n        or isempty(ProcessVersionInfoCompanyName)\r\n    | extend IsSanctioned =\r\n        array_length(SanctionedDomains) > 0\r\n        and SanctionedDomains has Domain\r\n    | where not(IsSanctioned)\r\n    | extend AccessType = \"Desktop Client\"\r\n    | project\r\n        Timestamp,\r\n        Provider,\r\n        Product,\r\n        Domain,\r\n        User = AccountUpn,\r\n        DeviceId,\r\n        DeviceName,\r\n        AccessType;\r\n\r\nunion NetworkActivity, DesktopActivity\r\n| summarize\r\n    Users = dcount(User),\r\n    Devices = dcount(DeviceId),\r\n    Activity = count(),\r\n    AccessTypes = make_set(AccessType, 10),\r\n    UserList = make_set(User, 20),\r\n    DeviceList = make_set(DeviceName, 20),\r\n    FirstSeen = min(Timestamp),\r\n    LastSeen = max(Timestamp)\r\n  by Provider, Product, Domain\r\n| extend ProductTitle = strcat(Provider, \" - \", Product)\r\n| order by Users desc, Activity desc\r\n| project\r\n    ProductTitle,\r\n    Users,\r\n    Provider,\r\n    Product,\r\n    Domain,\r\n    Devices,\r\n    Activity,\r\n    AccessTypes,\r\n    LastSeen,\r\n    FirstSeen,\r\n    UserList,\r\n    DeviceList",
+              "size": 0,
+              "title": "🔴 Unsanctioned AI Products Observed — {$rowCount}",
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{ws}"
+              ],
+              "visualization": "tiles",
+              "tileSettings": {
+                "titleContent": {
+                  "columnMatch": "ProductTitle"
+                },
+                "leftContent": {
+                  "columnMatch": "Users",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "auto"
+                  },
+                  "numberFormat": {
+                    "unit": 17,
+                    "options": {
+                      "maximumSignificantDigits": 3,
+                      "maximumFractionDigits": 0
+                    }
+                  }
+                },
+                "showBorder": false
+              }
+            },
+            "customWidth": "50",
+            "name": "query - Unsanctioned AI Product Tiles"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "// ============================================================\r\n// Sanctioned AI Products Observed - Tile Summary\r\n// ============================================================\r\n\r\nlet AIDomainData = externaldata(\r\n    Provider:string,\r\n    Product:string,\r\n    Domain:string,\r\n    Category:string,\r\n    Sanctioned:bool,\r\n    RiskType:string,\r\n    SourceURL:string,\r\n    ProcessName:string,\r\n    ProcessProductName:string,\r\n    ProcessPublisher:string\r\n)\r\n[\r\n    @\"https://raw.githubusercontent.com/quorumcyber-workbooks/workbooks/main/Files/QCDataTypes/ai_domains_expanded.csv\"\r\n]\r\nwith (\r\n    format=\"csv\",\r\n    ignoreFirstRecord=true\r\n);\r\n\r\nlet AIDomains = toscalar(\r\n    AIDomainData\r\n    | where isnotempty(Domain)\r\n    | summarize make_set(Domain)\r\n);\r\n\r\nlet SanctionedDomains = dynamic([{Sanctioned}]);\r\n\r\nlet Browsers = dynamic([\r\n    \"msedge.exe\",\r\n    \"chrome.exe\",\r\n    \"firefox.exe\",\r\n    \"brave.exe\",\r\n    \"opera.exe\",\r\n    \"iexplore.exe\"\r\n]);\r\n\r\nlet NetworkActivity =\r\n    DeviceNetworkEvents\r\n    | where Timestamp between ({TimeRange:start} .. {TimeRange:end})\r\n    | where isnotempty(InitiatingProcessAccountUpn)\r\n    | where isnotempty(RemoteUrl)\r\n    | where RemoteUrl has_any (AIDomains)\r\n    | project\r\n        Timestamp,\r\n        User = InitiatingProcessAccountUpn,\r\n        DeviceId,\r\n        DeviceName,\r\n        RemoteUrl,\r\n        Process = InitiatingProcessFileName\r\n    | extend JoinKey = 1\r\n    | join kind=inner (\r\n        AIDomainData\r\n        | where isnotempty(Domain)\r\n        | distinct Provider, Product, Domain, Category, RiskType\r\n        | extend JoinKey = 1\r\n    ) on JoinKey\r\n    | where RemoteUrl has Domain\r\n    | extend IsSanctioned =\r\n        array_length(SanctionedDomains) > 0\r\n        and SanctionedDomains has Domain\r\n    | extend IsBrowser = Process in~ (Browsers)\r\n    | extend IsAPI =\r\n        RiskType =~ \"API\"\r\n        or Category =~ \"API\"\r\n        or Product has \"API\"\r\n    | extend IsDeveloper =\r\n        RiskType =~ \"Developer\"\r\n        or Category =~ \"Developer\"\r\n    | extend AccessType =\r\n        case(\r\n            IsBrowser, \"Web / Browser\",\r\n            IsAPI or IsDeveloper, \"API / Developer\",\r\n            \"Non-browser Network\"\r\n        )\r\n    | where IsSanctioned\r\n    | project\r\n        Timestamp,\r\n        Provider,\r\n        Product,\r\n        Domain,\r\n        User,\r\n        DeviceId,\r\n        DeviceName,\r\n        AccessType;\r\n\r\nlet AIProcesses =\r\n    AIDomainData\r\n    | where isnotempty(ProcessName)\r\n        or isnotempty(ProcessProductName)\r\n        or isnotempty(ProcessPublisher)\r\n    | project\r\n        Provider,\r\n        Product,\r\n        Domain,\r\n        CatalogueProcessName = ProcessName,\r\n        CatalogueProductName = ProcessProductName,\r\n        CataloguePublisher = ProcessPublisher;\r\n\r\nlet DesktopActivity =\r\n    DeviceProcessEvents\r\n    | where Timestamp between ({TimeRange:start} .. {TimeRange:end})\r\n    | where isnotempty(AccountUpn)\r\n    | extend\r\n        ProcessNameLower = tolower(FileName),\r\n        ProductNameLower = tolower(ProcessVersionInfoProductName),\r\n        PublisherLower = tolower(ProcessVersionInfoCompanyName)\r\n    | join kind=inner (\r\n        AIProcesses\r\n        | extend\r\n            ProcessNameLower = tolower(CatalogueProcessName),\r\n            CatalogueProductNameLower = tolower(CatalogueProductName),\r\n            CataloguePublisherLower = tolower(CataloguePublisher)\r\n    ) on ProcessNameLower\r\n    | where\r\n        isempty(CatalogueProductName)\r\n        or ProductNameLower == CatalogueProductNameLower\r\n        or isempty(ProcessVersionInfoProductName)\r\n    | where\r\n        isempty(CataloguePublisher)\r\n        or PublisherLower has CataloguePublisherLower\r\n        or isempty(ProcessVersionInfoCompanyName)\r\n    | extend IsSanctioned =\r\n        array_length(SanctionedDomains) > 0\r\n        and SanctionedDomains has Domain\r\n    | where IsSanctioned\r\n    | extend AccessType = \"Desktop Client\"\r\n    | project\r\n        Timestamp,\r\n        Provider,\r\n        Product,\r\n        Domain,\r\n        User = AccountUpn,\r\n        DeviceId,\r\n        DeviceName,\r\n        AccessType;\r\n\r\nunion NetworkActivity, DesktopActivity\r\n| summarize\r\n    Users = dcount(User),\r\n    Devices = dcount(DeviceId),\r\n    Activity = count(),\r\n    AccessTypes = make_set(AccessType, 10),\r\n    UserList = make_set(User, 20),\r\n    DeviceList = make_set(DeviceName, 20),\r\n    FirstSeen = min(Timestamp),\r\n    LastSeen = max(Timestamp)\r\n  by Provider, Product, Domain\r\n| extend ProductTitle = strcat(Provider, \" - \", Product)\r\n| order by Users desc, Activity desc\r\n| project\r\n    ProductTitle,\r\n    Users,\r\n    Provider,\r\n    Product,\r\n    Domain,\r\n    Devices,\r\n    Activity,\r\n    AccessTypes,\r\n    LastSeen,\r\n    FirstSeen,\r\n    UserList,\r\n    DeviceList",
+              "size": 0,
+              "title": "🟢 Sanctioned AI Products Observed — {$rowCount}",
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{ws}"
+              ],
+              "visualization": "tiles",
+              "tileSettings": {
+                "titleContent": {
+                  "columnMatch": "ProductTitle"
+                },
+                "leftContent": {
+                  "columnMatch": "Users",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "auto"
+                  },
+                  "numberFormat": {
+                    "unit": 17,
+                    "options": {
+                      "maximumSignificantDigits": 3,
+                      "maximumFractionDigits": 0
+                    }
+                  }
+                },
+                "showBorder": false
+              }
+            },
+            "customWidth": "50",
+            "name": "query - Sanctioned AI Product Tiles"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "// ============================================================\r\n// AI Compliance & Governance Review\r\n//\r\n// Governance:\r\n//   🟢 Sanctioned\r\n//   🔴 Unsanctioned\r\n//\r\n// Access Type:\r\n//   Web / Browser\r\n//   API / Developer\r\n//   Non-browser Network\r\n//   Desktop Client\r\n//\r\n// Evidence Type:\r\n//   Network\r\n//   Desktop Execution\r\n//\r\n// Workbook TimeRange applies explicitly.\r\n//\r\n// IMPORTANT:\r\n// If no sanctioned applications are selected, all detected\r\n// AI activity is classified as Unsanctioned.\r\n// ============================================================\r\n\r\n\r\n// ============================================================\r\n// AI SERVICE CATALOGUE\r\n// ============================================================\r\n\r\nlet AIDomainData = externaldata(\r\n    Provider:string,\r\n    Product:string,\r\n    Domain:string,\r\n    Category:string,\r\n    Sanctioned:bool,\r\n    RiskType:string,\r\n    SourceURL:string,\r\n    ProcessName:string,\r\n    ProcessProductName:string,\r\n    ProcessPublisher:string\r\n)\r\n[\r\n    @\"https://raw.githubusercontent.com/quorumcyber-workbooks/workbooks/main/Files/QCDataTypes/ai_domains_expanded.csv\"\r\n]\r\nwith (\r\n    format=\"csv\",\r\n    ignoreFirstRecord=true\r\n);\r\n\r\n\r\n// ============================================================\r\n// ALL KNOWN AI DOMAINS\r\n// ============================================================\r\n\r\nlet AIDomains = toscalar(\r\n    AIDomainData\r\n    | where isnotempty(Domain)\r\n    | summarize make_set(Domain)\r\n);\r\n\r\n\r\n// ============================================================\r\n// CUSTOMER-SELECTED SANCTIONED SERVICES\r\n//\r\n// Empty selection becomes dynamic([]).\r\n// In that state no observed AI service is sanctioned.\r\n// ============================================================\r\n\r\nlet SanctionedDomains = dynamic([{Sanctioned}]);\r\n\r\n\r\n// ============================================================\r\n// KNOWN BROWSERS\r\n// ============================================================\r\n\r\nlet Browsers = dynamic([\r\n    \"msedge.exe\",\r\n    \"chrome.exe\",\r\n    \"firefox.exe\",\r\n    \"brave.exe\",\r\n    \"opera.exe\",\r\n    \"iexplore.exe\"\r\n]);\r\n\r\n\r\n// ============================================================\r\n// NETWORK EVIDENCE\r\n// ============================================================\r\n\r\nlet NetworkEvidenceRaw =\r\n    DeviceNetworkEvents\r\n    | where Timestamp between ({TimeRange:start} .. {TimeRange:end})\r\n    | where isnotempty(InitiatingProcessAccountUpn)\r\n    | where isnotempty(RemoteUrl)\r\n    | where RemoteUrl has_any (AIDomains)\r\n\r\n    | project\r\n        Timestamp,\r\n        User = InitiatingProcessAccountUpn,\r\n        DeviceId,\r\n        DeviceName,\r\n        RemoteUrl,\r\n        Process = InitiatingProcessFileName\r\n\r\n    // --------------------------------------------------------\r\n    // Match observed URLs against AI catalogue\r\n    // --------------------------------------------------------\r\n\r\n    | extend JoinKey = 1\r\n\r\n    | join kind=inner (\r\n        AIDomainData\r\n        | where isnotempty(Domain)\r\n        | distinct\r\n            Provider,\r\n            Product,\r\n            Domain,\r\n            Category,\r\n            RiskType,\r\n            SourceURL\r\n        | extend JoinKey = 1\r\n    ) on JoinKey\r\n\r\n    | where RemoteUrl has Domain\r\n\r\n    // --------------------------------------------------------\r\n    // GOVERNANCE\r\n    // --------------------------------------------------------\r\n\r\n    | extend IsSanctioned =\r\n        array_length(SanctionedDomains) > 0\r\n        and SanctionedDomains has Domain\r\n\r\n    | extend Governance =\r\n        iff(\r\n            IsSanctioned,\r\n            \"🟢 Sanctioned\",\r\n            \"🔴 Unsanctioned\"\r\n        )\r\n\r\n    // --------------------------------------------------------\r\n    // ACCESS CLASSIFICATION\r\n    // --------------------------------------------------------\r\n\r\n    | extend IsBrowser =\r\n        Process in~ (Browsers)\r\n\r\n    | extend IsAPI =\r\n        RiskType =~ \"API\"\r\n        or Category =~ \"API\"\r\n        or Product has \"API\"\r\n\r\n    | extend IsDeveloper =\r\n        RiskType =~ \"Developer\"\r\n        or Category =~ \"Developer\"\r\n\r\n    | extend AccessType =\r\n        case(\r\n            IsBrowser,\r\n                \"Web / Browser\",\r\n\r\n            IsAPI or IsDeveloper,\r\n                \"API / Developer\",\r\n\r\n            \"Non-browser Network\"\r\n        )\r\n\r\n    | extend EvidenceType =\r\n        \"Network\"\r\n\r\n    // --------------------------------------------------------\r\n    // NORMALISE NETWORK SCHEMA\r\n    // --------------------------------------------------------\r\n\r\n    | project\r\n        Timestamp,\r\n        Governance,\r\n        AccessType,\r\n        EvidenceType,\r\n        User,\r\n        DeviceId,\r\n        DeviceName,\r\n        Provider,\r\n        Product,\r\n        Domain,\r\n        Category,\r\n        RiskType,\r\n        Process,\r\n        RemoteUrl,\r\n        InstallationType = \"\",\r\n        EvidenceDetail = RemoteUrl,\r\n        Version = \"\",\r\n        Publisher = \"\",\r\n        FolderPath = \"\",\r\n        SourceURL;\r\n\r\n\r\n// ============================================================\r\n// DESKTOP CLIENT CATALOGUE\r\n// ============================================================\r\n\r\nlet AIProcesses =\r\n    AIDomainData\r\n    | where isnotempty(ProcessName)\r\n        or isnotempty(ProcessProductName)\r\n        or isnotempty(ProcessPublisher)\r\n\r\n    | project\r\n        Provider,\r\n        Product,\r\n        Domain,\r\n        Category,\r\n        RiskType,\r\n        SourceURL,\r\n        CatalogueProcessName = ProcessName,\r\n        CatalogueProductName = ProcessProductName,\r\n        CataloguePublisher = ProcessPublisher;\r\n\r\n\r\n// ============================================================\r\n// DESKTOP CLIENT EXECUTION EVIDENCE\r\n// ============================================================\r\n\r\nlet DesktopEvidenceRaw =\r\n    DeviceProcessEvents\r\n    | where Timestamp between ({TimeRange:start} .. {TimeRange:end})\r\n    | where isnotempty(AccountUpn)\r\n\r\n    | extend\r\n        ProcessNameLower =\r\n            tolower(FileName),\r\n\r\n        ProductNameLower =\r\n            tolower(ProcessVersionInfoProductName),\r\n\r\n        PublisherLower =\r\n            tolower(ProcessVersionInfoCompanyName)\r\n\r\n    // --------------------------------------------------------\r\n    // Match process against AI client catalogue\r\n    // --------------------------------------------------------\r\n\r\n    | join kind=inner (\r\n        AIProcesses\r\n        | extend\r\n            ProcessNameLower =\r\n                tolower(CatalogueProcessName),\r\n\r\n            CatalogueProductNameLower =\r\n                tolower(CatalogueProductName),\r\n\r\n            CataloguePublisherLower =\r\n                tolower(CataloguePublisher)\r\n    ) on ProcessNameLower\r\n\r\n    // --------------------------------------------------------\r\n    // Validate product metadata where available\r\n    // --------------------------------------------------------\r\n\r\n    | where\r\n        isempty(CatalogueProductName)\r\n        or ProductNameLower == CatalogueProductNameLower\r\n        or isempty(ProcessVersionInfoProductName)\r\n\r\n    // --------------------------------------------------------\r\n    // Validate publisher metadata where available\r\n    // --------------------------------------------------------\r\n\r\n    | where\r\n        isempty(CataloguePublisher)\r\n        or PublisherLower has CataloguePublisherLower\r\n        or isempty(ProcessVersionInfoCompanyName)\r\n\r\n    // --------------------------------------------------------\r\n    // INSTALLATION TYPE\r\n    // --------------------------------------------------------\r\n\r\n    | extend InstallationType =\r\n        case(\r\n            FolderPath has @\"\\Program Files\\WindowsApps\\\",\r\n                \"Microsoft Store / MSIX\",\r\n\r\n            FolderPath has @\"\\AppData\\Local\\Packages\\\",\r\n                \"User / Packaged Application\",\r\n\r\n            FolderPath has @\"\\AppData\\Local\\Programs\\\",\r\n                \"Per-user Installation\",\r\n\r\n            FolderPath has @\"\\Program Files (x86)\\\",\r\n                \"System Installation (x86)\",\r\n\r\n            FolderPath has @\"\\Program Files\\\",\r\n                \"System Installation\",\r\n\r\n            FolderPath has @\"\\AppData\\\",\r\n                \"User Profile\",\r\n\r\n            \"Other / Unknown\"\r\n        )\r\n\r\n    // --------------------------------------------------------\r\n    // DESKTOP EVIDENCE DESCRIPTION\r\n    // --------------------------------------------------------\r\n\r\n    | extend EvidenceDetail =\r\n        case(\r\n            InstallationType == \"Microsoft Store / MSIX\",\r\n                \"Executed from Store / MSIX package\",\r\n\r\n            InstallationType == \"User / Packaged Application\",\r\n                \"Executed from user package\",\r\n\r\n            InstallationType == \"Per-user Installation\",\r\n                \"Executed from per-user installation\",\r\n\r\n            InstallationType startswith \"System Installation\",\r\n                \"Executed from system installation\",\r\n\r\n            \"Client execution observed\"\r\n        )\r\n\r\n    // --------------------------------------------------------\r\n    // GOVERNANCE\r\n    // --------------------------------------------------------\r\n\r\n    | extend IsSanctioned =\r\n        array_length(SanctionedDomains) > 0\r\n        and SanctionedDomains has Domain\r\n\r\n    | extend Governance =\r\n        iff(\r\n            IsSanctioned,\r\n            \"🟢 Sanctioned\",\r\n            \"🔴 Unsanctioned\"\r\n        )\r\n\r\n    // --------------------------------------------------------\r\n    // ACCESS / EVIDENCE TYPE\r\n    // --------------------------------------------------------\r\n\r\n    | extend AccessType =\r\n        \"Desktop Client\"\r\n\r\n    | extend EvidenceType =\r\n        \"Desktop Execution\"\r\n\r\n    // --------------------------------------------------------\r\n    // NORMALISE DESKTOP SCHEMA\r\n    // --------------------------------------------------------\r\n\r\n    | project\r\n        Timestamp,\r\n        Governance,\r\n        AccessType,\r\n        EvidenceType,\r\n        User = AccountUpn,\r\n        DeviceId,\r\n        DeviceName,\r\n        Provider,\r\n        Product,\r\n        Domain,\r\n        Category,\r\n        RiskType,\r\n        Process = FileName,\r\n        RemoteUrl = \"\",\r\n        InstallationType,\r\n        EvidenceDetail,\r\n        Version = ProcessVersionInfoProductVersion,\r\n        Publisher = ProcessVersionInfoCompanyName,\r\n        FolderPath,\r\n        SourceURL;\r\n\r\n\r\n// ============================================================\r\n// COMBINE NETWORK + DESKTOP EVIDENCE\r\n// ============================================================\r\n\r\nunion\r\n    NetworkEvidenceRaw,\r\n    DesktopEvidenceRaw\r\n\r\n\r\n// ============================================================\r\n// AGGREGATE BY\r\n//\r\n// Governance\r\n// Access Type\r\n// Evidence Type\r\n// User\r\n// AI Product\r\n// ============================================================\r\n\r\n| summarize\r\n\r\n    Events =\r\n        count(),\r\n\r\n    Devices =\r\n        dcount(DeviceId),\r\n\r\n    DeviceList =\r\n        make_set_if(\r\n            DeviceName,\r\n            isnotempty(DeviceName),\r\n            30\r\n        ),\r\n\r\n    Processes =\r\n        make_set_if(\r\n            Process,\r\n            isnotempty(Process),\r\n            30\r\n        ),\r\n\r\n    RemoteURLs =\r\n        make_set_if(\r\n            RemoteUrl,\r\n            isnotempty(RemoteUrl),\r\n            30\r\n        ),\r\n\r\n    InstallationTypes =\r\n        make_set_if(\r\n            InstallationType,\r\n            isnotempty(InstallationType),\r\n            10\r\n        ),\r\n\r\n    EvidenceDetails =\r\n        make_set_if(\r\n            EvidenceDetail,\r\n            isnotempty(EvidenceDetail),\r\n            20\r\n        ),\r\n\r\n    Versions =\r\n        make_set_if(\r\n            Version,\r\n            isnotempty(Version),\r\n            20\r\n        ),\r\n\r\n    Publishers =\r\n        make_set_if(\r\n            Publisher,\r\n            isnotempty(Publisher),\r\n            20\r\n        ),\r\n\r\n    Paths =\r\n        make_set_if(\r\n            FolderPath,\r\n            isnotempty(FolderPath),\r\n            30\r\n        ),\r\n\r\n    FirstSeen =\r\n        min(Timestamp),\r\n\r\n    LastSeen =\r\n        max(Timestamp)\r\n\r\n  by\r\n    Governance,\r\n    AccessType,\r\n    EvidenceType,\r\n    User,\r\n    Provider,\r\n    Product,\r\n    Domain,\r\n    Category,\r\n    RiskType,\r\n    SourceURL\r\n\r\n\r\n// ============================================================\r\n// DISPLAY FIELDS\r\n// ============================================================\r\n\r\n| extend AIService =\r\n    strcat(\r\n        Provider,\r\n        \" - \",\r\n        Product\r\n    )\r\n\r\n\r\n// ============================================================\r\n// SORTING\r\n//\r\n// Unsanctioned first.\r\n// ============================================================\r\n\r\n| extend GovernanceSort =\r\n    case(\r\n        Governance == \"🔴 Unsanctioned\", 1,\r\n        Governance == \"🟢 Sanctioned\", 2,\r\n        3\r\n    )\r\n\r\n| extend AccessSort =\r\n    case(\r\n        AccessType == \"API / Developer\", 1,\r\n        AccessType == \"Non-browser Network\", 2,\r\n        AccessType == \"Desktop Client\", 3,\r\n        AccessType == \"Web / Browser\", 4,\r\n        5\r\n    )\r\n\r\n| order by\r\n    GovernanceSort asc,\r\n    AccessSort asc,\r\n    Events desc,\r\n    User asc,\r\n    Provider asc,\r\n    Product asc\r\n\r\n\r\n// ============================================================\r\n// FINAL COLUMN ORDER\r\n// ============================================================\r\n\r\n| project\r\n    Governance,\r\n\r\n    ['Access Type'] =\r\n        AccessType,\r\n\r\n    ['Evidence Type'] =\r\n        EvidenceType,\r\n\r\n    User,\r\n\r\n    ['AI Service'] =\r\n        AIService,\r\n\r\n    Provider,\r\n\r\n    Product,\r\n\r\n    Domain,\r\n\r\n    Category,\r\n\r\n    ['Risk Type'] =\r\n        RiskType,\r\n\r\n    Devices,\r\n\r\n    ['Device List'] =\r\n        DeviceList,\r\n\r\n    Events,\r\n\r\n    Processes,\r\n\r\n    ['Remote URLs'] =\r\n        RemoteURLs,\r\n\r\n    ['Installation Types'] =\r\n        InstallationTypes,\r\n\r\n    ['Evidence Details'] =\r\n        EvidenceDetails,\r\n\r\n    Versions,\r\n\r\n    Publishers,\r\n\r\n    Paths,\r\n\r\n    ['First Seen'] =\r\n        FirstSeen,\r\n\r\n    ['Last Seen'] =\r\n        LastSeen,\r\n\r\n    SourceURL",
+              "size": 0,
+              "title": "AI Compliance & Governance Review — {$rowCount}",
+              "timeContextFromParameter": "TimeRange",
+              "showExportToExcel": true,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{ws}"
+              ],
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "$gen_group",
+                    "formatter": 0,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "33.8571ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "$gen_group",
+                    "formatter": 0,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "33.8571ch"
+                    }
+                  }
+                ],
+                "rowLimit": 5000,
+                "filter": true,
+                "hierarchySettings": {
+                  "treeType": 1,
+                  "groupBy": [
+                    "Governance",
+                    "Access Type"
+                  ],
+                  "expandTopLevel": true
+                }
+              },
+              "sortBy": []
+            },
+            "name": "query - AI Compliance Governance Review"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "// ============================================================\r\n// NEW AI USERS\r\n//\r\n// Observation window: fixed 30 days\r\n// New user: first observed AI activity in last 7 days\r\n//\r\n// Governance:\r\n//   🟢 Sanctioned only\r\n//   🟠 Mixed\r\n//   🔴 Unsanctioned only\r\n//\r\n// If no sanctioned products are selected, all observed\r\n// products are treated as unsanctioned.\r\n// ============================================================\r\n\r\n\r\n// ============================================================\r\n// AI SERVICE CATALOGUE\r\n// ============================================================\r\n\r\nlet AIDomainData =\r\n    externaldata(\r\n        Provider:string,\r\n        Product:string,\r\n        Domain:string,\r\n        Category:string,\r\n        Sanctioned:bool,\r\n        RiskType:string,\r\n        SourceURL:string,\r\n        ProcessName:string,\r\n        ProcessProductName:string,\r\n        ProcessPublisher:string\r\n    )\r\n    [\r\n        @\"https://raw.githubusercontent.com/quorumcyber-workbooks/workbooks/main/Files/QCDataTypes/ai_domains_expanded.csv\"\r\n    ]\r\n    with (\r\n        format=\"csv\",\r\n        ignoreFirstRecord=true\r\n    );\r\n\r\n\r\n// ============================================================\r\n// KNOWN AI DOMAINS\r\n// ============================================================\r\n\r\nlet AIDomains =\r\n    toscalar(\r\n        AIDomainData\r\n        | where isnotempty(Domain)\r\n        | summarize make_set(Domain)\r\n    );\r\n\r\n\r\n// ============================================================\r\n// CUSTOMER-SELECTED SANCTIONED SERVICES\r\n// ============================================================\r\n\r\nlet SanctionedDomains =\r\n    dynamic([{Sanctioned}]);\r\n\r\n\r\n// ============================================================\r\n// BROWSERS\r\n// ============================================================\r\n\r\nlet Browsers =\r\n    dynamic([\r\n        \"msedge.exe\",\r\n        \"chrome.exe\",\r\n        \"firefox.exe\",\r\n        \"brave.exe\",\r\n        \"opera.exe\",\r\n        \"iexplore.exe\"\r\n    ]);\r\n\r\n\r\n// ============================================================\r\n// OBSERVED AI ACTIVITY\r\n//\r\n// Fixed 30-day window intentionally used here rather than\r\n// Workbook TimeRange so \"new\" has useful historical context.\r\n// ============================================================\r\n\r\nlet AIActivity =\r\n    DeviceNetworkEvents\r\n    | where Timestamp >= ago(30d)\r\n    | where RemoteUrl has_any (AIDomains)\r\n    | where InitiatingProcessFileName in~ (Browsers)\r\n    | where isnotempty(InitiatingProcessAccountUpn)\r\n\r\n    | project\r\n        Timestamp,\r\n        User = InitiatingProcessAccountUpn,\r\n        DeviceId,\r\n        DeviceName,\r\n        RemoteUrl;\r\n\r\n\r\n// ============================================================\r\n// MAP ACTIVITY TO AI PRODUCTS\r\n// ============================================================\r\n\r\nlet MappedAIActivity =\r\n    AIActivity\r\n\r\n    | extend JoinKey = 1\r\n\r\n    | join kind=inner (\r\n        AIDomainData\r\n        | where isnotempty(Domain)\r\n        | distinct\r\n            Provider,\r\n            Product,\r\n            Domain\r\n        | extend JoinKey = 1\r\n    ) on JoinKey\r\n\r\n    | where RemoteUrl has Domain\r\n\r\n    // Workbook selection is the governance authority.\r\n    | extend IsSanctioned =\r\n        array_length(SanctionedDomains) > 0\r\n        and SanctionedDomains has Domain\r\n\r\n    | project\r\n        Timestamp,\r\n        User,\r\n        DeviceId,\r\n        DeviceName,\r\n        Provider,\r\n        Product,\r\n        Domain,\r\n        IsSanctioned;\r\n\r\n\r\n// ============================================================\r\n// USER SUMMARY\r\n// ============================================================\r\n\r\nMappedAIActivity\r\n\r\n| summarize\r\n\r\n    FirstSeen =\r\n        min(Timestamp),\r\n\r\n    LastSeen =\r\n        max(Timestamp),\r\n\r\n    Providers =\r\n        dcount(Provider),\r\n\r\n    Products =\r\n        dcount(Product),\r\n\r\n    SanctionedProducts =\r\n        dcountif(\r\n            Product,\r\n            IsSanctioned\r\n        ),\r\n\r\n    UnsanctionedProducts =\r\n        dcountif(\r\n            Product,\r\n            not(IsSanctioned)\r\n        ),\r\n\r\n    ProductsUsed =\r\n        make_set(\r\n            Product,\r\n            20\r\n        ),\r\n\r\n    ProvidersUsed =\r\n        make_set(\r\n            Provider,\r\n            20\r\n        ),\r\n\r\n    Devices =\r\n        dcount(DeviceId)\r\n\r\n  by User\r\n\r\n\r\n// ============================================================\r\n// NEW USERS\r\n//\r\n// First observed during the most recent 7 days of the fixed\r\n// 30-day observation window.\r\n// ============================================================\r\n\r\n| where FirstSeen >= ago(7d)\r\n\r\n\r\n// ============================================================\r\n// GOVERNANCE STATUS\r\n// ============================================================\r\n\r\n| extend Governance =\r\n    case(\r\n        SanctionedProducts > 0\r\n            and UnsanctionedProducts > 0,\r\n            \"🟠 Mixed\",\r\n\r\n        UnsanctionedProducts > 0,\r\n            \"🔴 Unsanctioned only\",\r\n\r\n        SanctionedProducts > 0,\r\n            \"🟢 Sanctioned only\",\r\n\r\n        \"⚪ Review\"\r\n    )\r\n\r\n\r\n// ============================================================\r\n// FRIENDLY LISTS\r\n// ============================================================\r\n\r\n| extend ['Products Used'] =\r\n    strcat_array(\r\n        array_sort_asc(ProductsUsed),\r\n        \", \"\r\n    )\r\n\r\n| extend ['Providers Used'] =\r\n    strcat_array(\r\n        array_sort_asc(ProvidersUsed),\r\n        \", \"\r\n    )\r\n\r\n\r\n// ============================================================\r\n// SORT\r\n//\r\n// Unsanctioned first, then mixed, then sanctioned.\r\n// ============================================================\r\n\r\n| extend GovernanceSort =\r\n    case(\r\n        Governance == \"🔴 Unsanctioned only\", 1,\r\n        Governance == \"🟠 Mixed\", 2,\r\n        Governance == \"🟢 Sanctioned only\", 3,\r\n        4\r\n    )\r\n\r\n| order by\r\n    GovernanceSort asc,\r\n    FirstSeen desc\r\n\r\n\r\n// ============================================================\r\n// OUTPUT\r\n// ============================================================\r\n\r\n| project\r\n    Governance,\r\n\r\n    User,\r\n\r\n    ['First Seen'] =\r\n        FirstSeen,\r\n\r\n    ['Sanctioned Products'] =\r\n        SanctionedProducts,\r\n\r\n    ['Unsanctioned Products'] =\r\n        UnsanctionedProducts,\r\n\r\n    ['Total Products'] =\r\n        Products,\r\n\r\n    ['Products Used'],\r\n\r\n    Providers,\r\n\r\n    ['Providers Used'],\r\n\r\n    Devices,\r\n\r\n    ['Last Seen'] =\r\n        LastSeen",
+              "size": 1,
+              "title": "🆕 New AI Users — First Observed in Last 7 Days (30-Day Observation Window), count: {$rowCount}",
+              "showExportToExcel": true,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{ws}"
+              ],
+              "gridSettings": {
+                "filter": true,
+                "sortBy": [
+                  {
+                    "itemKey": "Governance",
+                    "sortOrder": 2
+                  }
+                ]
+              },
+              "sortBy": [
+                {
+                  "itemKey": "Governance",
+                  "sortOrder": 2
+                }
+              ],
+              "chartSettings": {
+                "createOtherGroup": 25
+              }
+            },
+            "name": "query - Observed in 7days"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "**New AI Users** identifies users whose first observed AI activity occurred within the most recent **7 days**, using a fixed **30-day observation window** to provide sufficient historical context. Users are classified as 🟢 **Sanctioned only**, 🟠 **Mixed**, or 🔴 **Unsanctioned only** based on the AI products observed and the sanctioned services selected above. This view helps highlight new AI adoption and whether that adoption aligns with the organisation's approved AI services."
+            },
+            "name": "text - New AI Users Summary"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "// ============================================================\r\n// MULTI-AI PRODUCT USAGE\r\n//\r\n// Uses Workbook TimeRange.\r\n//\r\n// Governance:\r\n//   🟢 Sanctioned only\r\n//   🟠 Mixed\r\n//   🔴 Unsanctioned only\r\n//\r\n// Includes:\r\n//   - Web / browser activity\r\n//   - Desktop / client activity\r\n//\r\n// Output:\r\n//   One row per user where more than one AI product\r\n//   was observed during the selected TimeRange.\r\n// ============================================================\r\n\r\n\r\n// ============================================================\r\n// AI SERVICE CATALOGUE\r\n// ============================================================\r\n\r\nlet AIData = externaldata(\r\n    Provider:string,\r\n    Product:string,\r\n    Domain:string,\r\n    Category:string,\r\n    Sanctioned:bool,\r\n    RiskType:string,\r\n    SourceURL:string,\r\n    ProcessName:string,\r\n    ProcessProductName:string,\r\n    ProcessPublisher:string\r\n)\r\n[\r\n    @\"https://raw.githubusercontent.com/quorumcyber-workbooks/workbooks/main/Files/QCDataTypes/ai_domains_expanded.csv\"\r\n]\r\nwith (\r\n    format=\"csv\",\r\n    ignoreFirstRecord=true\r\n);\r\n\r\n\r\n// ============================================================\r\n// KNOWN AI DOMAINS\r\n// ============================================================\r\n\r\nlet AIDomains = toscalar(\r\n    AIData\r\n    | where isnotempty(Domain)\r\n    | summarize make_set(Domain)\r\n);\r\n\r\n\r\n// ============================================================\r\n// CUSTOMER-SELECTED SANCTIONED SERVICES\r\n//\r\n// Empty selection means all observed AI is unsanctioned.\r\n// ============================================================\r\n\r\nlet SanctionedDomains = dynamic([{Sanctioned}]);\r\n\r\n\r\n// ============================================================\r\n// KNOWN BROWSERS\r\n// ============================================================\r\n\r\nlet Browsers = dynamic([\r\n    \"msedge.exe\",\r\n    \"chrome.exe\",\r\n    \"firefox.exe\",\r\n    \"brave.exe\",\r\n    \"opera.exe\",\r\n    \"iexplore.exe\"\r\n]);\r\n\r\n\r\n// ============================================================\r\n// WEB / DOMAIN ACTIVITY\r\n// ============================================================\r\n\r\nlet WebActivity =\r\n    DeviceNetworkEvents\r\n    | where Timestamp between ({TimeRange:start} .. {TimeRange:end})\r\n    | where RemoteUrl has_any (AIDomains)\r\n    | where InitiatingProcessFileName in~ (Browsers)\r\n    | where isnotempty(InitiatingProcessAccountUpn)\r\n\r\n    | project\r\n        Timestamp,\r\n        User = InitiatingProcessAccountUpn,\r\n        DeviceName,\r\n        RemoteUrl\r\n\r\n    | extend JoinKey = 1\r\n\r\n    | join kind=inner (\r\n        AIData\r\n        | where isnotempty(Domain)\r\n        | distinct\r\n            Provider,\r\n            Product,\r\n            Domain,\r\n            Category,\r\n            RiskType\r\n        | extend JoinKey = 1\r\n    ) on JoinKey\r\n\r\n    | where RemoteUrl has Domain\r\n\r\n    | extend IsSanctioned =\r\n        array_length(SanctionedDomains) > 0\r\n        and SanctionedDomains has Domain\r\n\r\n    | summarize\r\n        Events = count(),\r\n        FirstSeen = min(Timestamp),\r\n        LastSeen = max(Timestamp)\r\n      by\r\n        User,\r\n        DeviceName,\r\n        Provider,\r\n        Product,\r\n        Domain,\r\n        Category,\r\n        RiskType,\r\n        IsSanctioned\r\n\r\n    | project\r\n        User,\r\n        DeviceName,\r\n        Provider,\r\n        Product,\r\n        Domain,\r\n        Category,\r\n        RiskType,\r\n        IsSanctioned,\r\n        ActivityType = \"Web / Browser\",\r\n        Events,\r\n        FirstSeen,\r\n        LastSeen;\r\n\r\n\r\n// ============================================================\r\n// PROCESS / CLIENT CATALOGUE\r\n// ============================================================\r\n\r\nlet AIProcesses =\r\n    AIData\r\n    | where isnotempty(ProcessName)\r\n        or isnotempty(ProcessProductName)\r\n        or isnotempty(ProcessPublisher)\r\n\r\n    | project\r\n        Provider,\r\n        Product,\r\n        Domain,\r\n        Category,\r\n        RiskType,\r\n        CatalogueProcessName = ProcessName,\r\n        CatalogueProductName = ProcessProductName,\r\n        CataloguePublisher = ProcessPublisher;\r\n\r\n\r\n// ============================================================\r\n// PROCESS / CLIENT ACTIVITY\r\n// ============================================================\r\n\r\nlet ProcessActivity =\r\n    DeviceProcessEvents\r\n    | where Timestamp between ({TimeRange:start} .. {TimeRange:end})\r\n    | where isnotempty(AccountUpn)\r\n\r\n    | extend\r\n        ProcessNameLower =\r\n            tolower(FileName),\r\n\r\n        ProductNameLower =\r\n            tolower(ProcessVersionInfoProductName),\r\n\r\n        PublisherLower =\r\n            tolower(ProcessVersionInfoCompanyName)\r\n\r\n    | join kind=inner (\r\n        AIProcesses\r\n        | extend\r\n            ProcessNameLower =\r\n                tolower(CatalogueProcessName),\r\n\r\n            CatalogueProductNameLower =\r\n                tolower(CatalogueProductName),\r\n\r\n            CataloguePublisherLower =\r\n                tolower(CataloguePublisher)\r\n    ) on ProcessNameLower\r\n\r\n    | where\r\n        isempty(CatalogueProductName)\r\n        or ProductNameLower == CatalogueProductNameLower\r\n        or isempty(ProcessVersionInfoProductName)\r\n\r\n    | where\r\n        isempty(CataloguePublisher)\r\n        or PublisherLower has CataloguePublisherLower\r\n        or isempty(ProcessVersionInfoCompanyName)\r\n\r\n    | extend IsSanctioned =\r\n        array_length(SanctionedDomains) > 0\r\n        and SanctionedDomains has Domain\r\n\r\n    | summarize\r\n        Events = count(),\r\n        FirstSeen = min(Timestamp),\r\n        LastSeen = max(Timestamp)\r\n      by\r\n        User = AccountUpn,\r\n        DeviceName,\r\n        Provider,\r\n        Product,\r\n        Domain,\r\n        Category,\r\n        RiskType,\r\n        IsSanctioned\r\n\r\n    | project\r\n        User,\r\n        DeviceName,\r\n        Provider,\r\n        Product,\r\n        Domain,\r\n        Category,\r\n        RiskType,\r\n        IsSanctioned,\r\n        ActivityType = \"Desktop Client\",\r\n        Events,\r\n        FirstSeen,\r\n        LastSeen;\r\n\r\n\r\n// ============================================================\r\n// COMBINED AI USAGE\r\n// ============================================================\r\n\r\nunion\r\n    WebActivity,\r\n    ProcessActivity\r\n\r\n| summarize\r\n\r\n    AIProducts =\r\n        dcount(Product),\r\n\r\n    AIProviders =\r\n        dcount(Provider),\r\n\r\n    SanctionedProducts =\r\n        dcountif(\r\n            Product,\r\n            IsSanctioned\r\n        ),\r\n\r\n    UnsanctionedProducts =\r\n        dcountif(\r\n            Product,\r\n            not(IsSanctioned)\r\n        ),\r\n\r\n    ProductsUsed =\r\n        make_set(\r\n            Product,\r\n            50\r\n        ),\r\n\r\n    ProvidersUsed =\r\n        make_set(\r\n            Provider,\r\n            50\r\n        ),\r\n\r\n    ActivityTypes =\r\n        make_set(\r\n            ActivityType,\r\n            10\r\n        ),\r\n\r\n    RiskTypes =\r\n        make_set(\r\n            RiskType,\r\n            20\r\n        ),\r\n\r\n    Categories =\r\n        make_set(\r\n            Category,\r\n            20\r\n        ),\r\n\r\n    Devices =\r\n        dcount(DeviceName),\r\n\r\n    DeviceList =\r\n        make_set(\r\n            DeviceName,\r\n            50\r\n        ),\r\n\r\n    Events =\r\n        sum(Events),\r\n\r\n    FirstSeen =\r\n        min(FirstSeen),\r\n\r\n    LastSeen =\r\n        max(LastSeen)\r\n\r\n  by User\r\n\r\n\r\n// ============================================================\r\n// ONLY USERS WITH MULTIPLE AI PRODUCTS\r\n// ============================================================\r\n\r\n| where AIProducts > 1\r\n\r\n\r\n// ============================================================\r\n// GOVERNANCE\r\n// ============================================================\r\n\r\n| extend Governance =\r\n    case(\r\n        SanctionedProducts > 0\r\n            and UnsanctionedProducts > 0,\r\n            \"🟠 Mixed\",\r\n\r\n        UnsanctionedProducts > 0,\r\n            \"🔴 Unsanctioned only\",\r\n\r\n        SanctionedProducts > 0,\r\n            \"🟢 Sanctioned only\",\r\n\r\n        \"⚪ Review\"\r\n    )\r\n\r\n\r\n// ============================================================\r\n// USAGE PROFILE\r\n// ============================================================\r\n\r\n| extend UsageProfile =\r\n    case(\r\n        AIProducts >= 5,\r\n            \"5+ AI products\",\r\n\r\n        AIProducts >= 3,\r\n            \"3-4 AI products\",\r\n\r\n        \"2 AI products\"\r\n    )\r\n\r\n\r\n// ============================================================\r\n// FRIENDLY LISTS\r\n// ============================================================\r\n\r\n| extend ['Products Used'] =\r\n    strcat_array(\r\n        array_sort_asc(ProductsUsed),\r\n        \", \"\r\n    )\r\n\r\n| extend ['Providers Used'] =\r\n    strcat_array(\r\n        array_sort_asc(ProvidersUsed),\r\n        \", \"\r\n    )\r\n\r\n| extend ['Activity Types'] =\r\n    strcat_array(\r\n        array_sort_asc(ActivityTypes),\r\n        \", \"\r\n    )\r\n\r\n\r\n// ============================================================\r\n// SORT\r\n// ============================================================\r\n\r\n| extend GovernanceSort =\r\n    case(\r\n        Governance == \"🔴 Unsanctioned only\", 1,\r\n        Governance == \"🟠 Mixed\", 2,\r\n        Governance == \"🟢 Sanctioned only\", 3,\r\n        4\r\n    )\r\n\r\n| order by\r\n    GovernanceSort asc,\r\n    AIProducts desc,\r\n    AIProviders desc,\r\n    Events desc\r\n\r\n\r\n// ============================================================\r\n// OUTPUT\r\n// ============================================================\r\n\r\n| project\r\n    Governance,\r\n\r\n    User,\r\n\r\n    ['AI Products'] =\r\n        AIProducts,\r\n\r\n    ['Sanctioned Products'] =\r\n        SanctionedProducts,\r\n\r\n    ['Unsanctioned Products'] =\r\n        UnsanctionedProducts,\r\n\r\n    ['AI Providers'] =\r\n        AIProviders,\r\n\r\n    ['Usage Profile'] =\r\n        UsageProfile,\r\n\r\n    ['Products Used'],\r\n\r\n    ['Providers Used'],\r\n\r\n    ['Activity Types'],\r\n\r\n    ['Risk Types'] =\r\n        RiskTypes,\r\n\r\n    Categories,\r\n\r\n    Devices,\r\n\r\n    ['Device List'] =\r\n        DeviceList,\r\n\r\n    Events,\r\n\r\n    ['First Seen'] =\r\n        FirstSeen,\r\n\r\n    ['Last Seen'] =\r\n        LastSeen",
+              "size": 0,
+              "title": "🔀 Multi-AI Product Usage, count: {$rowCount}",
+              "timeContextFromParameter": "TimeRange",
+              "showExportToExcel": true,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{ws}"
+              ],
+              "gridSettings": {
+                "rowLimit": 1000,
+                "filter": true,
+                "sortBy": [
+                  {
+                    "itemKey": "Governance",
+                    "sortOrder": 2
+                  }
+                ]
+              },
+              "sortBy": [
+                {
+                  "itemKey": "Governance",
+                  "sortOrder": 2
+                }
+              ]
+            },
+            "name": "query - 23"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "**Multi-AI Product Usage** identifies users observed accessing **multiple different AI products or providers** across web and desktop client activity within the selected **Time Range**. Users are classified as 🟢 **Sanctioned only**, 🟠 **Mixed**, or 🔴 **Unsanctioned only**, with separate counts showing sanctioned and unsanctioned products. Use this view to identify broad AI adoption, use of multiple competing services, and potentially unmanaged or duplicated AI tooling."
+            },
+            "name": "text - Multi AI Usage Summary"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "// ============================================================\r\n// AI AGENT / TOOL DETECTION\r\n//\r\n// Uses Workbook TimeRange.\r\n//\r\n// Governance:\r\n//   🟢 Sanctioned\r\n//   🔴 Unsanctioned\r\n//   ⚪ Not mapped to policy\r\n//\r\n// Agent/tool detection comes from ai_agent_watchlist.csv.\r\n//\r\n// Where possible, detected executable names are mapped back to\r\n// ai_domains_expanded.csv so the customer-selected {Sanctioned}\r\n// policy can also be applied.\r\n//\r\n// Tools that cannot be mapped to the AI product catalogue are\r\n// retained as \"Not mapped to policy\".\r\n// ============================================================\r\n\r\n\r\n// ============================================================\r\n// AI PRODUCT CATALOGUE\r\n// ============================================================\r\n\r\nlet AIData =\r\n    externaldata(\r\n        Provider:string,\r\n        Product:string,\r\n        Domain:string,\r\n        Category:string,\r\n        Sanctioned:bool,\r\n        RiskType:string,\r\n        SourceURL:string,\r\n        ProcessName:string,\r\n        ProcessProductName:string,\r\n        ProcessPublisher:string\r\n    )\r\n    [\r\n        @\"https://raw.githubusercontent.com/quorumcyber-workbooks/workbooks/main/Files/QCDataTypes/ai_domains_expanded.csv\"\r\n    ]\r\n    with (\r\n        format=\"csv\",\r\n        ignoreFirstRecord=true\r\n    );\r\n\r\n\r\n// ============================================================\r\n// CUSTOMER-SELECTED SANCTIONED SERVICES\r\n//\r\n// If nothing is selected, mapped products are unsanctioned.\r\n// ============================================================\r\n\r\nlet SanctionedDomains =\r\n    dynamic([{Sanctioned}]);\r\n\r\n\r\n// ============================================================\r\n// PROCESS -> AI PRODUCT POLICY MAP\r\n//\r\n// Rename ProcessName to FileNameLower so the later join can\r\n// use the same join-column name on both sides.\r\n// ============================================================\r\n\r\nlet AIProcessPolicy =\r\n    AIData\r\n    | where isnotempty(ProcessName)\r\n\r\n    | extend FileNameLower =\r\n        tolower(ProcessName)\r\n\r\n    | extend IsSanctioned =\r\n        array_length(SanctionedDomains) > 0\r\n        and SanctionedDomains has Domain\r\n\r\n    | project\r\n        FileNameLower,\r\n        AIProvider = Provider,\r\n        AIProduct = Product,\r\n        AIDomain = Domain,\r\n        IsSanctioned;\r\n\r\n\r\n// ============================================================\r\n// AI AGENT WATCHLIST\r\n// ============================================================\r\n\r\nlet AgentWatchlist =\r\n    externaldata(\r\n        Name:string,\r\n        Category:string,\r\n        MatchField:string,\r\n        Pattern:string,\r\n        MatchType:string,\r\n        RiskLevel:string,\r\n        DefaultAction:string,\r\n        Reason:string,\r\n        SourceURL:string\r\n    )\r\n    [\r\n        @\"https://raw.githubusercontent.com/quorumcyber-workbooks/workbooks/main/Files/QCDataTypes/ai_agent_watchlist.csv\"\r\n    ]\r\n    with (\r\n        format=\"csv\",\r\n        ignoreFirstRecord=true\r\n    )\r\n\r\n    | extend SearchPattern =\r\n        tolower(\r\n            case(\r\n                MatchType =~ \"Wildcard\",\r\n                    replace_string(Pattern, \"*\", \"\"),\r\n\r\n                Pattern\r\n            )\r\n        )\r\n\r\n    | where isnotempty(SearchPattern);\r\n\r\n\r\n// ============================================================\r\n// BUILD SMALL SEARCH LIST\r\n//\r\n// Used to reduce DeviceProcessEvents before performing the\r\n// more expensive watchlist matching.\r\n// ============================================================\r\n\r\nlet WatchPatterns =\r\n    toscalar(\r\n        AgentWatchlist\r\n        | summarize make_set(SearchPattern, 500)\r\n    );\r\n\r\n\r\n// ============================================================\r\n// FILTER PROCESS EVENTS FIRST\r\n// ============================================================\r\n\r\nlet CandidateProcesses =\r\n    DeviceProcessEvents\r\n\r\n    | where Timestamp between ({TimeRange:start} .. {TimeRange:end})\r\n\r\n    | where isnotempty(DeviceName)\r\n\r\n    | extend\r\n        FileNameLower =\r\n            tolower(FileName),\r\n\r\n        CommandLineLower =\r\n            tolower(ProcessCommandLine)\r\n\r\n    | where\r\n        FileNameLower has_any (WatchPatterns)\r\n        or\r\n        CommandLineLower has_any (WatchPatterns)\r\n\r\n    | project\r\n        Timestamp,\r\n        DeviceId,\r\n        DeviceName,\r\n        User = InitiatingProcessAccountUpn,\r\n        FileName,\r\n        FileNameLower,\r\n        FolderPath,\r\n        ProcessCommandLine,\r\n        CommandLineLower,\r\n        SHA1,\r\n        SHA256;\r\n\r\n\r\n// ============================================================\r\n// FILENAME WATCHLIST\r\n// ============================================================\r\n\r\nlet FileNameWatchlist =\r\n    AgentWatchlist\r\n\r\n    | where MatchField =~ \"FileName\"\r\n\r\n    | project\r\n        Name,\r\n        Category,\r\n        Pattern,\r\n        SearchPattern,\r\n        MatchType,\r\n        RiskLevel,\r\n        DefaultAction,\r\n        Reason;\r\n\r\n\r\n// ============================================================\r\n// COMMAND-LINE WATCHLIST\r\n// ============================================================\r\n\r\nlet CommandLineWatchlist =\r\n    AgentWatchlist\r\n\r\n    | where MatchField =~ \"ProcessCommandLine\"\r\n\r\n    | project\r\n        Name,\r\n        Category,\r\n        Pattern,\r\n        SearchPattern,\r\n        MatchType,\r\n        RiskLevel,\r\n        DefaultAction,\r\n        Reason;\r\n\r\n\r\n// ============================================================\r\n// FILENAME MATCHES\r\n// ============================================================\r\n\r\nlet FileNameMatches =\r\n    CandidateProcesses\r\n\r\n    | extend JoinKey = 1\r\n\r\n    | join kind=inner (\r\n        FileNameWatchlist\r\n        | extend JoinKey = 1\r\n    ) on JoinKey\r\n\r\n    | extend IsMatch =\r\n        case(\r\n            MatchType =~ \"Exact\",\r\n                FileNameLower == SearchPattern,\r\n\r\n            MatchType =~ \"Contains\",\r\n                FileNameLower contains SearchPattern,\r\n\r\n            MatchType =~ \"Wildcard\",\r\n                FileNameLower contains SearchPattern,\r\n\r\n            false\r\n        )\r\n\r\n    | where IsMatch\r\n\r\n    | extend MatchedOn =\r\n        \"FileName\"\r\n\r\n    | project\r\n        Timestamp,\r\n        DeviceId,\r\n        DeviceName,\r\n        User,\r\n        Name,\r\n        Category,\r\n        RiskLevel,\r\n        DefaultAction,\r\n        Reason,\r\n        MatchedOn,\r\n        Pattern,\r\n        FileName,\r\n        FileNameLower,\r\n        FolderPath,\r\n        ProcessCommandLine,\r\n        SHA256;\r\n\r\n\r\n// ============================================================\r\n// COMMAND-LINE MATCHES\r\n// ============================================================\r\n\r\nlet CommandLineMatches =\r\n    CandidateProcesses\r\n\r\n    | where isnotempty(ProcessCommandLine)\r\n\r\n    | extend JoinKey = 1\r\n\r\n    | join kind=inner (\r\n        CommandLineWatchlist\r\n        | extend JoinKey = 1\r\n    ) on JoinKey\r\n\r\n    | extend IsMatch =\r\n        case(\r\n            MatchType =~ \"Exact\",\r\n                CommandLineLower == SearchPattern,\r\n\r\n            MatchType =~ \"Contains\",\r\n                CommandLineLower contains SearchPattern,\r\n\r\n            MatchType =~ \"Wildcard\",\r\n                CommandLineLower contains SearchPattern,\r\n\r\n            false\r\n        )\r\n\r\n    | where IsMatch\r\n\r\n    | extend MatchedOn =\r\n        \"ProcessCommandLine\"\r\n\r\n    | project\r\n        Timestamp,\r\n        DeviceId,\r\n        DeviceName,\r\n        User,\r\n        Name,\r\n        Category,\r\n        RiskLevel,\r\n        DefaultAction,\r\n        Reason,\r\n        MatchedOn,\r\n        Pattern,\r\n        FileName,\r\n        FileNameLower,\r\n        FolderPath,\r\n        ProcessCommandLine,\r\n        SHA256;\r\n\r\n\r\n// ============================================================\r\n// COMBINE WATCHLIST MATCHES\r\n// ============================================================\r\n\r\nlet AllMatches =\r\n    union\r\n        FileNameMatches,\r\n        CommandLineMatches;\r\n\r\n\r\n// ============================================================\r\n// APPLY GOVERNANCE POLICY\r\n//\r\n// Because both sides now contain FileNameLower, this is a\r\n// simple same-column leftouter join.\r\n// ============================================================\r\n\r\nlet GovernedMatches =\r\n    AllMatches\r\n\r\n    | join kind=leftouter (\r\n        AIProcessPolicy\r\n    ) on FileNameLower\r\n\r\n    | extend Governance =\r\n        case(\r\n            isnull(IsSanctioned),\r\n                \"⚪ Not mapped to policy\",\r\n\r\n            IsSanctioned == true,\r\n                \"🟢 Sanctioned\",\r\n\r\n            \"🔴 Unsanctioned\"\r\n        );\r\n\r\n\r\n// ============================================================\r\n// SUMMARISE\r\n//\r\n// One row per detected tool / watchlist match.\r\n// ============================================================\r\n\r\nGovernedMatches\r\n\r\n| summarize\r\n\r\n    FirstSeen =\r\n        min(Timestamp),\r\n\r\n    LastSeen =\r\n        max(Timestamp),\r\n\r\n    Events =\r\n        count(),\r\n\r\n    Users =\r\n        dcount(User),\r\n\r\n    Devices =\r\n        dcount(DeviceId),\r\n\r\n    UserList =\r\n        make_set_if(\r\n            User,\r\n            isnotempty(User),\r\n            30\r\n        ),\r\n\r\n    DeviceList =\r\n        make_set_if(\r\n            DeviceName,\r\n            isnotempty(DeviceName),\r\n            30\r\n        ),\r\n\r\n    ExampleUser =\r\n        any(User),\r\n\r\n    ExampleProcess =\r\n        any(FileName),\r\n\r\n    ExamplePath =\r\n        any(FolderPath),\r\n\r\n    ExampleCommandLine =\r\n        any(ProcessCommandLine),\r\n\r\n    ExampleSHA256 =\r\n        any(SHA256),\r\n\r\n    Reason =\r\n        any(Reason),\r\n\r\n    AIProvider =\r\n        any(AIProvider),\r\n\r\n    AIProduct =\r\n        any(AIProduct),\r\n\r\n    AIDomain =\r\n        any(AIDomain)\r\n\r\n  by\r\n    Governance,\r\n    Name,\r\n    Category,\r\n    RiskLevel,\r\n    DefaultAction,\r\n    MatchedOn,\r\n    Pattern\r\n\r\n\r\n// ============================================================\r\n// RISK DISPLAY\r\n// ============================================================\r\n\r\n| extend RiskOrder =\r\n    case(\r\n        RiskLevel =~ \"High\",\r\n            1,\r\n\r\n        RiskLevel =~ \"Medium\",\r\n            2,\r\n\r\n        RiskLevel =~ \"Low\",\r\n            3,\r\n\r\n        4\r\n    )\r\n\r\n| extend Risk =\r\n    case(\r\n        RiskLevel =~ \"High\",\r\n            \"🔴 High\",\r\n\r\n        RiskLevel =~ \"Medium\",\r\n            \"🟠 Medium\",\r\n\r\n        RiskLevel =~ \"Low\",\r\n            \"🟡 Low\",\r\n\r\n        strcat(\r\n            \"⚪ \",\r\n            tostring(RiskLevel)\r\n        )\r\n    )\r\n\r\n\r\n// ============================================================\r\n// GOVERNANCE SORT\r\n// ============================================================\r\n\r\n| extend GovernanceSort =\r\n    case(\r\n        Governance == \"🔴 Unsanctioned\",\r\n            1,\r\n\r\n        Governance == \"⚪ Not mapped to policy\",\r\n            2,\r\n\r\n        Governance == \"🟢 Sanctioned\",\r\n            3,\r\n\r\n        4\r\n    )\r\n\r\n\r\n// ============================================================\r\n// SORT\r\n// ============================================================\r\n\r\n| order by\r\n    GovernanceSort asc,\r\n    RiskOrder asc,\r\n    Users desc,\r\n    Events desc,\r\n    LastSeen desc\r\n\r\n\r\n// ============================================================\r\n// OUTPUT\r\n// ============================================================\r\n\r\n| project\r\n    Governance,\r\n\r\n    Risk,\r\n\r\n    Tool =\r\n        Name,\r\n\r\n    ['AI Provider'] =\r\n        AIProvider,\r\n\r\n    ['AI Product'] =\r\n        AIProduct,\r\n\r\n    Category,\r\n\r\n    Users,\r\n\r\n    Devices,\r\n\r\n    ['User List'] =\r\n        UserList,\r\n\r\n    ['Device List'] =\r\n        DeviceList,\r\n\r\n    Match =\r\n        MatchedOn,\r\n\r\n    Process =\r\n        ExampleProcess,\r\n\r\n    CommandLine =\r\n        ExampleCommandLine,\r\n\r\n    Events,\r\n\r\n    ['First Seen'] =\r\n        FirstSeen,\r\n\r\n    ['Last Seen'] =\r\n        LastSeen,\r\n\r\n    DefaultAction,\r\n\r\n    Reason",
+              "size": 1,
+              "title": "🤖 AI Agent / Tool Detection, count: {$rowCount}",
+              "timeContextFromParameter": "TimeRange",
+              "showExportToExcel": true,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{ws}"
+              ],
+              "gridSettings": {
+                "rowLimit": 1000,
+                "filter": true,
+                "hierarchySettings": {
+                  "idColumn": "Risk",
+                  "parentColumn": "Tool",
+                  "treeType": 0,
+                  "expanderColumn": "Tool",
+                  "expandTopLevel": false
+                }
+              },
+              "chartSettings": {
+                "createOtherGroup": 25
+              }
+            },
+            "name": "query - 3 - Copy"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "**AI Agent / Tool Detection** identifies known AI agents and agentic tools observed executing on managed endpoints during the selected **Time Range**. Where a detected tool can be mapped to the AI product catalogue, it is classified as 🟢 **Sanctioned** or 🔴 **Unsanctioned** using the approved services selected above. Tools that cannot be reliably mapped to that policy are shown as ⚪ **Not mapped to policy**. **Risk** reflects the watchlist classification of the detected tool and is separate from its governance status."
+            },
+            "name": "text - AI Agent Tool Summary"
+          }
+        ]
+      },
+      "name": "group - AI "
+    }
+  ],
+  "fromTemplateId": "sentinel-UserWorkbook",
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}
