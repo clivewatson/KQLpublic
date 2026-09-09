@@ -144,19 +144,6 @@
                     "showDefault": false
                   },
                   "jsonData": "[\r\n  { \"value\": \"Yes\", \"label\": \"Yes\" },\r\n  { \"value\": \"No\", \"label\": \"No\", \"selected\": true },\r\n  { \"value\": \"Change Log\", \"label\": \"Change Log\" }\r\n]"
-                },
-                {
-                  "id": "7c9af3f6-275c-4dc7-9fb5-7193220d1b7d",
-                  "version": "KqlParameterItem/1.0",
-                  "name": "GBperday",
-                  "type": 1,
-                  "query": "Usage\r\n| where TimeGenerated > startofday({TimeRange:start})\r\n    and TimeGenerated < startofday({TimeRange:end})\r\n| where IsBillable == true\r\n| summarize TotalMB = sum(Quantity) by bin(TimeGenerated, 1d)\r\n| summarize GBperday = round(avg(TotalMB) / 1000.0, 2)",
-                  "crossComponentResources": [
-                    "{ws}"
-                  ],
-                  "isHiddenWhenLocked": true,
-                  "queryType": 0,
-                  "resourceType": "microsoft.operationalinsights/workspaces"
                 }
               ],
               "style": "above",
@@ -165,30 +152,6 @@
             },
             "customWidth": "75",
             "name": "parameters - 1"
-          },
-          {
-            "type": 3,
-            "content": {
-              "version": "KqlItem/1.0",
-              "query": "// Sentinel Workspace / Customer Inventory\r\n// Lighthouse classification:\r\n// Yes = applicable Lighthouse registration identified\r\n// Local = no applicable Lighthouse match and subscription has no managing tenants\r\n// Unknown = classification cannot be established confidently\r\nresources\r\n| where type =~ \"microsoft.operationalinsights/workspaces\"\r\n| extend WorkspaceName = tolower(name),\r\n         WorkspaceId = tolower(tostring(properties.customerId)),\r\n         WorkspaceResourceId = tolower(id),\r\n         ResourceGroupLower = tolower(resourceGroup)\r\n| join kind=inner\r\n(\r\n    resources\r\n    | where type =~ \"microsoft.operationsmanagement/solutions\"\r\n    | where name has \"SecurityInsights\"\r\n    | extend LinkedWorkspaceResourceId = tolower(tostring(properties.workspaceResourceId))\r\n    | project LinkedWorkspaceResourceId\r\n)\r\non $left.WorkspaceResourceId == $right.LinkedWorkspaceResourceId\r\n| join kind=leftouter\r\n(\r\n    ResourceContainers\r\n    | where type =~ \"microsoft.resources/subscriptions\"\r\n    | extend ManagedByTenantCount = array_length(properties.managedByTenants)\r\n    | project subscriptionId,\r\n              SubscriptionName = name,\r\n              ManagedByTenantCount\r\n)\r\non subscriptionId\r\n| join kind=leftouter\r\n(\r\n    ManagedServicesResources\r\n    | where type =~ \"microsoft.managedservices/registrationassignments\"\r\n    | extend RegistrationResourceId = tolower(id)\r\n    | extend LighthouseDirectory =\r\n        coalesce(\r\n            tostring(properties.registrationDefinition.properties.manageeTenantName),\r\n            tostring(properties.manageeTenantName)\r\n        )\r\n    | extend ManagedBy =\r\n        tostring(properties.registrationDefinition.properties.registrationDefinitionName)\r\n    | extend DelegatedSubscriptionId =\r\n        extract(@\"/subscriptions/([^/]+)\", 1, RegistrationResourceId)\r\n    | extend DelegatedResourceGroup =\r\n        extract(@\"/resourcegroups/([^/]+)\", 1, RegistrationResourceId)\r\n    | extend ScopeType =\r\n        iff(\r\n            isnotempty(DelegatedResourceGroup),\r\n            \"Resource Group\",\r\n            \"Subscription\"\r\n        )\r\n    | where isnotempty(LighthouseDirectory)\r\n    | project subscriptionId = DelegatedSubscriptionId,\r\n              LighthouseDirectory,\r\n              ManagedBy,\r\n              DelegatedResourceGroup = tolower(DelegatedResourceGroup),\r\n              ScopeType\r\n)\r\non subscriptionId\r\n| extend LighthouseMatch =\r\n    case(\r\n        ScopeType == \"Resource Group\"\r\n            and DelegatedResourceGroup == ResourceGroupLower, 2,\r\n        ScopeType == \"Subscription\", 1,\r\n        0\r\n    )\r\n| summarize LighthouseMatch = max(LighthouseMatch),\r\n            Directory = anyif(LighthouseDirectory, LighthouseMatch > 0),\r\n            ManagedBy = anyif(ManagedBy, LighthouseMatch > 0),\r\n            SubscriptionName = any(SubscriptionName),\r\n            ManagedByTenantCount = any(ManagedByTenantCount),\r\n            WorkspaceName = any(WorkspaceName),\r\n            subscriptionId = any(subscriptionId),\r\n            resourceGroup = any(resourceGroup),\r\n            location = any(location)\r\n  by WorkspaceId\r\n| extend Customer =\r\n    case(\r\n        LighthouseMatch > 0 and isnotempty(Directory), Directory,\r\n        isnotempty(SubscriptionName), SubscriptionName,\r\n        \"Unresolved\"\r\n    )\r\n| extend AzureLighthouse =\r\n    case(\r\n        LighthouseMatch > 0, \"Yes\",\r\n        ManagedByTenantCount == 0, \"Local\",\r\n        \"Unknown\"\r\n    )\r\n| project Customer,\r\n          [\"Subscription\"] = SubscriptionName,\r\n          WorkspaceName,\r\n          WorkspaceId,\r\n          subscriptionId,\r\n          resourceGroup,\r\n          location,\r\n          AzureLighthouse,\r\n          ManagedBy\r\n| order by AzureLighthouse asc, Customer asc, WorkspaceName asc",
-              "size": 1,
-              "title": "Find a Tenant or subscription , count: {$rowCount}",
-              "queryType": 1,
-              "resourceType": "microsoft.resourcegraph/resources",
-              "crossComponentResources": [
-                "value::all"
-              ],
-              "gridSettings": {
-                "rowLimit": 1000,
-                "filter": true
-              }
-            },
-            "conditionalVisibility": {
-              "parameterName": "Help",
-              "comparison": "isEqualTo",
-              "value": "Yes"
-            },
-            "name": "query - 4"
           },
           {
             "type": 1,
@@ -226,12 +189,11 @@
       "content": {
         "version": "NotebookGroup/1.0",
         "groupType": "editable",
-        "title": "Group: AI Check ",
         "items": [
           {
             "type": 1,
             "content": {
-              "json": "> **🛡️ Microsoft Defender Data Requirements**\r\n>\r\n> This workbook relies on **Microsoft Defender for Endpoint Advanced Hunting** telemetry to identify observed AI usage. The following tables are used:\r\n>\r\n> - `DeviceNetworkEvents` — identifies network activity associated with recognised AI services, including users, devices, URLs, browsers, APIs, and non-browser connections.\r\n> - `DeviceProcessEvents` — identifies execution of recognised AI desktop clients, agents, and other AI-related processes on managed endpoints.\r\n>\r\n> Availability and completeness of results depend on your **Microsoft Defender configuration, licensing, endpoint onboarding, telemetry retention, and available data sources**. If the required tables are unavailable or contain limited telemetry, some reports may return incomplete or no results.\r\n>\r\n> **Tip:** This workbook is designed to work with Microsoft Defender telemetry available through **Microsoft Defender → Microsoft Sentinel → Workbooks**. Results represent activity observed by Defender and should not be interpreted as proof of the content submitted to an AI service.\r\n\r\n---\r\n\r\n> ### ⚙️ Configure Sanctioned AI Services\r\n>\r\n> **Before reviewing the governance results, select the AI products approved for use within your organisation from the dropdown below.**\r\n>\r\n> 🟢 **Sanctioned** — activity associated with services you have selected as approved.\r\n>\r\n> 🔴 **Unsanctioned** — activity associated with other recognised AI services.\r\n>\r\n> 🟠 **Mixed** — a user has been observed using both sanctioned and unsanctioned AI products.\r\n>\r\n> ⚠️ **If no services are selected, all recognised AI activity will be classified as unsanctioned.**"
+              "json": "> ### ⚙️ Configure Sanctioned AI Services\r\n>\r\n> **Before reviewing the governance results, select the AI products approved for use within your organisation from the dropdown below.**\r\n>\r\n> 🟢 **Sanctioned** — activity associated with services you have selected as approved.\r\n>\r\n> 🔴 **Unsanctioned** — activity associated with other recognised AI services.\r\n>\r\n> 🟠 **Mixed** — a user has been observed using both sanctioned and unsanctioned AI products.\r\n>\r\n> ⚠️ **If no services are selected, all recognised AI activity will be classified as unsanctioned.**\r\n\r\nThe workbook primarily uses:\r\n**DeviceNetworkEvents** — observed connections to recognised AI services.\r\n**DeviceProcessEvents** — execution of recognised AI clients, agents and related processes."
             },
             "name": "text - 4"
           },
@@ -288,6 +250,44 @@
               "resourceType": "microsoft.resourcegraph/resources"
             },
             "name": "parameters - 11"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "// ============================================================\r\n// AI GOVERNANCE AT A GLANCE\r\n//\r\n// High-level public governance summary.\r\n//\r\n// Uses:\r\n//   - Workbook TimeRange\r\n//   - Customer-selected {Sanctioned} services\r\n//   - Network activity\r\n//   - Desktop client activity\r\n//\r\n// Output:\r\n//   One row per headline metric for tile visualisation.\r\n// ============================================================\r\n\r\n\r\n// ============================================================\r\n// AI SERVICE CATALOGUE\r\n// ============================================================\r\n\r\nlet AIData = externaldata(\r\n    Provider:string,\r\n    Product:string,\r\n    Domain:string,\r\n    Category:string,\r\n    Sanctioned:bool,\r\n    RiskType:string,\r\n    SourceURL:string,\r\n    ProcessName:string,\r\n    ProcessProductName:string,\r\n    ProcessPublisher:string\r\n)\r\n[\r\n    @\"https://raw.githubusercontent.com/quorumcyber-workbooks/workbooks/main/Files/QCDataTypes/ai_domains_expanded.csv\"\r\n]\r\nwith (\r\n    format=\"csv\",\r\n    ignoreFirstRecord=true\r\n);\r\n\r\n\r\n// ============================================================\r\n// KNOWN AI DOMAINS\r\n// ============================================================\r\n\r\nlet AIDomains = toscalar(\r\n    AIData\r\n    | where isnotempty(Domain)\r\n    | summarize make_set(Domain)\r\n);\r\n\r\n\r\n// ============================================================\r\n// CUSTOMER-SELECTED SANCTIONED SERVICES\r\n// ============================================================\r\n\r\nlet SanctionedDomains =\r\n    dynamic([{Sanctioned}]);\r\n\r\n\r\n// ============================================================\r\n// NETWORK ACTIVITY\r\n// ============================================================\r\n\r\nlet NetworkActivity =\r\n    DeviceNetworkEvents\r\n\r\n    | where Timestamp between ({TimeRange:start} .. {TimeRange:end})\r\n\r\n    | where isnotempty(InitiatingProcessAccountUpn)\r\n\r\n    | where isnotempty(RemoteUrl)\r\n\r\n    | where RemoteUrl has_any (AIDomains)\r\n\r\n    | project\r\n        User = InitiatingProcessAccountUpn,\r\n        RemoteUrl\r\n\r\n    | extend JoinKey = 1\r\n\r\n    | join kind=inner (\r\n        AIData\r\n        | where isnotempty(Domain)\r\n        | distinct\r\n            Provider,\r\n            Product,\r\n            Domain\r\n        | extend JoinKey = 1\r\n    ) on JoinKey\r\n\r\n    | where RemoteUrl has Domain\r\n\r\n    | extend IsSanctioned =\r\n        array_length(SanctionedDomains) > 0\r\n        and SanctionedDomains has Domain\r\n\r\n    | project\r\n        User,\r\n        Provider,\r\n        Product,\r\n        Domain,\r\n        IsSanctioned;\r\n\r\n\r\n// ============================================================\r\n// DESKTOP CLIENT CATALOGUE\r\n// ============================================================\r\n\r\nlet AIProcesses =\r\n    AIData\r\n\r\n    | where isnotempty(ProcessName)\r\n        or isnotempty(ProcessProductName)\r\n        or isnotempty(ProcessPublisher)\r\n\r\n    | project\r\n        Provider,\r\n        Product,\r\n        Domain,\r\n        CatalogueProcessName = ProcessName,\r\n        CatalogueProductName = ProcessProductName,\r\n        CataloguePublisher = ProcessPublisher;\r\n\r\n\r\n// ============================================================\r\n// DESKTOP CLIENT ACTIVITY\r\n// ============================================================\r\n\r\nlet DesktopActivity =\r\n    DeviceProcessEvents\r\n\r\n    | where Timestamp between ({TimeRange:start} .. {TimeRange:end})\r\n\r\n    | where isnotempty(AccountUpn)\r\n\r\n    | extend\r\n        ProcessNameLower =\r\n            tolower(FileName),\r\n\r\n        ProductNameLower =\r\n            tolower(ProcessVersionInfoProductName),\r\n\r\n        PublisherLower =\r\n            tolower(ProcessVersionInfoCompanyName)\r\n\r\n    | join kind=inner (\r\n        AIProcesses\r\n\r\n        | extend\r\n            ProcessNameLower =\r\n                tolower(CatalogueProcessName),\r\n\r\n            CatalogueProductNameLower =\r\n                tolower(CatalogueProductName),\r\n\r\n            CataloguePublisherLower =\r\n                tolower(CataloguePublisher)\r\n\r\n    ) on ProcessNameLower\r\n\r\n    | where\r\n        isempty(CatalogueProductName)\r\n        or ProductNameLower == CatalogueProductNameLower\r\n        or isempty(ProcessVersionInfoProductName)\r\n\r\n    | where\r\n        isempty(CataloguePublisher)\r\n        or PublisherLower has CataloguePublisherLower\r\n        or isempty(ProcessVersionInfoCompanyName)\r\n\r\n    | extend IsSanctioned =\r\n        array_length(SanctionedDomains) > 0\r\n        and SanctionedDomains has Domain\r\n\r\n    | project\r\n        User = AccountUpn,\r\n        Provider,\r\n        Product,\r\n        Domain,\r\n        IsSanctioned;\r\n\r\n\r\n// ============================================================\r\n// COMBINE AND DEDUPLICATE\r\n//\r\n// One row per user/product/policy state.\r\n// This prevents network event volume from affecting the\r\n// governance headline metrics.\r\n// ============================================================\r\n\r\nlet AIUsage =\r\n    union\r\n        NetworkActivity,\r\n        DesktopActivity\r\n\r\n    | where isnotempty(User)\r\n\r\n    | summarize\r\n        IsSanctioned = max(IsSanctioned)\r\n      by\r\n        User,\r\n        Provider,\r\n        Product,\r\n        Domain;\r\n\r\n\r\n// ============================================================\r\n// USER GOVERNANCE\r\n// ============================================================\r\n\r\nlet UserGovernance =\r\n    AIUsage\r\n\r\n    | summarize\r\n\r\n        SanctionedProducts =\r\n            dcountif(\r\n                Product,\r\n                IsSanctioned\r\n            ),\r\n\r\n        UnsanctionedProducts =\r\n            dcountif(\r\n                Product,\r\n                not(IsSanctioned)\r\n            )\r\n\r\n      by User\r\n\r\n    | extend Governance =\r\n        case(\r\n            SanctionedProducts > 0\r\n                and UnsanctionedProducts > 0,\r\n                \"Mixed\",\r\n\r\n            UnsanctionedProducts > 0,\r\n                \"Unsanctioned only\",\r\n\r\n            SanctionedProducts > 0,\r\n                \"Sanctioned only\",\r\n\r\n            \"Review\"\r\n        );\r\n\r\n\r\n// ============================================================\r\n// HEADLINE VALUES\r\n// ============================================================\r\n\r\nlet TotalUsers =\r\n    toscalar(\r\n        UserGovernance\r\n        | summarize count()\r\n    );\r\n\r\nlet TotalProducts =\r\n    toscalar(\r\n        AIUsage\r\n        | summarize dcount(Product)\r\n    );\r\n\r\nlet UnsanctionedUsers =\r\n    toscalar(\r\n        UserGovernance\r\n        | where Governance == \"Unsanctioned only\"\r\n        | summarize count()\r\n    );\r\n\r\nlet MixedUsers =\r\n    toscalar(\r\n        UserGovernance\r\n        | where Governance == \"Mixed\"\r\n        | summarize count()\r\n    );\r\n\r\nlet SanctionedUsers =\r\n    toscalar(\r\n        UserGovernance\r\n        | where Governance == \"Sanctioned only\"\r\n        | summarize count()\r\n    );\r\n\r\n\r\n// ============================================================\r\n// TILE OUTPUT\r\n// ============================================================\r\n\r\nunion\r\n    (\r\n        print\r\n            SortOrder = 1,\r\n            Metric = \"👥 AI Users Observed\",\r\n            Value = tolong(TotalUsers)\r\n    ),\r\n    (\r\n        print\r\n            SortOrder = 2,\r\n            Metric = \"🤖 AI Products Observed\",\r\n            Value = tolong(TotalProducts)\r\n    ),\r\n    (\r\n        print\r\n            SortOrder = 3,\r\n            Metric = \"🔴 Unsanctioned-only Users\",\r\n            Value = tolong(UnsanctionedUsers)\r\n    ),\r\n    (\r\n        print\r\n            SortOrder = 4,\r\n            Metric = \"🟠 Mixed Users\",\r\n            Value = tolong(MixedUsers)\r\n    ),\r\n    (\r\n        print\r\n            SortOrder = 5,\r\n            Metric = \"🟢 Sanctioned-only Users\",\r\n            Value = tolong(SanctionedUsers)\r\n    )\r\n\r\n| order by SortOrder asc\r\n\r\n| project\r\n    Metric,\r\n    Value",
+              "size": 4,
+              "title": "📊 AI Governance at a Glance",
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{ws}"
+              ],
+              "visualization": "tiles",
+              "tileSettings": {
+                "showBorder": false,
+                "titleContent": {
+                  "columnMatch": "Metric",
+                  "formatter": 1
+                },
+                "leftContent": {
+                  "columnMatch": "Value",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "auto"
+                  },
+                  "numberFormat": {
+                    "unit": 17,
+                    "options": {
+                      "maximumSignificantDigits": 3,
+                      "maximumFractionDigits": 2
+                    }
+                  }
+                }
+              }
+            },
+            "name": "query - 12"
           },
           {
             "type": 1,
@@ -436,14 +436,14 @@
                 "sortBy": [
                   {
                     "itemKey": "Governance",
-                    "sortOrder": 1
+                    "sortOrder": 2
                   }
                 ]
               },
               "sortBy": [
                 {
                   "itemKey": "Governance",
-                  "sortOrder": 1
+                  "sortOrder": 2
                 }
               ],
               "chartSettings": {
@@ -479,14 +479,14 @@
                 "sortBy": [
                   {
                     "itemKey": "Governance",
-                    "sortOrder": 1
+                    "sortOrder": 2
                   }
                 ]
               },
               "sortBy": [
                 {
                   "itemKey": "Governance",
-                  "sortOrder": 1
+                  "sortOrder": 2
                 }
               ]
             },
