@@ -1,0 +1,8 @@
+Key,PolicyKey,Provider,Product,Domain,Category,Sanctioned,RiskType,SourceURL,ProcessName,ProcessProductName,ProcessPublisher
+microsoft-copilot,microsoft-copilot,Microsoft,Microsoft Copilot,copilot.microsoft.com,Web,TRUE,Chat,https://copilot.microsoft.com/,,,
+openai-chatgpt,openai-chatgpt,OpenAI,ChatGPT,chatgpt.com,Web,TRUE,Chat,https://chatgpt.com/,,,
+openai-chatgpt-desktop,openai-chatgpt,OpenAI,ChatGPT Classic,,Desktop,TRUE,Chat,https://chatgpt.com/,ChatGPT Classic.exe,ChatGPT Classic,OpenAI
+openai-codex,openai-codex,OpenAI,Codex,,Developer,TRUE,Developer,https://openai.com/codex/,,,
+github-copilot,github-copilot,GitHub,GitHub Copilot,githubcopilot.com,Developer,TRUE,Developer,https://github.com/features/copilot,,,
+github-copilot-business,github-copilot-business,GitHub,GitHub Copilot Business,business.githubcopilot.com,Developer,TRUE,Developer,https://docs.github.com/en/copilot/reference/copilot-allowlist-reference,,,
+github-copilot-enterprise,github-copilot-enterprise,GitHub,GitHub Copilot Enterprise,enterprise.githubcopilot.com,Developer,TRUE,Developer,https://docs.github.com/en/copilot/reference/copilot-allowlist-reference,,,
