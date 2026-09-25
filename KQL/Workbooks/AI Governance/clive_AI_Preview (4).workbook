@@ -268,7 +268,6 @@
               ],
               "visualization": "tiles",
               "tileSettings": {
-                "showBorder": false,
                 "titleContent": {
                   "columnMatch": "Metric",
                   "formatter": 1
@@ -277,16 +276,18 @@
                   "columnMatch": "Value",
                   "formatter": 12,
                   "formatOptions": {
-                    "palette": "auto"
+                    "palette": "none"
                   },
                   "numberFormat": {
                     "unit": 17,
                     "options": {
-                      "maximumSignificantDigits": 3,
-                      "maximumFractionDigits": 2
+                      "style": "decimal",
+                      "maximumFractionDigits": 2,
+                      "maximumSignificantDigits": 3
                     }
                   }
-                }
+                },
+                "showBorder": false
               }
             },
             "customWidth": "60",
@@ -326,13 +327,14 @@
                   "columnMatch": "Value",
                   "formatter": 12,
                   "formatOptions": {
-                    "palette": "auto"
+                    "palette": "none"
                   },
                   "numberFormat": {
                     "unit": 17,
                     "options": {
-                      "maximumSignificantDigits": 3,
-                      "maximumFractionDigits": 2
+                      "style": "decimal",
+                      "maximumFractionDigits": 2,
+                      "maximumSignificantDigits": 3
                     }
                   }
                 },
@@ -373,7 +375,7 @@
                   "columnMatch": "Products",
                   "formatter": 12,
                   "formatOptions": {
-                    "palette": "auto"
+                    "palette": "none"
                   },
                   "numberFormat": {
                     "unit": 17,
@@ -417,13 +419,14 @@
                   "columnMatch": "Users",
                   "formatter": 12,
                   "formatOptions": {
-                    "palette": "auto"
+                    "palette": "none"
                   },
                   "numberFormat": {
                     "unit": 17,
                     "options": {
-                      "maximumSignificantDigits": 3,
-                      "maximumFractionDigits": 0
+                      "style": "decimal",
+                      "maximumFractionDigits": 0,
+                      "maximumSignificantDigits": 3
                     }
                   }
                 },
@@ -479,13 +482,14 @@
                   "columnMatch": "Users",
                   "formatter": 12,
                   "formatOptions": {
-                    "palette": "auto"
+                    "palette": "none"
                   },
                   "numberFormat": {
                     "unit": 17,
                     "options": {
-                      "maximumSignificantDigits": 3,
-                      "maximumFractionDigits": 0
+                      "style": "decimal",
+                      "maximumFractionDigits": 0,
+                      "maximumSignificantDigits": 3
                     }
                   }
                 },
