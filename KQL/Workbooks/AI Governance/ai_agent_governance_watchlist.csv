@@ -1,0 +1,30 @@
+Key,AgentName,PolicyKey,Vendor,Category,Sanctioned,SourceURL
+adobeexperienceplatformagents,Adobe Experience Platform Agents,adobeexperienceplatformagents,Adobe,Enterprise workflow agent,false,https://business.adobe.com/products/experience-platform/agent-orchestrator.html
+agentforce,Agentforce,agentforce,Salesforce,Enterprise cloud agent platform,false,https://www.salesforce.com/agentforce/
+agentsapimanagedcloudagents,Agents API managed cloud agents,agentsapimanagedcloudagents,OpenAI,Cloud agent platform,false,https://developers.openai.com/api/docs/guides/agents-api/overview
+aider,Aider,aider,Aider,AI coding agent,false,https://aider.chat/docs/install.html
+amazonbedrockagentcore,Amazon Bedrock AgentCore,amazonbedrockagentcore,Amazon Web Services,Cloud agent platform,false,https://aws.amazon.com/bedrock/agents/
+claudecode,Claude Code,claudecode,Anthropic,Autonomous AI agent,true,https://code.claude.com/docs/en/setup
+claudemanagedagents,Claude Managed Agents,claudemanagedagents,Anthropic,Cloud agent platform,false,https://www.anthropic.com/
+cline,Cline,cline,Cline,Autonomous AI agent,false,https://docs.cline.bot/getting-started/installing-cline
+codexcli,Codex CLI,codexcli,OpenAI,Autonomous AI agent,true,https://github.com/openai/codex
+copilotstudioagents,Copilot Studio agents,copilotstudioagents,Microsoft,Microsoft enterprise cloud agent,false,https://learn.microsoft.com/en-us/microsoft-copilot-studio/admin-logging-copilot-studio
+cursor,Cursor,cursor,Anysphere,Agentic IDE,false,https://www.cursor.com/
+dynamicthreatdetectionagent,Dynamic Threat Detection Agent,dynamicthreatdetectionagent,Microsoft,Microsoft Security Copilot agent,false,https://learn.microsoft.com/en-us/defender-xdr/dynamic-threat-detection-agent
+geminicli,Gemini CLI,geminicli,Google,Autonomous AI agent,false,https://github.com/google-gemini/gemini-cli
+geminienterpriseagents,Gemini Enterprise agents,geminienterpriseagents,Google,Enterprise cloud agent platform,false,https://cloud.google.com/
+lmstudio,LM Studio,lmstudio,LM Studio,Local model runtime,false,https://lmstudio.ai/
+metabusinessagent,Meta Business Agent,metabusinessagent,Meta,Business cloud agent,false,https://about.fb.com/news/2026/06/meta-business-agent/
+muse,Muse,muse,Meta,Personal cloud agent,false,https://about.fb.com/news/2026/09/introducing-muse-personal-ai-agent/
+nanoclaw,NanoClaw,nanoclaw,NanoClaw,Autonomous AI agent,false,https://github.com/nanocoai/nanoclaw
+ollama,Ollama,ollama,Ollama,Local model runtime,false,https://ollama.com/
+openclaw,OpenClaw,openclaw,OpenClaw,Autonomous AI agent,false,https://docs.openclaw.ai/windows
+openhands,OpenHands,openhands,OpenHands,Autonomous AI agent,false,https://github.com/All-Hands-AI/OpenHands
+phishingtriageagent,Phishing Triage Agent,phishingtriageagent,Microsoft,Microsoft Security Copilot agent,true,https://learn.microsoft.com/en-us/defender-xdr/phishing-triage-agent
+securityalerttriageagent,Security Alert Triage Agent,securityalerttriageagent,Microsoft,Microsoft Security Copilot agent,false,https://learn.microsoft.com/en-us/defender-xdr/security-copilot-agents-defender
+securityanalystagent,Security Analyst Agent,securityanalystagent,Microsoft,Microsoft Security Copilot agent,false,https://learn.microsoft.com/en-us/defender-xdr/security-analyst-agent
+servicenowaiagentsotto,ServiceNow AI Agents / Otto,servicenowaiagentsotto,ServiceNow,Enterprise workflow agent,false,https://www.servicenow.com/products/ai-agents.html
+threathuntingassistant,Threat Hunting Assistant,threathuntingassistant,Microsoft,Microsoft Security Copilot agent,false,https://learn.microsoft.com/en-us/defender-xdr/advanced-hunting-security-copilot-threat-hunting-assistant
+threatintelligencebriefingagent,Threat Intelligence Briefing Agent,threatintelligencebriefingagent,Microsoft,Microsoft Security Copilot agent,false,https://learn.microsoft.com/en-us/copilot/security/agents-security-copilot
+watsonxorchestrateagents,watsonx Orchestrate agents,watsonxorchestrateagents,IBM,Enterprise workflow agent,false,https://www.ibm.com/watsonx/orchestrate
+windsurf,Windsurf,windsurf,Codeium,Agentic IDE,false,https://windsurf.com/
