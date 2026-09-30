@@ -47,7 +47,7 @@
                   },
                   "queryType": 1,
                   "resourceType": "microsoft.resourcegraph/resources",
-                  "value": "/subscriptions/4defa7d0-bc3a-4935-a1e6-e58406cf75e2"
+                  "value": null
                 },
                 {
                   "id": "e94aafa3-c5d9-4523-89f0-4e87aa754511",
@@ -212,6 +212,14 @@
             "linkTarget": "parameter",
             "linkLabel": "🔎 AI deep search",
             "subTarget": "search",
+            "style": "link"
+          },
+          {
+            "id": "502ad4e1-aa30-4cf8-85af-7b9e69005acd",
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "🏠 Summary",
+            "subTarget": "summary",
             "style": "link"
           }
         ]
@@ -1012,9 +1020,9 @@
           {
             "type": 1,
             "content": {
-              "json": "### AI Deep Search\r\n\r\nThese reports use a broader consolidated AI and agent watchlist to identify products not already covered by the standard public or local sources.\r\n\r\nThe device report searches `DeviceNetworkEvents` and `DeviceProcessEvents`. The agent report searches available agent and AI service telemetry.\r\n\r\nResults are intended for enrichment and investigation. `AlreadyCovered = false` highlights additional watchlist items outside the existing reports.\r\n\r\nIf you need to cover these in the reports, please add to your local Watchlists.  "
+              "json": "## 🔎 AI Deep Search\r\n\r\nThese reports use a broader consolidated AI and agent watchlist to identify products not already covered by the standard public or local sources.\r\n\r\nThe device report searches `DeviceNetworkEvents` and `DeviceProcessEvents`. The agent report searches available agent and AI service telemetry.\r\n\r\nResults are intended for enrichment and investigation. `AlreadyCovered = false` highlights additional watchlist items outside the existing reports.\r\n\r\nIf you need to cover these products or agents in the standard reports, please add them to your local Watchlists."
             },
-            "name": "text - 1"
+            "name": "text - 2"
           },
           {
             "type": 3,
@@ -1105,6 +1113,13 @@
               ]
             },
             "name": "query - 0"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "## 🤖 AI Agents and Tools\r\n\r\nThese reports use the AI agent and tool watchlist to identify local agents, cloud agents, local model hosts and agentic tooling.\r\n\r\nThe local agent report searches `DeviceProcessEvents`. Cloud agent detection uses available audit and identity telemetry, including `OfficeActivity`, `AuditLogs` and service-principal sign-in data where available.\r\n\r\nOptional customer-specific agents can be added through the `AIAgentGovernance` Watchlist. Selected entries marked `Sanctioned=TRUE` are included automatically in the governance view.\r\n\r\nResults are intended to support agent inventory, governance review and investigation.\r\n\r\nIf an agent or tool is not recognised, please add it to the local `AIAgentGovernance` Watchlist."
+            },
+            "name": "text - 7"
           }
         ]
       },
@@ -1114,6 +1129,67 @@
         "value": "search"
       },
       "name": "group - search - agents"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "title": "Summary",
+        "items": [
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "// ============================================================\r\n// SUMMARY TILE COUNTS\r\n// Counts catalogue coverage, not observed activity.\r\n// ============================================================\r\n\r\n// AI SERVICES CATALOGUE\r\nlet AIServiceCatalogue =\r\n    externaldata(\r\n        Provider:string,\r\n        Product:string,\r\n        Domain:string,\r\n        Category:string,\r\n        Sanctioned:bool,\r\n        RiskType:string,\r\n        SourceURL:string,\r\n        ProcessName:string,\r\n        ProcessProductName:string,\r\n        ProcessPublisher:string\r\n    )\r\n    [\r\n        @\"https://raw.githubusercontent.com/Azure/Azure-Sentinel/master/Sample%20Data/AIGovernance/ai_domains.csv\"\r\n    ]\r\n    with (\r\n        format=\"csv\",\r\n        ignoreFirstRecord=true\r\n    )\r\n    | where isnotempty(Provider) and isnotempty(Product)\r\n    | extend ProviderProductKey = strcat(\r\n        tolower(trim(@\"^\\s+|\\s+$\", Provider)),\r\n        \"|\",\r\n        tolower(trim(@\"^\\s+|\\s+$\", Product))\r\n    )\r\n    | summarize by Provider, Product, ProviderProductKey;\r\n\r\n// AI AGENTS CATALOGUE\r\nlet AIAgentCatalogue =\r\n    externaldata(\r\n        Name:string,\r\n        Category:string,\r\n        MatchField:string,\r\n        Pattern:string,\r\n        MatchType:string,\r\n        RiskLevel:string,\r\n        DefaultAction:string,\r\n        Reason:string,\r\n        SourceURL:string,\r\n        Vendor:string,\r\n        SourceFrom:string,\r\n        TelemetrySource:string\r\n    )\r\n    [\r\n        @\"https://raw.githubusercontent.com/Azure/Azure-Sentinel/master/Sample%20Data/AIGovernance/ai_agent_watchlist.csv\"\r\n    ]\r\n    with (\r\n        format=\"csv\",\r\n        ignoreFirstRecord=true\r\n    )\r\n    | where isnotempty(Vendor) and isnotempty(Name)\r\n    | extend VendorAgentKey = strcat(\r\n        tolower(trim(@\"^\\s+|\\s+$\", Vendor)),\r\n        \"|\",\r\n        tolower(trim(@\"^\\s+|\\s+$\", Name))\r\n    )\r\n    | summarize by Vendor, Name, VendorAgentKey;\r\n\r\n// DEEP SEARCH CATALOGUE\r\n// Keep the current Quorum Cyber URL until the Microsoft file exists.\r\nlet DeepSearchCatalogue =\r\n    externaldata(\r\n        SearchKey:string,\r\n        Provider:string,\r\n        Product:string,\r\n        ProductAliases:string,\r\n        IndicatorType:string,\r\n        IndicatorValue:string,\r\n        MatchRule:string,\r\n        MatchField:string,\r\n        Category:string,\r\n        RiskType:string,\r\n        MatchConfidence:string,\r\n        Active:string,\r\n        Sanctioned:string,\r\n        ReportableByDefault:string,\r\n        SourceURL:string,\r\n        SourceLists:string,\r\n        TelemetrySource:string,\r\n        Notes:string\r\n    )\r\n    [\r\n        @\"https://raw.githubusercontent.com/quorumcyber-workbooks/workbooks/refs/heads/main/Files/QCDataTypes/ai_consolidated_sentinel_watchlist.csv\"\r\n    ]\r\n    with (\r\n        format=\"csv\",\r\n        ignoreFirstRecord=true\r\n    )\r\n    | where Active =~ \"true\"\r\n    | where IndicatorType in (\r\n        \"domain\",\r\n        \"process_name\",\r\n        \"product_name\",\r\n        \"publisher\",\r\n        \"process_commandline\"\r\n    )\r\n    | where isnotempty(Provider) and isnotempty(Product)\r\n    | extend ProviderProductKey = strcat(\r\n        tolower(trim(@\"^\\s+|\\s+$\", Provider)),\r\n        \"|\",\r\n        tolower(trim(@\"^\\s+|\\s+$\", Product))\r\n    )\r\n    | summarize by Provider, Product, ProviderProductKey;\r\n\r\n// TILE VALUES\r\nlet AIServiceProviders =\r\n    toscalar(AIServiceCatalogue | summarize dcount(Provider));\r\n\r\nlet AIServiceProducts =\r\n    toscalar(AIServiceCatalogue | summarize dcount(ProviderProductKey));\r\n\r\nlet AIAgentProviders =\r\n    toscalar(AIAgentCatalogue | summarize dcount(Vendor));\r\n\r\nlet AIAgentProducts =\r\n    toscalar(AIAgentCatalogue | summarize dcount(VendorAgentKey));\r\n\r\nlet DeepSearchProviders =\r\n    toscalar(DeepSearchCatalogue | summarize dcount(Provider));\r\n\r\nlet DeepSearchProducts =\r\n    toscalar(DeepSearchCatalogue | summarize dcount(ProviderProductKey));\r\n\r\nunion\r\n    (print SortOrder=1, Metric=\"🏢 AI Service Providers\", Value=tolong(AIServiceProviders)),\r\n    (print SortOrder=2, Metric=\"🤖 AI Service Products\", Value=tolong(AIServiceProducts)),\r\n    (print SortOrder=3, Metric=\"🧩 AI Agent Providers\", Value=tolong(AIAgentProviders)),\r\n    (print SortOrder=4, Metric=\"🛠️ AI Agents / Tools\", Value=tolong(AIAgentProducts)),\r\n    (print SortOrder=5, Metric=\"🔎 Deep Search Providers\", Value=tolong(DeepSearchProviders)),\r\n    (print SortOrder=6, Metric=\"📚 Deep Search Products\", Value=tolong(DeepSearchProducts))\r\n| order by SortOrder asc\r\n| project Metric, Value",
+              "size": 1,
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{ws}"
+              ],
+              "visualization": "tiles",
+              "tileSettings": {
+                "titleContent": {
+                  "columnMatch": "Metric",
+                  "formatter": 1
+                },
+                "leftContent": {
+                  "columnMatch": "Value",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "none"
+                  },
+                  "numberFormat": {
+                    "unit": 17,
+                    "options": {
+                      "style": "decimal",
+                      "maximumFractionDigits": 2,
+                      "maximumSignificantDigits": 3
+                    }
+                  }
+                },
+                "showBorder": false
+              }
+            },
+            "name": "query - 0"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "# 📊 AI Governance Summary\r\n\r\nThis summary shows the breadth of the AI governance capability covered by the workbook.\r\n\r\nThe tiles count the catalogue entries used by the workbook across three areas:\r\n\r\n- **AI Services** — recognised AI providers and products, including web services, APIs, developer tools and desktop clients.\r\n- **AI Agents and Tools** — recognised local and cloud AI agents, model hosts and agentic tooling.\r\n- **AI Deep Search** — additional providers and products searched across network, process, publisher and command-line telemetry.\r\n\r\nThese figures represent the number of providers and products available in the detection catalogues. They do not represent observed usage during the selected time range.\r\n\r\nThe detailed workbook tabs use these catalogues to identify activity, classify sanctioned and unsanctioned usage, and provide supporting evidence from Microsoft Defender telemetry."
+            },
+            "name": "text - 1"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "summary"
+      },
+      "name": "group - Summary"
     }
   ],
   "fromTemplateId": "sentinel-UserWorkbook",
