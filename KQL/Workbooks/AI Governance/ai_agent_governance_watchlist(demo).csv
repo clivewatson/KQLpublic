@@ -1,0 +1,14 @@
+Key,AgentName,PolicyKey,Vendor,Category,Sanctioned,From,SourceURL
+claudecode,Claude Code,claudecode,Anthropic,Autonomous AI agent,TRUE,Local,https://code.claude.com/docs/en/setup
+claudemanagedagents,Claude Managed Agents,claudemanagedagents,Anthropic,Cloud agent platform,FALSE,Local,https://www.anthropic.com/
+cline,Cline,cline,Cline,Autonomous AI agent,FALSE,Local,https://docs.cline.bot/getting-started/installing-cline
+codexcli,Codex CLI,codexcli,OpenAI,Autonomous AI agent,TRUE,Local,https://github.com/openai/codex
+copilotstudioagents,Copilot Studio agents,copilotstudioagents,Microsoft,Microsoft enterprise cloud agent,FALSE,Local,https://learn.microsoft.com/en-us/microsoft-copilot-studio/admin-logging-copilot-studio
+cursor,Cursor,cursor,Anysphere,Agentic IDE,FALSE,Local,https://www.cursor.com/
+dynamicthreatdetectionagent,Dynamic Threat Detection Agent,dynamicthreatdetectionagent,Microsoft,Microsoft Security Copilot agent,FALSE,Cloud,https://learn.microsoft.com/en-us/defender-xdr/dynamic-threat-detection-agent
+phishingtriageagent,Phishing Triage Agent,phishingtriageagent,Microsoft,Microsoft Security Copilot agent,TRUE,Cloud,https://learn.microsoft.com/en-us/defender-xdr/phishing-triage-agent
+securityalerttriageagent,Security Alert Triage Agent,securityalerttriageagent,Microsoft,Microsoft Security Copilot agent,FALSE,Cloud,https://learn.microsoft.com/en-us/defender-xdr/security-copilot-agents-defender
+securityanalystagent,Security Analyst Agent,securityanalystagent,Microsoft,Microsoft Security Copilot agent,FALSE,Cloud,https://learn.microsoft.com/en-us/defender-xdr/security-analyst-agent
+servicenowaiagentsotto,ServiceNow AI Agents / Otto,servicenowaiagentsotto,ServiceNow,Enterprise workflow agent,FALSE,Cloud,https://www.servicenow.com/products/ai-agents.html
+threathuntingassistant,Threat Hunting Assistant,threathuntingassistant,Microsoft,Microsoft Security Copilot agent,FALSE,Cloud,https://learn.microsoft.com/en-us/defender-xdr/advanced-hunting-security-copilot-threat-hunting-assistant
+threatintelligencebriefingagent,Threat Intelligence Briefing Agent,threatintelligencebriefingagent,Microsoft,Microsoft Security Copilot agent,FALSE,Cloud,https://learn.microsoft.com/en-us/copilot/security/agents-security-copilot
