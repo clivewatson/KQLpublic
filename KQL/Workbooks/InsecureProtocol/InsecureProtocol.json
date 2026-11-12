@@ -1,0 +1,386 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 9,
+            "content": {
+              "version": "KqlParameterItem/1.0",
+              "parameters": [
+                {
+                  "id": "prototype-1",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "DefaultSubscription_Internal",
+                  "type": 1,
+                  "isRequired": true,
+                  "query": "resources\n| where type =~ \"microsoft.operationalinsights/workspaces\"\n| take 1\n| project subscriptionId",
+                  "crossComponentResources": [
+                    "value::all"
+                  ],
+                  "isHiddenWhenLocked": true,
+                  "queryType": 1,
+                  "resourceType": "microsoft.resourcegraph/resources"
+                },
+                {
+                  "id": "prototype-2",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "Subscription",
+                  "type": 6,
+                  "label": "☁️ Customer",
+                  "description": "Select a customer subscription grouped by Azure Lighthouse directory",
+                  "query": "// Customer selector grouped by Azure Lighthouse customer directory\nresources\n| where type =~ \"microsoft.operationalinsights/workspaces\"\n| summarize by subscriptionId\n| join kind=leftouter\n(\n    ManagedServicesResources\n    | where type =~ \"microsoft.managedservices/registrationassignments\"\n    | extend Directory = coalesce(\n        tostring(properties.registrationDefinition.properties.manageeTenantName),\n        tostring(properties.manageeTenantName)\n    )\n    | extend Directory = trim(@\"[^\\w\\s\\.-]+\", Directory)\n    | where isnotempty(Directory)\n    | summarize Directory = any(Directory) by subscriptionId\n)\non subscriptionId\n| extend SubscriptionResourceId = strcat(\"/subscriptions/\", subscriptionId)\n| extend selected = subscriptionId =~ \"{DefaultSubscription_Internal}\"\n| extend group = iff(isnotempty(Directory), Directory, \"Local / Other\")\n| project SubscriptionResourceId, selected, group\n| distinct SubscriptionResourceId, selected, group\n| order by group asc, SubscriptionResourceId asc",
+                  "crossComponentResources": [
+                    "value::all"
+                  ],
+                  "typeSettings": {
+                    "additionalResourceOptions": [],
+                    "showDefault": false
+                  },
+                  "queryType": 1,
+                  "resourceType": "microsoft.resourcegraph/resources",
+                  "value": null
+                },
+                {
+                  "id": "prototype-3",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "ws",
+                  "type": 5,
+                  "label": "🗂️ Workspace",
+                  "isRequired": true,
+                  "query": "resources\n| where type =~ \"microsoft.operationalinsights/workspaces\"\n| project value = id, label = name\n| order by label asc",
+                  "crossComponentResources": [
+                    "{Subscription}"
+                  ],
+                  "typeSettings": {
+                    "resourceTypeFilter": {
+                      "microsoft.operationalinsights/workspaces": true
+                    },
+                    "additionalResourceOptions": [],
+                    "showDefault": false
+                  },
+                  "queryType": 1,
+                  "resourceType": "microsoft.resourcegraph/resources",
+                  "value": ""
+                },
+                {
+                  "id": "prototype-4",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "TimeRange",
+                  "type": 4,
+                  "label": "⏱️ Time Range",
+                  "value": {
+                    "durationMs": 1209600000
+                  },
+                  "typeSettings": {
+                    "selectableValues": [
+                      {
+                        "durationMs": 86400000
+                      },
+                      {
+                        "durationMs": 604800000
+                      },
+                      {
+                        "durationMs": 1209600000
+                      },
+                      {
+                        "durationMs": 2592000000
+                      }
+                    ],
+                    "allowCustom": true
+                  }
+                },
+                {
+                  "id": "prototype-5",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "Help",
+                  "type": 10,
+                  "label": "📖 Help",
+                  "description": "Show workbook help or change log information",
+                  "isRequired": true,
+                  "typeSettings": {
+                    "additionalResourceOptions": [],
+                    "showDefault": false
+                  },
+                  "jsonData": "[\n  { \"value\": \"Yes\", \"label\": \"Yes\" },\n  { \"value\": \"No\", \"label\": \"No\", \"selected\": true },\n  { \"value\": \"Change Log\", \"label\": \"Change Log\" }\n]"
+                }
+              ],
+              "style": "above",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces"
+            },
+            "customWidth": "75",
+            "name": "parameters - 1"
+          },
+          {
+            "type": 11,
+            "content": {
+              "version": "LinkItem/1.0",
+              "style": "tabs",
+              "tabStyle": "bigger",
+              "links": [
+                {
+                  "id": "prototype-6",
+                  "cellValue": "selectedSection",
+                  "linkTarget": "parameter",
+                  "linkLabel": "🏠 Executive Summary",
+                  "subTarget": "exec",
+                  "style": "link"
+                },
+                {
+                  "id": "prototype-7",
+                  "cellValue": "selectedSection",
+                  "linkTarget": "parameter",
+                  "linkLabel": "🎯 Coverage",
+                  "subTarget": "coverage",
+                  "style": "link"
+                },
+                {
+                  "id": "prototype-8",
+                  "cellValue": "selectedSection",
+                  "linkTarget": "parameter",
+                  "linkLabel": "🔎 Findings",
+                  "subTarget": "findings",
+                  "style": "link"
+                },
+                {
+                  "id": "prototype-9",
+                  "cellValue": "selectedSection",
+                  "linkTarget": "parameter",
+                  "linkLabel": "🧪 Evidence",
+                  "subTarget": "evidence",
+                  "style": "link"
+                }
+              ]
+            },
+            "name": "primary navigation"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "# Change Log\n\n| Version | Changes | Link |\n| ------- | ------- | ---- |\n| v0.1 | Initial Defender-first prototype with Customer Info-style parameters, grouped navigation, Required Tables / Coverage, normalized findings, Help, and Change Log. | Prototype |\n| v0.2 | Added Sentinel-compatible fuzzy unions, alternate Event/WindowsEvent coverage, exact WDigest enabled-value filtering, and ISO date display. | Prototype |\n| v0.3 | Aligned all interactive pages to the selected Time Range, aligned Summary counts to Coverage, compacted Coverage output, and restricted Evidence to protocol-relevant signals. | Prototype |\n"
+            },
+            "customWidth": "100",
+            "conditionalVisibility": {
+              "parameterName": "Help",
+              "comparison": "isEqualTo",
+              "value": "Change Log"
+            },
+            "name": "text - change log"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "# Insecure Protocols Prototype — Help & Usage\n\nThis prototype provides a Defender-first assessment of legacy authentication and insecure-protocol exposure, while retaining compatibility with Microsoft Sentinel through March 2027.\n\n## Getting Started\n\nSelect the **Customer**, **Workspace**, and **Time Range** parameters before reviewing the workbook.\n\nThe workbook is designed to fail gracefully when a customer does not have a particular table or product. A missing source is reported as **Telemetry unavailable** rather than being treated as zero findings.\n\n## Navigation\n\n- **Executive Summary** — high-level coverage and finding counts.\n- **Required Tables / Coverage** — source availability, freshness, and alternate collection paths.\n- **Normalized Findings** — protocol findings using Defender, Entra, and Windows event evidence.\n- **Evidence** — supporting observations and source-specific context.\n\n## Interpretation\n\n**Healthy** means recent data was observed.\n\n**Review** means the source or observation needs analyst validation.\n\n**Telemetry unavailable** means the required source was not observed in the assessment window. It does not prove that the control is absent.\n\n**Context only** network evidence should not be treated as proof of a specific protocol weakness. For example, port 389 activity does not by itself prove an insecure LDAP bind.\n\nWDigest findings are based only on the UseLogonCredential value being enabled. Registry writes setting the value to 0 are not findings.\n\n> This workbook is an assessment and investigation aid. Validate findings against the customer's architecture, policy, licensing, telemetry retention, and operational context before taking action."
+            },
+            "customWidth": "100",
+            "conditionalVisibility": {
+              "parameterName": "Help",
+              "comparison": "isEqualTo",
+              "value": "Yes"
+            },
+            "name": "text - help"
+          }
+        ],
+        "exportParameters": true
+      },
+      "name": "group - parameter and help"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "---------------"
+      },
+      "customWidth": "100",
+      "name": "text - separator"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let WindowStart=startofday({TimeRange:start});\nlet WindowEnd=endofday({TimeRange:end});\nlet Required=datatable(TableName:string, Capability:string)\n[\n\"SecurityEvent\",\"Windows security events\",\n\"Event\",\"Windows non-security events\",\n\"WindowsEvent\",\"Windows non-security events\",\n\"SigninLogs\",\"Entra authentication\",\n\"AADNonInteractiveUserSignInLogs\",\"Entra authentication\",\n\"AADServicePrincipalSignInLogs\",\"Entra authentication\",\n\"AADManagedIdentitySignInLogs\",\"Entra authentication\",\n\"IdentityLogonEvents\",\"Defender for Identity\",\n\"IdentityDirectoryEvents\",\"Defender for Identity\",\n\"DeviceInfo\",\"Defender for Endpoint\",\n\"DeviceLogonEvents\",\"Defender for Endpoint\",\n\"DeviceNetworkEvents\",\"Defender for Endpoint\",\n\"DeviceRegistryEvents\",\"Defender for Endpoint\"\n];\nlet Observed=materialize(\nunion isfuzzy=true withsource=ObservedTable SecurityEvent, Event, WindowsEvent, SigninLogs, AADNonInteractiveUserSignInLogs, AADServicePrincipalSignInLogs, AADManagedIdentitySignInLogs, IdentityLogonEvents, IdentityDirectoryEvents, DeviceInfo, DeviceLogonEvents, DeviceNetworkEvents, DeviceRegistryEvents, (datatable(TimeGenerated:datetime, Timestamp:datetime)[])\n| extend EventTime=coalesce(column_ifexists(\"Timestamp\",datetime(null)),column_ifexists(\"TimeGenerated\",datetime(null)))\n| where EventTime between (WindowStart..WindowEnd)\n| summarize LastSeen=max(EventTime), Records=count() by TableName=ObservedTable\n);\nlet Coverage=Required\n| join kind=leftouter Observed on TableName\n| extend Records=tolong(coalesce(Records,0)), Status=iff(Records > 0,\"Healthy\",\"Telemetry unavailable\");\nunion\n(Coverage | summarize Value=tostring(countif(Records > 0)) | extend KPI=\"Tables observed\", Detail=\"Required source tables with data in the selected Time Range\", SortOrder=1 | project SortOrder,KPI,Value,Detail),\n(Coverage | summarize Value=tostring(countif(Records == 0)) | extend KPI=\"Tables unavailable\", Detail=\"Missing or not reporting required source tables\", SortOrder=2 | project SortOrder,KPI,Value,Detail),\n(Coverage | summarize KPI=\"Coverage detail\", Value=strcat(tostring(countif(Status == \"Healthy\")),\" / \",tostring(count()),\" tables\"), Detail=\"Use the Coverage page for table-level evidence\", SortOrder=3 | project SortOrder,KPI,Value,Detail),\n(Coverage | summarize LastObserved=max(LastSeen) | extend KPI=\"Last observed\", Value=iff(isnull(LastObserved),\"—\",format_datetime(LastObserved,\"yyyy-MM-dd HH:mm\")), Detail=\"Most recent event timestamp in the selected Time Range\", SortOrder=4 | project SortOrder,KPI,Value,Detail)\n| order by SortOrder asc\n| project-away SortOrder",
+              "size": 0,
+              "title": "Insecure Protocols — Executive Summary",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{ws}"
+              ],
+              "visualization": "table"
+            },
+            "customWidth": "100",
+            "name": "query - summary"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "### About this Executive Summary\n\nUse this page to understand whether the required Defender, Entra, and Windows-event sources are present before interpreting protocol findings.\n\n- 🟢 **Healthy** — recent source data observed.\n- 🟠 **Review** — source or evidence needs validation.\n- 🔴 **Critical gap** — a core source is not available."
+            },
+            "customWidth": "100",
+            "name": "text - summary help"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedSection",
+        "comparison": "isEqualTo",
+        "value": "exec"
+      },
+      "name": "section - executive summary"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let WindowStart=startofday({TimeRange:start});\nlet WindowEnd=endofday({TimeRange:end});\nlet StaleAfter=2d;\nlet RequiredTables=datatable(TableName:string, CoverageGroup:string, Requirement:string, RiskIfMissing:string, Notes:string)\n[\n\"SecurityEvent\",\"Windows security events\",\"Core\",\"High\",\"4624, 4776, 4768, 4769\",\n\"Event\",\"Windows non-security events\",\"Alternate\",\"Medium\",\"Directory Service, SMBServer, Netlogon\",\n\"WindowsEvent\",\"Windows non-security events\",\"Alternate\",\"Medium\",\"Alternative forwarded-event path\",\n\"SigninLogs\",\"Entra authentication\",\"Core\",\"High\",\"Interactive sign-ins\",\n\"AADNonInteractiveUserSignInLogs\",\"Entra authentication\",\"Recommended\",\"High\",\"Non-interactive user sign-ins\",\n\"AADServicePrincipalSignInLogs\",\"Entra authentication\",\"Recommended\",\"Medium\",\"Workload identity sign-ins\",\n\"AADManagedIdentitySignInLogs\",\"Entra authentication\",\"Recommended\",\"Medium\",\"Managed identity sign-ins\",\n\"IdentityLogonEvents\",\"Defender for Identity\",\"Recommended\",\"High\",\"AD and online authentication context\",\n\"IdentityDirectoryEvents\",\"Defender for Identity\",\"Recommended\",\"Medium\",\"Directory activity\",\n\"DeviceInfo\",\"Defender for Endpoint\",\"Recommended\",\"High\",\"Device inventory\",\n\"DeviceLogonEvents\",\"Defender for Endpoint\",\"Recommended\",\"Medium\",\"Endpoint logon context\",\n\"DeviceNetworkEvents\",\"Defender for Endpoint\",\"Recommended\",\"Medium\",\"Network context\",\n\"DeviceRegistryEvents\",\"Defender for Endpoint\",\"Recommended\",\"Medium\",\"Configuration-change evidence\"\n];\nlet RecentRecords=materialize(\nunion isfuzzy=true withsource=ObservedTable SecurityEvent, Event, WindowsEvent, SigninLogs, AADNonInteractiveUserSignInLogs, AADServicePrincipalSignInLogs, AADManagedIdentitySignInLogs, IdentityLogonEvents, IdentityDirectoryEvents, DeviceInfo, DeviceLogonEvents, DeviceNetworkEvents, DeviceRegistryEvents, (datatable(TimeGenerated:datetime, Timestamp:datetime)[])\n| extend ObservationTime=coalesce(column_ifexists(\"Timestamp\",datetime(null)),column_ifexists(\"TimeGenerated\",datetime(null)))\n| where ObservationTime between (WindowStart..WindowEnd)\n| summarize RecentRecords=count(), FirstSeen=min(ObservationTime), LastSeen=max(ObservationTime) by TableName=ObservedTable\n);\nlet TableStatus=RequiredTables\n| join kind=leftouter RecentRecords on TableName\n| extend RecentRecords=tolong(coalesce(RecentRecords,0))\n| extend ObservedInWindow=iff(isnull(RecentRecords) or RecentRecords == 0,0,1)\n| extend CoverageStatus=case(RecentRecords > 0 and LastSeen >= datetime_add('day',-2,WindowEnd),\"Healthy\",RecentRecords > 0,\"Observed but stale\",\"Not observed in selected range\");\nlet GroupStatus=TableStatus\n| summarize TablesWithData=countif(RecentRecords > 0), GroupLastSeen=max(LastSeen) by CoverageGroup\n| extend GroupCoverageStatus=case(TablesWithData > 0 and GroupLastSeen >= datetime_add('day',-2,WindowEnd),\"Healthy\",TablesWithData > 0,\"Observed but stale\",\"Telemetry unavailable\");\nTableStatus\n| join kind=leftouter GroupStatus on CoverageGroup\n| extend RiskStatus=case(CoverageStatus == \"Healthy\",\"🟢 Healthy\",Requirement == \"Core\",\"🔴 Critical gap\",Requirement == \"Alternate\" and GroupCoverageStatus == \"Healthy\",\"🔵 Alternate / optional\",Requirement == \"Recommended\",\"🟠 Review\",\"🟠 Group gap\")\n| extend LastSeenDisplay=iff(isnull(LastSeen),\"—\",format_datetime(LastSeen,\"yyyy-MM-dd HH:mm\"))\n| project TableName, CoverageGroup, Requirement, RiskStatus, CoverageStatus, GroupCoverageStatus, ObservedInWindow, RecentRecords, LastSeenDisplay, Notes\n| order by CoverageGroup asc, Requirement asc, TableName asc",
+              "size": 0,
+              "title": "Required Tables / Coverage — {TimeRange:label}",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{ws}"
+              ],
+              "visualization": "table"
+            },
+            "customWidth": "100",
+            "name": "query - coverage"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "### Required Tables / Coverage\n\nThis page checks the expected source tables and reports freshness for the selected **Time Range**. Event and WindowsEvent are alternate collection paths for Windows non-security events; one healthy path is sufficient for that capability.\n\n### Risk / status legend\n\n- 🟢 **Healthy** — recent data observed for the table.\n- 🟠 **Review** — a recommended source is not observed or needs validation.\n- 🔴 **Critical gap** — a core source is not observed.\n- 🔵 **Alternate / optional** — this alternate path is not selected while the capability group has coverage.\n- **Telemetry unavailable** — no source data was observed in the selected range; this is not proof that the control is absent."
+            },
+            "customWidth": "100",
+            "name": "text - coverage help"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedSection",
+        "comparison": "isEqualTo",
+        "value": "coverage"
+      },
+      "name": "section - coverage"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let WindowStart=startofday({TimeRange:start});\r\nlet WindowEnd=endofday({TimeRange:end});\r\nunion isfuzzy=true withsource=SourceTable SecurityEvent, Event, WindowsEvent, SigninLogs, AADNonInteractiveUserSignInLogs, AADServicePrincipalSignInLogs, AADManagedIdentitySignInLogs, IdentityLogonEvents, DeviceNetworkEvents, DeviceRegistryEvents, (datatable(TimeGenerated:datetime, Timestamp:datetime)[])\r\n| extend SourceName=tostring(SourceTable), EventTime=coalesce(column_ifexists(\"Timestamp\",datetime(null)),column_ifexists(\"TimeGenerated\",datetime(null)))\r\n| where EventTime between (WindowStart..WindowEnd)\r\n| extend ClientApp=tostring(column_ifexists(\"ClientAppUsed\",\"\")), ResultValue=tostring(column_ifexists(\"ResultType\",\"\")), ProtocolValue=tolower(tostring(column_ifexists(\"Protocol\",\"\"))), LogonTypeValue=tolower(tostring(column_ifexists(\"LogonType\",\"\"))), ActionValue=tolower(tostring(column_ifexists(\"ActionType\",\"\"))), EventLogValue=tostring(column_ifexists(\"EventLog\",\"\")), SourceValue=tostring(column_ifexists(\"Source\",\"\")), RegistryKeyValue=tostring(column_ifexists(\"RegistryKey\",\"\")), RegistryValueNameValue=tostring(column_ifexists(\"RegistryValueName\",\"\")), RegistryValueDataValue=tostring(column_ifexists(\"RegistryValueData\",\"\")), RemotePortValue=toint(column_ifexists(\"RemotePort\",\"\")), EventIdValue=toint(column_ifexists(\"EventID\",\"-1\"))\r\n| extend ClientAddressValue=tostring(extract(@\"<Param[^>]*>.*?((?:[0-9]{1,3}\\.){3}[0-9]{1,3})\",1,tostring(column_ifexists(\"ParameterXml\",\"\"))))\r\n| extend TicketEncryptionType=tostring(extract(@\"TicketEncryptionType[^>]*>(0x[0-9a-fA-F]+)\",1,tostring(column_ifexists(\"EventData\",\"\"))))\r\n| extend IsLegacyEntra=SourceName in (\"SigninLogs\",\"AADNonInteractiveUserSignInLogs\",\"AADServicePrincipalSignInLogs\",\"AADManagedIdentitySignInLogs\") and (ClientApp contains \"Exchange ActiveSync\" or ClientApp contains \"IMAP\" or ClientApp contains \"POP\" or ClientApp contains \"SMTP\" or ClientApp contains \"MAPI\" or ClientApp contains \"Autodiscover\" or ClientApp contains \"Outlook Anywhere\" or ClientApp contains \"Other clients\")\r\n| extend IsIdentityNtlmV1=SourceName == \"IdentityLogonEvents\" and (ActionValue contains \"ntlmv1\" or ActionValue contains \"ntlm v1\" or ProtocolValue contains \"ntlmv1\" or ProtocolValue contains \"ntlm v1\")\r\n| extend IsIdentityLdap=SourceName == \"IdentityLogonEvents\" and (LogonTypeValue contains \"ldap cleartext\" or ActionValue contains \"ldap cleartext\")\r\n| extend IsLdapNetwork=SourceName == \"DeviceNetworkEvents\" and RemotePortValue == 389\r\n| extend IsWDigest=SourceName == \"DeviceRegistryEvents\" and RegistryKeyValue contains \"WDigest\" and (RegistryValueNameValue =~ \"UseLogonCredential\" or RegistryKeyValue contains \"UseLogonCredential\") and RegistryValueDataValue in~ (\"1\",\"0x1\",\"0x00000001\",\"true\")\r\n| extend IsSecurityNtlmV1=SourceName == \"SecurityEvent\" and EventIdValue == 4624 and tolower(tostring(column_ifexists(\"AuthenticationPackageName\",\"\"))) == \"ntlm\" and tolower(tostring(column_ifexists(\"LmPackageName\",\"\"))) contains \"ntlm v1\"\r\n| extend IsSecurityNtlmValidation=SourceName == \"SecurityEvent\" and EventIdValue == 4776\r\n| extend IsSecurityKerberos=SourceName == \"SecurityEvent\" and EventIdValue in (4768,4769) and isnotempty(TicketEncryptionType) and TicketEncryptionType !in (\"0x11\",\"0x12\")\r\n| extend IsWindowsLdap=SourceName in (\"Event\",\"WindowsEvent\") and EventIdValue == 2889\r\n| extend IsWindowsSmb=SourceName in (\"Event\",\"WindowsEvent\") and EventIdValue == 3000 and (EventLogValue contains \"SMBServer\" or SourceValue contains \"SMBServer\" or SourceName == \"WindowsEvent\")\r\n| extend IsNetlogon=SourceName in (\"Event\",\"WindowsEvent\") and EventIdValue in (5827,5828,5829,5830,5831) and (EventLogValue contains \"System\" or SourceValue contains \"NETLOGON\" or SourceName == \"WindowsEvent\")\r\n| extend FindingType=case(IsLegacyEntra,ClientApp,IsIdentityNtlmV1,\"NTLMv1 authentication\",IsIdentityLdap,\"LDAP cleartext bind\",IsLdapNetwork,\"LDAP port 389 activity\",IsWDigest,\"WDigest enabled\",IsSecurityNtlmV1,\"NTLMv1 authentication\",IsSecurityNtlmValidation,\"NTLM credential validation\",IsSecurityKerberos,strcat(\"Kerberos \",case(TicketEncryptionType in (\"0x1\",\"0x2\",\"0x3\"),\"DES\",TicketEncryptionType in (\"0x17\",\"0x18\"),\"RC4\",\"Other legacy\")),IsWindowsLdap,\"Unsigned or simple LDAP bind\",IsWindowsSmb,\"SMBv1 audit event\",IsNetlogon,\"Vulnerable secure channel\",\"\")\r\n| where isnotempty(FindingType)\r\n| extend Protocol=case(IsLegacyEntra,\"Entra legacy authentication\",IsIdentityNtlmV1 or IsSecurityNtlmV1,\"NTLMv1\",IsSecurityNtlmValidation,\"NTLM\",IsIdentityLdap or IsLdapNetwork or IsWindowsLdap,\"LDAP\",IsWDigest,\"WDigest\",IsSecurityKerberos,\"Kerberos\",IsWindowsSmb,\"SMBv1\",IsNetlogon,\"Netlogon secure channel\",\"\")\r\n| extend BaseRiskScore=case(IsWDigest,5,IsSecurityKerberos and TicketEncryptionType in (\"0x1\",\"0x2\",\"0x3\"),5,IsIdentityNtlmV1 or IsSecurityNtlmV1 or IsIdentityLdap or IsWindowsLdap or IsWindowsSmb or IsNetlogon,4,IsSecurityKerberos,4,IsLegacyEntra,3,IsSecurityNtlmValidation,3,IsLdapNetwork,2,2)\r\n| extend OutcomeAdjustment=case(IsLegacyEntra and ResultValue == \"0\",1,IsLdapNetwork,-1,0)\r\n| extend RiskScore=toint(max_of(1,min_of(5,BaseRiskScore + OutcomeAdjustment)))\r\n| extend RiskLevel=case(RiskScore >= 5,\"Critical\",RiskScore == 4,\"High\",RiskScore == 3,\"Medium\",\"Low\")\r\n| extend Risk=case(RiskLevel == \"Critical\",\"🔴 Critical\",RiskLevel == \"High\",\"🟠 High\",RiskLevel == \"Medium\",\"🟡 Medium\",\"🟢 Low\")\r\n| extend Confidence=case(IsWDigest or IsSecurityNtlmV1 or IsIdentityNtlmV1 or IsIdentityLdap or IsWindowsLdap or IsWindowsSmb or IsNetlogon or IsSecurityKerberos or (IsLegacyEntra and ResultValue == \"0\"),\"High\",IsSecurityNtlmValidation or IsLegacyEntra,\"Medium\",IsLdapNetwork,\"Low\",\"Medium\")\r\n| extend RiskReason=case(IsWDigest,\"WDigest enabled\",IsSecurityKerberos and TicketEncryptionType in (\"0x1\",\"0x2\",\"0x3\"),\"Kerberos DES encryption\",IsSecurityKerberos,\"Kerberos RC4 or other legacy encryption\",IsIdentityNtlmV1 or IsSecurityNtlmV1,\"NTLMv1 authentication\",IsIdentityLdap,\"LDAP cleartext bind\",IsWindowsLdap,\"LDAP unsigned or simple bind\",IsWindowsSmb,\"SMBv1 audit event\",IsNetlogon,\"Vulnerable Netlogon secure channel\",IsLegacyEntra and ResultValue == \"0\",\"Successful Entra legacy authentication\",IsLegacyEntra,\"Entra legacy authentication attempt\",IsSecurityNtlmValidation,\"NTLM credential validation\",IsLdapNetwork,\"LDAP port 389 network context\",\"Protocol evidence\")\r\n| extend Status=case(IsLegacyEntra and ResultValue == \"0\",\"Observed success\",IsLegacyEntra,\"Observed failure\",IsLdapNetwork,\"Context only\",IsSecurityNtlmValidation,\"Observed\",\"Observed\")\r\n| extend SourceDevice=case(SourceName in (\"DeviceNetworkEvents\",\"DeviceRegistryEvents\"),tostring(column_ifexists(\"DeviceName\",\"\")),SourceName == \"SecurityEvent\",tostring(column_ifexists(\"WorkstationName\",\"\")),tostring(column_ifexists(\"Computer\",\"\")))\r\n| extend TargetDevice=case(SourceName == \"IdentityLogonEvents\",tostring(column_ifexists(\"DestinationDeviceName\",\"\")),SourceName == \"DeviceNetworkEvents\",tostring(column_ifexists(\"RemoteUrl\",\"\")),tostring(column_ifexists(\"Computer\",\"\")))\r\n| extend Account=case(SourceName in (\"SigninLogs\",\"AADNonInteractiveUserSignInLogs\",\"AADServicePrincipalSignInLogs\",\"AADManagedIdentitySignInLogs\"),tostring(column_ifexists(\"UserPrincipalName\",\"\")),SourceName == \"IdentityLogonEvents\",tostring(column_ifexists(\"AccountUpn\",\"\")),tostring(column_ifexists(\"TargetAccount\",\"\")))\r\n| extend Application=case(SourceName in (\"SigninLogs\",\"AADNonInteractiveUserSignInLogs\",\"AADServicePrincipalSignInLogs\",\"AADManagedIdentitySignInLogs\"),tostring(column_ifexists(\"AppDisplayName\",\"\")),SourceName in (\"DeviceNetworkEvents\",\"DeviceRegistryEvents\"),tostring(column_ifexists(\"InitiatingProcessFileName\",\"\")),tostring(column_ifexists(\"ServiceName\",\"\")))\r\n| extend SourceIP=case(SourceName in (\"SigninLogs\",\"AADNonInteractiveUserSignInLogs\",\"AADServicePrincipalSignInLogs\",\"AADManagedIdentitySignInLogs\",\"IdentityLogonEvents\"),tostring(column_ifexists(\"IPAddress\",\"\")),SourceName == \"SecurityEvent\",tostring(column_ifexists(\"IpAddress\",\"\")),SourceName in (\"Event\",\"WindowsEvent\") and EventIdValue == 3000,ClientAddressValue,tostring(column_ifexists(\"IpAddress\",\"\")))\r\n| extend TargetIP=case(SourceName == \"IdentityLogonEvents\",tostring(column_ifexists(\"DestinationIPAddress\",\"\")),SourceName == \"DeviceNetworkEvents\",tostring(column_ifexists(\"RemoteIP\",\"\")),\"\")\r\n| summarize FirstSeen=min(EventTime), LastSeen=max(EventTime), EventCount=count() by Protocol, FindingType, Risk, RiskLevel, RiskScore, Confidence, Status, RiskReason, EvidenceTable=SourceName, SourceDevice, TargetDevice, Account, Application, SourceIP, TargetIP, EventId=EventIdValue, LogonType=LogonTypeValue, RemotePort=RemotePortValue\r\n| extend FirstSeenDisplay=format_datetime(FirstSeen,\"yyyy-MM-dd HH:mm\"), LastSeenDisplay=format_datetime(LastSeen,\"yyyy-MM-dd HH:mm\")\r\n| project Protocol, FindingType, Risk, RiskLevel, RiskScore, Confidence, Status, RiskReason, EvidenceTable, SourceDevice, TargetDevice, Account, Application, SourceIP, TargetIP, EventId, LogonType, RemotePort, FirstSeenDisplay, LastSeenDisplay, EventCount\r\n| order by RiskScore desc, EventCount desc",
+              "size": 0,
+              "title": "Normalized Insecure Protocol Findings - {TimeRange:label}",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{ws}"
+              ],
+              "visualization": "table",
+              "gridSettings": {
+                "hierarchySettings": {
+                  "treeType": 1,
+                  "groupBy": [
+                    "Protocol"
+                  ]
+                }
+              }
+            },
+            "customWidth": "100",
+            "name": "query - findings"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "### Normalized Findings\n\nThis page returns one row per normalized insecure-protocol finding across Defender, Entra, and Sentinel-compatible Windows event sources.\n\n#### Risk model\n\nRisk is deterministic and based on protocol severity, evidence type, and observed outcome.\n\n| Risk | Score | Examples |\n| --- | ---: | --- |\n| 🔴 Critical | 5 | WDigest enabled; Kerberos DES encryption |\n| 🟠 High | 4 | NTLMv1, LDAP cleartext or unsigned bind, SMBv1, vulnerable Netlogon, Kerberos RC4, successful Entra legacy authentication |\n| 🟡 Medium | 3 | Entra legacy authentication failure; generic NTLM credential validation event 4776 |\n| 🟢 Low | 1–2 | Network-only protocol context, such as LDAP port 389 activity |\n\nA successful Entra legacy authentication event receives a one-level increase. Network-only LDAP port 389 evidence receives a one-level reduction because it does not prove an insecure bind.\n\n#### Confidence\n\n- **High** — direct configuration or protocol evidence.\n- **Medium** — authentication attempt or generic validation evidence.\n- **Low** — network context that does not independently prove protocol weakness.\n\n#### Status\n\n- **Observed success** — the legacy authentication succeeded.\n- **Observed failure** — the legacy authentication was attempted but failed.\n- **Context only** — supporting network evidence that requires validation.\n- **Observed** — direct protocol or configuration evidence without a success/failure result.\n\n#### Important limitations\n\nThe initial model is protocol- and evidence-based. It does not yet add customer-specific modifiers for privileged accounts, domain controllers, critical servers, internet exposure, or business impact.\n\nEvent 4776 is labelled **NTLM credential validation** and is not automatically treated as NTLMv1 because the event alone does not prove the NTLM version.\n\nMissing telemetry is handled separately on the Coverage page and is not treated as a Low-risk finding."
+            },
+            "customWidth": "100",
+            "name": "text - findings help"
+          }
+        ],
+        "exportParameters": true
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedSection",
+        "comparison": "isEqualTo",
+        "value": "findings"
+      },
+      "name": "section - findings"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let WindowStart=startofday({TimeRange:start});\nlet WindowEnd=endofday({TimeRange:end});\nunion isfuzzy=true withsource=SourceTable IdentityLogonEvents, DeviceNetworkEvents, DeviceRegistryEvents, (datatable(TimeGenerated:datetime, Timestamp:datetime)[])\n| extend EventTime=coalesce(column_ifexists(\"Timestamp\",datetime(null)),column_ifexists(\"TimeGenerated\",datetime(null)))\n| where EventTime between (WindowStart..WindowEnd)\n| extend SourceName=tostring(SourceTable), Protocol=tostring(column_ifexists(\"Protocol\",\"\")), ActionType=tostring(column_ifexists(\"ActionType\",\"\")), LogonType=tostring(column_ifexists(\"LogonType\",\"\")), DeviceName=tostring(column_ifexists(\"DeviceName\",\"\")), RegistryKey=tostring(column_ifexists(\"RegistryKey\",\"\")), RegistryValueName=tostring(column_ifexists(\"RegistryValueName\",\"\")), RegistryValueData=tostring(column_ifexists(\"RegistryValueData\",\"\")), RemotePort=toint(column_ifexists(\"RemotePort\",\"\"))\n| where (SourceName == \"IdentityLogonEvents\" and (Protocol has_any (\"NTLM\",\"LDAP\",\"Kerberos\") or ActionType has_any (\"NTLM\",\"LDAP\") or LogonType has_any (\"NTLM\",\"LDAP\"))) or (SourceName == \"DeviceNetworkEvents\" and RemotePort in (389,636,445)) or (SourceName == \"DeviceRegistryEvents\" and (RegistryKey contains \"WDigest\" or RegistryValueName =~ \"UseLogonCredential\"))\n| summarize Records=count(), LastSeen=max(EventTime), Devices=dcount(DeviceName) by SourceName, Protocol, ActionType, LogonType, RemotePort, RegistryKey, RegistryValueName, RegistryValueData\n| order by Records desc",
+              "size": 0,
+              "title": "Evidence Signal Inventory — {TimeRange:label}",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{ws}"
+              ],
+              "visualization": "table",
+              "gridSettings": {
+                "sortBy": [
+                  {
+                    "itemKey": "Protocol",
+                    "sortOrder": 2
+                  }
+                ]
+              },
+              "sortBy": [
+                {
+                  "itemKey": "Protocol",
+                  "sortOrder": 2
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "query - evidence"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "### Evidence Signal Inventory\n\nUse this page to inspect the signals available in the current environment before adding or changing protocol classifications. High-volume Defender tables are filtered to relevant protocol ports and WDigest registry evidence."
+            },
+            "customWidth": "100",
+            "name": "text - evidence help"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedSection",
+        "comparison": "isEqualTo",
+        "value": "evidence"
+      },
+      "name": "section - evidence"
+    }
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}
